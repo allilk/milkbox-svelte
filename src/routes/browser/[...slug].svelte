@@ -115,8 +115,17 @@
 		function handleSignoutClick(event) {
 			gapi.auth2.getAuthInstance().signOut();
 			}
-		
-		
+		function formatBytes(bytes, decimals = 2) {
+			if (bytes === 0) return '0 Bytes';
+
+			const k = 1024;
+			const dm = decimals < 0 ? 0 : decimals;
+			const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+			const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+			return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+		}
 		async function loadContent(){
 			// Declare complete list
 			let masterList = [];
@@ -155,12 +164,21 @@
 			// Set file count in header
 			fileCount.innerText = masterList.length;
 			
+			// Declare cumulative size variable
+			let totalSize = 0;
+
 			// Create elements for each file
 			for (let i = 0; i < masterList.length; i++){
 				// Declare variables
 				let fileObj = masterList[i];
 				let linkWithin = document.createElement("a");
 				let contentWithin;
+
+				// Add to total directory size
+				if (parseInt(fileObj.size) > 0){
+					totalSize += parseInt(fileObj.size);
+				};
+
 				// Set different settings for folders to display different
 				if (fileObj.mimetype == 'application/vnd.google-apps.folder'){
 					contentWithin = document.createTextNode(fileObj.name + '/');
@@ -168,7 +186,6 @@
 					linkWithin.style = 'color: #3399ff;';
 					// Link to browse to next folder
 					linkWithin.href = `browser/${fileObj.id}`;
-					linkWithin.rel = 'prefetch';
 				} else {
 					contentWithin = document.createTextNode(fileObj.name);
 					linkWithin.setAttribute("class","file-link");
@@ -180,6 +197,9 @@
 				// Append to original list
 				oldContent.appendChild(linkWithin);
 			};
+			// Reflect directory size in header
+			const sizeTotal = document.getElementById("total-size");
+			sizeTotal.innerText = formatBytes(totalSize);
 			// Initialize links
 			onLinkInit();
 		};
@@ -322,7 +342,7 @@
 </script>
 
 <span class="text-xl">Index of ./<span id="dir-title"></span>/</span> <span class="text-gray-500">({folder_id})</span>
-<br><hr><span class="text-xs">total files & folders: <span id="file-count"></span></span><hr><br>
+<br><hr><span class="text-xs font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr><br>
 <button id="authorize_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
 	Authorize</button>
 <button id="signout_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
