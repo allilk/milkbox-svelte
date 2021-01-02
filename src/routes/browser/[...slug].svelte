@@ -14,10 +14,7 @@
 	import loading from 'images/loading.gif';
 	import natsort from '../../scripts/natsort.min.js';
 
-	const CLIENT_ID = process.env.CLIENT_ID;
-	const API_KEY = process.env.API_KEY
-	const DISCOVERY_DOCS = JSON.parse(process.env.DISCOVERY_DOCS);
-	const SCOPES = process.env.SCOPES;
+
 	async function setLoading(){
 			let loadingIcon = document.getElementById('#loading');
 			loadingIcon.style = "";
@@ -31,7 +28,7 @@
 		let FOLDER_ID = folder_id[0];
 		let PEOPLE_ID;
 		let REFRESH = false;
-
+		let IS_SEARCH = 'false';
 		const authorizeButton = document.getElementById('authorize_button');
 		const signoutButton = document.getElementById('signout_button');
 		const refreshButton = document.getElementById('refresh_button');
@@ -135,37 +132,50 @@
 			// Remove whatever content that is there now.
 			let oldContent = document.getElementById('content');
 			oldContent.innerHTML = '';
+			
 
-			// Get folders
-			let folderList = await db.files.where({
-				'parents': FOLDER_ID,
-				'peopleid': PEOPLE_ID,
-			}).and(function(item){
-				return item.mimetype == 'application/vnd.google-apps.folder';
-			}).sortBy('name');
-			// Sort using natsort!
-			folderList.sort(function(a, b) {
-				return sorter(a.name, b.name);
-			});
+			if (IS_SEARCH == "false"){
+				// Get folders
+				let folderList = await db.files.where({
+					'parents': FOLDER_ID,
+					'peopleid': PEOPLE_ID,
+					'issearch': IS_SEARCH,
+				}).and(function(item){
+					return item.mimetype == 'application/vnd.google-apps.folder';
+				}).sortBy('name');
+				// Sort using natsort!
+				folderList.sort(function(a, b) {
+					return sorter(a.name, b.name);
+				});
 
-			masterList.push(folderList);
+				masterList.push(folderList);
 
-			// Get files
-			let fileList = await db.files.where({
-				'parents': FOLDER_ID,
-				'peopleid': PEOPLE_ID,
-			}).and(function(item){
-				return item.mimetype != 'application/vnd.google-apps.folder';
-			}).sortBy('name');
+				// Get files
+				let fileList = await db.files.where({
+					'parents': FOLDER_ID,
+					'peopleid': PEOPLE_ID,
+					'issearch': IS_SEARCH,
+				}).and(function(item){
+					return item.mimetype != 'application/vnd.google-apps.folder';
+				}).sortBy('name');
 
-			// Sort using natsort!
-			fileList.sort(function(a, b) {
-				return sorter(a.name, b.name);
-			});
+				// Sort using natsort!
+				fileList.sort(function(a, b) {
+					return sorter(a.name, b.name);
+				});
 
-			masterList.push(fileList);
-			// Flatten array
-			masterList = [].concat.apply([], masterList);
+				masterList.push(fileList);
+				// Flatten array
+				masterList = [].concat.apply([], masterList);
+
+			} else {
+				masterList = await db.files.where({
+					'parents': FOLDER_ID,
+					'peopleid': PEOPLE_ID,
+					'issearch': IS_SEARCH,
+				}).sortBy('name');
+			}
+
 
 			// Remove loading icon
 			let loadingIcon = document.getElementById('#loading');
@@ -216,6 +226,8 @@
 			sizeTotal.innerText = formatBytes(totalSize);
 			// Initialize links
 			onLinkInit();
+
+			IS_SEARCH = "false";
 		};
 		async function getParent(){
 			// To display the parent id next to "../"
@@ -262,99 +274,110 @@
 			returnLink.innerText = `(${returnFolder})`;
 			// Add directory name to top
 			dirTitle.innerText = folderName;
-		}
+		};
 		async function listFiles(){
-
-			async function checkForCache(){
-				if (REFRESH) {
-					await db.files.where({
-						'parents': FOLDER_ID,
-						'peopleid': PEOPLE_ID,
-					}).delete()
-				}
-				let cacheExists = false;
-				let ifCache = await db.files.where('parents').equals(FOLDER_ID).and(
-				function(item) { return item.peopleid == PEOPLE_ID }).sortBy('name');
-				if (ifCache.length > 0) {cacheExists = true;};
-				return cacheExists;
-			};
-			async function getFiles(){
-				let fetchFiles = true;
-				let fileList = [];
-				let parentFolder = 'root';
-				let nextPageToken;
-				// Get files from API and cache
-				checkForCache().then(async function(res){
-					if (res == false) {
-						while (fetchFiles){
-							await gapi.client.drive.files.list({
-								'q':`'${FOLDER_ID}' in parents and trashed=false`,
-								'pageSize': 1000,
-								'supportsAllDrives': true,
-								'includeItemsFromAllDrives': true,
-								'fields': 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId)',
-								'pageToken': nextPageToken,
-							}).then(async function(resp) {
-								fileList.push(resp.result.files);
-								if (!resp.result.nextPageToken) {fetchFiles = false;}
-								else { nextPageToken = resp.result.nextPageToken; };
-							});
-						};
-						// Flatten array
-						fileList = [].concat.apply([], fileList);
-
-						for (let i = 0; i < fileList.length; i++){
-							let fileObj = fileList[i];
-							if (FOLDER_ID != 'root') {
-								parentFolder = (fileObj.parents).toString();
-							};
-							await db.files.put({
-								name: fileObj.name,
-								id: fileObj.id,
-								parents: parentFolder,
-								size: fileObj.size,
-								mimetype: fileObj.mimeType,
-								driveid: fileObj.driveId,
-								peopleid: PEOPLE_ID,
-							});
-						};
-					};
-				}).then(async function(){
-					await getParent();
-					await loadContent();
-				})
-				
-			};
 			await getFiles();
 		};
-		async function searchFiles(searchText){
-			let fetchFiles = true;
-			let nextPageToken;
-			let fileList = [];
-			while (fetchFiles){
-				await gapi.client.drive.files.list({
-					'q':`fullText contains '${searchText}' or name contains '${searchText}'`,
-					'pageSize': 1000,
-					'supportsAllDrives':true,
-					'includeItemsFromAllDrives':true,
-					'fields': "nextPageToken, files(name, id, parents, size, mimeType, modifiedTime)",
-					'pageToken':nextPageToken
-				}).then(function(response){
-					fileList.push(response.result.files);
-					if (!response.result.nextPageToken) {
-						fetchFiles = false;
-					} else {
-						nextPageToken = response.result.nextPageToken;
-					};
-				});	
+		async function checkForCache(){
+			if (REFRESH) {
+				await db.files.where({
+					'parents': FOLDER_ID,
+					'peopleid': PEOPLE_ID,
+					'issearch': IS_SEARCH,
+				}).delete()
 			}
-			fileList = [].concat.apply([], fileList)
-			console.log(fileList);
-		}
+			let cacheExists = false;
+			let ifCache = await db.files.where({
+				'parents': FOLDER_ID,
+				'peopleid': PEOPLE_ID,
+				'issearch': IS_SEARCH,
+			}).sortBy('name');
+			if (ifCache.length > 0) {cacheExists = true;};
+			return cacheExists;
+		};
+		async function getFiles(query){
+			let fetchFiles = true;
+			let fileList = [];
+			let parentFolder = 'root';
+			let nextPageToken;
+
+			// Get files from API and cache
+			checkForCache().then(async function(res){
+				let querySearch;
+				
+				// fullText contains '{query}' or name contains '{query}'
+				if (res == false || typeof query != "undefined") {
+					
+					if (typeof query != "undefined"){
+						querySearch = `fullText contains '${query}' or name contains '${query}'`;
+						
+					} else {
+						querySearch = `'${FOLDER_ID}' in parents and trashed=false`;
+					};
+					while (fetchFiles){
+						await gapi.client.drive.files.list({
+							'q':querySearch,
+							'pageSize': 1000,
+							'supportsAllDrives': true,
+							'includeItemsFromAllDrives': true,
+							'corpora':'allDrives',
+							'fields': 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId)',
+							'pageToken': nextPageToken,
+						}).then(async function(resp) {
+							console.log(resp.result)
+							fileList.push(resp.result.files);
+							if (!resp.result.nextPageToken) {fetchFiles = false;}
+							else { nextPageToken = resp.result.nextPageToken; };
+						});
+					};
+					// Flatten array
+					fileList = [].concat.apply([], fileList);
+					
+					for (let i = 0; i < fileList.length; i++){
+						let fileObj = fileList[i];
+						if (FOLDER_ID != 'root') {
+							parentFolder = (fileObj.parents).toString();
+						};
+						if (typeof query != "undefined"){
+							IS_SEARCH = 'true';
+						} 
+						
+						await db.files.put({
+							name: fileObj.name,
+							id: fileObj.id,
+							parents: parentFolder,
+							size: fileObj.size,
+							mimetype: fileObj.mimeType,
+							driveid: fileObj.driveId,
+							peopleid: PEOPLE_ID,
+							issearch: IS_SEARCH,
+						});
+						
+					};
+				};
+			}).then(async function(){
+				if (IS_SEARCH == 'false'){
+					await getParent();
+				};
+			}).then(async function(){
+				await loadContent();
+			});
+			
+		};
+		
 		handleClientLoad();
+
+		const searchContent = document.getElementById("search_input")
+			document.getElementById("search_input").addEventListener('keypress', function (e) {
+				if (e.key === 'Enter') {
+					setLoading().then(function(res){
+						getFiles(searchContent.value);
+					});
+				};
+			});
 	});
 </script>
-
+<input id="search_input" style="background-color: #080828; font-size: 1.25rem;" class="text-white w-full p-2" placeholder="Search...">
 <span class="text-2xl">Index of ./<span id="dir-title"></span>/</span> <span class="text-gray-500">({folder_id})</span>
 <br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr><br>
 <button id="authorize_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">

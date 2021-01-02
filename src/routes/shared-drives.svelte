@@ -3,11 +3,7 @@
     import loading from 'images/loading.gif';
     import db from './browser/connection';
 
-	const CLIENT_ID = process.env.CLIENT_ID;
-	const API_KEY = process.env.API_KEY
-	const DISCOVERY_DOCS = JSON.parse(process.env.DISCOVERY_DOCS);
-	const SCOPES = process.env.SCOPES;
-    
+
     async function setLoading(){
 			let loadingIcon = document.getElementById('#loading');
 			loadingIcon.style = "";

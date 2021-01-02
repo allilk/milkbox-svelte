@@ -8,22 +8,12 @@ import babel from '@rollup/plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 import config from 'sapper/config/rollup.js';
 import pkg from './package.json';
-const dotenv = require("dotenv")
-dotenv.config()
+import dotenv from 'dotenv';
 
 const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
 const legacy = !!process.env.SAPPER_LEGACY_BUILD;
-
-let api_key;
-let client_id;
-if(mode != 'development'){
-	api_key = process.env.PROD_API_KEY;
-	client_id = process.env.PROD_CLIENT_ID;
-} else {
-	api_key = process.env.DEV_API_KEY;
-	client_id = process.env.DEV_CLIENT_ID;
-}
+const production = !process.env.ROLLUP_WATCH;
 
 const onwarn = (warning, onwarn) =>
 	(warning.code === 'MISSING_EXPORT' && /'preload'/.test(warning.message)) ||
@@ -42,10 +32,8 @@ export default {
 				FOO: 'bar',      
 				process: JSON.stringify({
 					env: {
-						API_KEY: api_key,
-						CLIENT_ID: client_id,
-						DISCOVERY_DOCS: process.env.DISCOVERY_DOCS,
-						SCOPES: process.env.SCOPES,
+						isProd: production,
+						...dotenv.config().parsed
 					} 
 				}),
 			}),
