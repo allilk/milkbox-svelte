@@ -12,7 +12,8 @@
 	import db from './connection';
 	import { afterUpdate, beforeUpdate } from 'svelte';
 	import loading from 'images/loading.gif';
-	
+	import natsort from '../../scripts/natsort.min.js';
+
 	const CLIENT_ID = process.env.CLIENT_ID;
 	const API_KEY = process.env.API_KEY
 	const DISCOVERY_DOCS = JSON.parse(process.env.DISCOVERY_DOCS);
@@ -127,6 +128,8 @@
 			return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 		}
 		async function loadContent(){
+			// Declare natsort sorter
+			let sorter = natsort({ insensitive: true });
 			// Declare complete list
 			let masterList = [];
 			// Remove whatever content that is there now.
@@ -140,6 +143,11 @@
 			}).and(function(item){
 				return item.mimetype == 'application/vnd.google-apps.folder';
 			}).sortBy('name');
+			// Sort using natsort!
+			folderList.sort(function(a, b) {
+				return sorter(a.name, b.name);
+			});
+
 			masterList.push(folderList);
 
 			// Get files
@@ -149,6 +157,12 @@
 			}).and(function(item){
 				return item.mimetype != 'application/vnd.google-apps.folder';
 			}).sortBy('name');
+
+			// Sort using natsort!
+			fileList.sort(function(a, b) {
+				return sorter(a.name, b.name);
+			});
+
 			masterList.push(fileList);
 			// Flatten array
 			masterList = [].concat.apply([], masterList);
@@ -193,7 +207,7 @@
 				// Append contentWithin to linkWithin as a child
 				linkWithin.appendChild(contentWithin);
 				// Set html
-				linkWithin.innerHTML = "<span class='file-obj'>" + linkWithin.innerHTML + ` <span id="file" class="text-xs text-gray-500">(${fileObj.id})</span></span>\n`;
+				linkWithin.innerHTML = "<span class='file-obj'>" + linkWithin.innerHTML + ` <span id="file" class="text-sm text-gray-500">(${fileObj.id})</span></span>\n`;
 				// Append to original list
 				oldContent.appendChild(linkWithin);
 			};
@@ -341,8 +355,8 @@
 	});
 </script>
 
-<span class="text-xl">Index of ./<span id="dir-title"></span>/</span> <span class="text-gray-500">({folder_id})</span>
-<br><hr><span class="text-xs font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr><br>
+<span class="text-2xl">Index of ./<span id="dir-title"></span>/</span> <span class="text-gray-500">({folder_id})</span>
+<br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr><br>
 <button id="authorize_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
 	Authorize</button>
 <button id="signout_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
@@ -358,7 +372,7 @@
 	</div>
 	<div id="#content" style="display: none;">
 		<div>
-			<a id="parent_id" style="color:#1da3a3;">../</a> <span id="returnLink" class="text-xs text-gray-500"></span>
+			<a id="parent_id" class="text-base" style="color:#3399ff;">../<span id="returnLink" class="text-sm text-gray-500"></span></a> 
 		</div>
 		<pre class="content-list" id="content">
 			
