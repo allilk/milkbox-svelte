@@ -1,7 +1,7 @@
 <script>
     import { afterUpdate, beforeUpdate } from 'svelte';
     import loading from 'images/loading.gif';
-    import db from './browser/connection';
+    import db from './connection';
 
 
     async function setLoading(){

@@ -13,12 +13,13 @@
 	import { afterUpdate, beforeUpdate } from 'svelte';
 	import loading from 'images/loading.gif';
 	import natsort from '../../scripts/natsort.min.js';
+import { get_spread_update } from 'svelte/internal';
 
 
 	async function setLoading(){
 			let loadingIcon = document.getElementById('#loading');
 			loadingIcon.style = "";
-			let Content = document.getElementById("#content");
+			let Content = document.getElementById("content-list");
 			Content.style = "display: none;";
 		}
 	beforeUpdate(async () => {
@@ -29,6 +30,7 @@
 		let PEOPLE_ID;
 		let REFRESH = false;
 		let IS_SEARCH = 'false';
+		let QUERY;
 		const authorizeButton = document.getElementById('authorize_button');
 		const signoutButton = document.getElementById('signout_button');
 		const refreshButton = document.getElementById('refresh_button');
@@ -46,16 +48,16 @@
 			window.location.href = theFile.result.webContentLink;
 		}
 		async function onLinkClick(listItem) {
-            listItem.addEventListener('dblclick', function(ev){
-                ev.preventDefault();
-				let str = listItem.getElementsByTagName("span")[0].innerText
-                str = str.replace('(','')
-                str = str.replace(')', '')
-				downloadFile(str)
-			}, false);
+            // listItem.addEventListener('dblclick', function(ev){
+            //     ev.preventDefault();
+			// 	let str = listItem.getElementsByTagName("span")[0].innerText
+            //     str = str.replace('(','')
+            //     str = str.replace(')', '')
+			// 	downloadFile(str)
+			// }, false);
 		}
 		async function onLinkInit(){
-			let itemList = document.getElementsByClassName("file-link");
+			let itemList = document.getElementsByClassName("file");
 			for (var i = 0; i < itemList.length; i++) {
 				let fileObj = itemList[i].getElementsByTagName("span")[0]
 				onLinkClick(fileObj);
@@ -124,13 +126,37 @@
 
 			return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 		}
+		const createContent = async (fileName, fileId, fileMimeType) => {
+			let existingContent =  document.getElementById('content-list');
+			let divElement = document.createElement('div');
+			let linkWithin = document.createElement('a');
+			linkWithin.innerText = fileName;
+
+			let idWithin = document.createElement('span');
+			idWithin.setAttribute("class", "text-sm text-gray-500");
+			idWithin.innerText = ` (${fileId})`
+
+			
+			let divClasses = `col-span-4 ${fileMimeType}`;
+			if (fileMimeType == 'folder') {
+				linkWithin.innerText += `/`
+				linkWithin.href = `browser/${fileId}`;
+			} else { divClasses += ' file'; };
+			
+			linkWithin.appendChild(idWithin)
+			divElement.setAttribute("class", divClasses);
+			divElement.appendChild(linkWithin);
+			existingContent.appendChild(divElement)
+
+
+		};
 		async function loadContent(){
 			// Declare natsort sorter
 			let sorter = natsort({ insensitive: true });
 			// Declare complete list
 			let masterList = [];
 			// Remove whatever content that is there now.
-			let oldContent = document.getElementById('content');
+			let oldContent = document.getElementById('content-list');
 			oldContent.innerHTML = '';
 			
 
@@ -141,7 +167,7 @@
 					'peopleid': PEOPLE_ID,
 					'issearch': IS_SEARCH,
 				}).and(function(item){
-					return item.mimetype == 'application/vnd.google-apps.folder';
+					return item.mimetype == 'folder';
 				}).sortBy('name');
 				// Sort using natsort!
 				folderList.sort(function(a, b) {
@@ -156,7 +182,7 @@
 					'peopleid': PEOPLE_ID,
 					'issearch': IS_SEARCH,
 				}).and(function(item){
-					return item.mimetype != 'application/vnd.google-apps.folder';
+					return item.mimetype != 'folder';
 				}).sortBy('name');
 
 				// Sort using natsort!
@@ -169,18 +195,17 @@
 				masterList = [].concat.apply([], masterList);
 
 			} else {
-				masterList = await db.files.where({
-					'parents': FOLDER_ID,
-					'peopleid': PEOPLE_ID,
-					'issearch': IS_SEARCH,
-				}).sortBy('name');
+				masterList = await db.files.where('words').startsWithIgnoreCase(QUERY).distinct().toArray()
+				let indexHeader = document.getElementById('index-header');
+				indexHeader.innerText = 'Search Results'
+				console.log(masterList)
 			}
 
 
 			// Remove loading icon
 			let loadingIcon = document.getElementById('#loading');
 			loadingIcon.style = "display: none;";
-			let oContent = document.getElementById("#content");
+			let oContent = document.getElementById("content-list");
 			oContent.style = "";
 
 			// Display file count in header
@@ -192,35 +217,15 @@
 			let totalSize = 0;
 
 			// Create elements for each file
-			for (let i = 0; i < masterList.length; i++){
-				// Declare variables
-				let fileObj = masterList[i];
-				let linkWithin = document.createElement("a");
-				let contentWithin;
-
-				// Add to total directory size
-				if (parseInt(fileObj.size) > 0){
-					totalSize += parseInt(fileObj.size);
-				};
-
-				// Set different settings for folders to display different
-				if (fileObj.mimetype == 'application/vnd.google-apps.folder'){
-					contentWithin = document.createTextNode(fileObj.name + '/');
-					// Color for folders
-					linkWithin.style = 'color: #3399ff;';
-					// Link to browse to next folder
-					linkWithin.href = `browser/${fileObj.id}`;
-				} else {
-					contentWithin = document.createTextNode(fileObj.name);
-					linkWithin.setAttribute("class","file-link");
-				};
-				// Append contentWithin to linkWithin as a child
-				linkWithin.appendChild(contentWithin);
-				// Set html
-				linkWithin.innerHTML = "<span class='file-obj'>" + linkWithin.innerHTML + ` <span id="file" class="text-sm text-gray-500">(${fileObj.id})</span></span>\n`;
-				// Append to original list
-				oldContent.appendChild(linkWithin);
-			};
+			getParent().then(function (resp) {
+				createContent('..', resp, 'folder').then(function () {
+					for (let i = 0; i < masterList.length; i++){
+						let fileObj = masterList[i];
+						createContent(fileObj.name, fileObj.id, fileObj.mimetype)
+					};
+				});
+			});
+			
 			// Reflect directory size in header
 			const sizeTotal = document.getElementById("total-size");
 			sizeTotal.innerText = formatBytes(totalSize);
@@ -230,14 +235,10 @@
 			IS_SEARCH = "false";
 		};
 		async function getParent(){
-			// To display the parent id next to "../"
-			const returnDiv = document.getElementById("parent_id");
 			// To display the directory title at top
 			const dirTitle = document.getElementById("dir-title");
 			let folderName = "my drive";
-			// Link to parent directory
-			const returnLink = document.getElementById("returnLink");
-			let returnFolder;
+			let parentId;
 
 			// CHECK IF IN/IS TEAM DRIVE OR NOT
 			await gapi.client.drive.files.get({
@@ -254,26 +255,22 @@
 					.then(async function(resp){
 						// IS A TEAM DRIVE 
 						folderName = resp.result.name;
-						returnFolder = 'shared-drives';
-						returnDiv.href = returnFolder;
+						parentId = 'shared-drives';
 					});
 				} else {
 					// NOT A TEAM DRIVE
 					folderName = resp.result.name;
-					if (resp.result.driveId && FOLDER_ID.length > 30){
-						returnFolder = resp.result.parents[0];
-					} else {
-						returnFolder = 'root'
+					if (FOLDER_ID.length > 30 || resp.result.driveId){
+						parentId = resp.result.parents[0];
+					} else  if(!resp.result.driveId) {
+						parentId = 'root'
 					}
-					
-
-					returnDiv.href = `browser/${returnFolder}`;
 				}
-			});
-			// Update the ID to the right side ../
-			returnLink.innerText = `(${returnFolder})`;
+			})
 			// Add directory name to top
 			dirTitle.innerText = folderName;
+			return parentId;
+			
 		};
 		async function listFiles(){
 			await getFiles();
@@ -295,7 +292,7 @@
 			if (ifCache.length > 0) {cacheExists = true;};
 			return cacheExists;
 		};
-		async function getFiles(query){
+		async function getFiles(){
 			let fetchFiles = true;
 			let fileList = [];
 			let parentFolder = 'root';
@@ -306,10 +303,10 @@
 				let querySearch;
 				
 				// fullText contains '{query}' or name contains '{query}'
-				if (res == false || typeof query != "undefined") {
+				if (res == false || typeof QUERY != "undefined") {
 					
-					if (typeof query != "undefined"){
-						querySearch = `fullText contains '${query}' or name contains '${query}'`;
+					if (typeof QUERY != "undefined"){
+						querySearch = `name contains '${QUERY}'`;
 						
 					} else {
 						querySearch = `'${FOLDER_ID}' in parents and trashed=false`;
@@ -324,7 +321,7 @@
 							'fields': 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId)',
 							'pageToken': nextPageToken,
 						}).then(async function(resp) {
-							console.log(resp.result)
+							
 							fileList.push(resp.result.files);
 							if (!resp.result.nextPageToken) {fetchFiles = false;}
 							else { nextPageToken = resp.result.nextPageToken; };
@@ -335,50 +332,64 @@
 					
 					for (let i = 0; i < fileList.length; i++){
 						let fileObj = fileList[i];
-						if (FOLDER_ID != 'root') {
+						if (FOLDER_ID != 'root' || typeof QUERY != "undefined") {
 							parentFolder = (fileObj.parents).toString();
 						};
-						if (typeof query != "undefined"){
+						if (typeof QUERY != "undefined"){
 							IS_SEARCH = 'true';
 						} 
-						
+						let shortenedMime = (fileObj.mimeType).split('.')
+						if (shortenedMime.length < 3) {
+							shortenedMime =  shortenedMime[0]
+						} else { shortenedMime = shortenedMime[2]};
 						await db.files.put({
 							name: fileObj.name,
 							id: fileObj.id,
 							parents: parentFolder,
 							size: fileObj.size,
-							mimetype: fileObj.mimeType,
+							mimetype: shortenedMime,
 							driveid: fileObj.driveId,
 							peopleid: PEOPLE_ID,
 							issearch: IS_SEARCH,
+							words: getAllWords(fileObj.name)
+						}).then(async function(res){
+							// console.log(res)
 						});
 						
 					};
 				};
 			}).then(async function(){
-				if (IS_SEARCH == 'false'){
-					await getParent();
-				};
+				// if (IS_SEARCH == 'false'){
+				// 	await getParent();
+				// };
 			}).then(async function(){
 				await loadContent();
 			});
 			
 		};
-		
+		function getAllWords(text) {
+			var allWordsIncludingDups = text.split(' ');
+			var wordSet = allWordsIncludingDups.reduce(function (prev, current) {
+				prev[current] = true;
+				return prev;
+			}, {});
+			return Object.keys(wordSet);
+		}
 		handleClientLoad();
 
 		const searchContent = document.getElementById("search_input")
 			document.getElementById("search_input").addEventListener('keypress', function (e) {
 				if (e.key === 'Enter') {
 					setLoading().then(function(res){
-						getFiles(searchContent.value);
+						QUERY = searchContent.value;
+						getFiles();
 					});
 				};
 			});
 	});
 </script>
 <input id="search_input" style="background-color: #080828; font-size: 1.25rem;" class="text-white w-full p-2" placeholder="Search...">
-<span class="text-2xl">Index of ./<span id="dir-title"></span>/</span> <span class="text-gray-500">({folder_id})</span>
+<span id="index-header" class="text-2xl"><span>Index of ./<span id="dir-title"></span>/</span> <span class="text-gray-500">({folder_id})</span></span>
 <br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr><br>
 <button id="authorize_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
 	Authorize</button>
@@ -388,17 +399,19 @@
 	Refresh</button>
 
 
-<div>
-	<div id="#loading">
-		<br>
-		<img width="30px" height="30px" alt="Loading.." src="{loading}">
+<div class="grid grid-cols-6 text-xl">
+
+	<div class="col-span-4 font-bold">Name</div>
+	<div class="font-bold">Size</div>
+
+
+	<div id="#loading" class="col-span-full">
+		<center>
+			<img width="30px" height="30px" alt="Loading.." src="{loading}">
+		</center>
 	</div>
-	<div id="#content" style="display: none;">
-		<div>
-			<a id="parent_id" class="text-base" style="color:#3399ff;">../<span id="returnLink" class="text-sm text-gray-500"></span></a> 
-		</div>
-		<pre class="content-list" id="content">
-			
-		</pre>
+
+	<div id="content-list" class="col-span-full">
+
 	</div>
 </div>
