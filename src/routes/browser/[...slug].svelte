@@ -13,8 +13,6 @@
 	import { afterUpdate, beforeUpdate } from 'svelte';
 	import loading from 'images/loading.gif';
 	import natsort from '../../scripts/natsort.min.js';
-import { get_spread_update } from 'svelte/internal';
-
 
 	async function setLoading(){
 			let loadingIcon = document.getElementById('#loading');
@@ -126,9 +124,20 @@ import { get_spread_update } from 'svelte/internal';
 
 			return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 		}
-		const createContent = async (fileName, fileId, fileMimeType) => {
-			let existingContent =  document.getElementById('content-list');
+		const updateParent = async () => {
+			// formatBytes(parseInt(fileObj.size))
+			
+		}
+		const createContent = async (fileName, fileId, fileMimeType, fileSize) => {
+			let mainDiv = document.createElement('div');
+			let existingContent = document.getElementById('content-list');
 			let divElement = document.createElement('div');
+
+			
+			let sizeElement = document.createElement('div');
+			sizeElement.innerText = formatBytes(fileSize);
+			sizeElement.setAttribute("class", "col-span-2 file-size");
+
 			let linkWithin = document.createElement('a');
 			linkWithin.innerText = fileName;
 
@@ -137,17 +146,22 @@ import { get_spread_update } from 'svelte/internal';
 			idWithin.innerText = ` (${fileId})`
 
 			
-			let divClasses = `col-span-4 ${fileMimeType}`;
+			let divClasses = `grid grid-cols-6 not-selected ${fileMimeType}`;
+
 			if (fileMimeType == 'folder') {
 				linkWithin.innerText += `/`
 				linkWithin.href = `browser/${fileId}`;
-			} else { divClasses += ' file'; };
+			} else { 
+				divClasses += " file"
+			};
 			
 			linkWithin.appendChild(idWithin)
-			divElement.setAttribute("class", divClasses);
+			divElement.setAttribute("class", "col-span-4");
 			divElement.appendChild(linkWithin);
-			existingContent.appendChild(divElement)
-
+			mainDiv.appendChild(divElement)
+			mainDiv.appendChild(sizeElement)
+			mainDiv.setAttribute("class", divClasses);
+			existingContent.appendChild(mainDiv)
 
 		};
 		async function loadContent(){
@@ -218,21 +232,29 @@ import { get_spread_update } from 'svelte/internal';
 
 			// Create elements for each file
 			getParent().then(function (resp) {
-				createContent('..', resp, 'folder').then(function () {
+				createContent('..', resp, 'folder', 0).then(function () {
 					for (let i = 0; i < masterList.length; i++){
 						let fileObj = masterList[i];
-						createContent(fileObj.name, fileObj.id, fileObj.mimetype)
+						let fileSize = 0;
+						// Add to total directory size
+						if (parseInt(fileObj.size) > 0){
+							totalSize += parseInt(fileObj.size);
+							fileSize = parseInt(fileObj.size);
+						};
+						createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
 					};
-				});
+				}).then(function (){
+					// Reflect directory size in header
+					const sizeTotal = document.getElementById("total-size");
+					sizeTotal.innerText = formatBytes(totalSize);
+					// Initialize links
+					onLinkInit();
+					IS_SEARCH = "false";
+				})
 			});
 			
-			// Reflect directory size in header
-			const sizeTotal = document.getElementById("total-size");
-			sizeTotal.innerText = formatBytes(totalSize);
-			// Initialize links
-			onLinkInit();
 
-			IS_SEARCH = "false";
+			
 		};
 		async function getParent(){
 			// To display the directory title at top
@@ -292,6 +314,54 @@ import { get_spread_update } from 'svelte/internal';
 			if (ifCache.length > 0) {cacheExists = true;};
 			return cacheExists;
 		};
+		const initKeyNav = async () => {
+			let itemList = document.getElementsByClassName("not-selected");
+			let lineSelected = 0;
+			let objSelected
+			let obj;
+			let str;
+			let fileId;
+			document.querySelector('body').addEventListener('keydown', function(ev){
+				if (ev.keyCode === 83) {
+                if (lineSelected < itemList.length - 1){
+                    if (typeof itemList[lineSelected] != undefined){
+                        itemList[lineSelected].classList.remove('selected');
+                    }
+						lineSelected+=1;
+						objSelected=itemList[lineSelected];
+						objSelected.classList.add('selected');
+						obj = document.getElementsByClassName("selected")[0];
+						obj.scrollIntoView({behavior: "smooth", block: "center"});
+					}
+				} else if (ev.keyCode === 87) {
+					if (lineSelected > 0){
+						if (typeof itemList[lineSelected] != undefined){
+							itemList[lineSelected].classList.remove('selected');
+						}
+						lineSelected-=1;
+						objSelected=itemList[lineSelected];
+						objSelected.classList.add('selected');
+						obj = document.getElementsByClassName("selected")[0];
+						obj.scrollIntoView({behavior: "smooth", block: "center"});
+					}
+				} else if (ev.keyCode === 13) {
+					if (typeof itemList[lineSelected] != undefined){
+						fileId = itemList[lineSelected].getElementsByClassName("text-gray-500")[0];
+						str = fileId.textContent
+						str = str.replace(' (','')
+						str = str.replace(')', '')
+						if ( str == 'shared-drives' || str == 'root') {
+							window.location.replace('browser/'+str)
+						} else {
+							FOLDER_ID = str;
+							getFiles()
+
+						}
+					}
+				}
+			});
+			
+		}
 		async function getFiles(){
 			let fetchFiles = true;
 			let fileList = [];
@@ -321,7 +391,10 @@ import { get_spread_update } from 'svelte/internal';
 							'fields': 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId)',
 							'pageToken': nextPageToken,
 						}).then(async function(resp) {
-							
+							// for (let i = 0; i < resp.result.files.length; i++){
+							// 	let fileObj = resp.result.files[i];
+							// 	createContent(fileObj.name, fileObj.id, fileObj.mimeType)
+							// }
 							fileList.push(resp.result.files);
 							if (!resp.result.nextPageToken) {fetchFiles = false;}
 							else { nextPageToken = resp.result.nextPageToken; };
@@ -363,10 +436,16 @@ import { get_spread_update } from 'svelte/internal';
 				// 	await getParent();
 				// };
 			}).then(async function(){
-				await loadContent();
+				await loadContent().then(function(){
+					initKeyNav();
+				});
+				
 			});
 			
 		};
+
+	
+
 		function getAllWords(text) {
 			var allWordsIncludingDups = text.split(' ');
 			var wordSet = allWordsIncludingDups.reduce(function (prev, current) {
@@ -376,19 +455,18 @@ import { get_spread_update } from 'svelte/internal';
 			return Object.keys(wordSet);
 		}
 		handleClientLoad();
-
-		const searchContent = document.getElementById("search_input")
-			document.getElementById("search_input").addEventListener('keypress', function (e) {
-				if (e.key === 'Enter') {
-					setLoading().then(function(res){
-						QUERY = searchContent.value;
-						getFiles();
-					});
-				};
-			});
+	// 	const searchContent = document.getElementById("search_input")
+	// 		document.getElementById("search_input").addEventListener('keypress', function (e) {
+	// 			if (e.key === 'Enter') {
+	// 				setLoading().then(function(res){
+	// 					QUERY = searchContent.value;
+	// 					getFiles();
+	// 				});
+	// 			};
+	// 		});
 	});
 </script>
-<input id="search_input" style="background-color: #080828; font-size: 1.25rem;" class="text-white w-full p-2" placeholder="Search...">
+
 <span id="index-header" class="text-2xl"><span>Index of ./<span id="dir-title"></span>/</span> <span class="text-gray-500">({folder_id})</span></span>
 <br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr><br>
 <button id="authorize_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
@@ -399,7 +477,7 @@ import { get_spread_update } from 'svelte/internal';
 	Refresh</button>
 
 
-<div class="grid grid-cols-6 text-xl">
+<div class="grid grid-cols-6 gap-1 text-xl">
 
 	<div class="col-span-4 font-bold">Name</div>
 	<div class="font-bold">Size</div>
@@ -410,8 +488,7 @@ import { get_spread_update } from 'svelte/internal';
 			<img width="30px" height="30px" alt="Loading.." src="{loading}">
 		</center>
 	</div>
+</div>
+<div id="content-list" class="gap-1 text-xl">
 
-	<div id="content-list" class="col-span-full">
-
-	</div>
 </div>

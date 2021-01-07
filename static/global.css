@@ -9,11 +9,13 @@ body {
 a {
 	text-decoration: none;
 }
-a:hover {
+.file:hover, .folder:hover, .selected {
 	color:white;
 	background-color: #858c8c;
 }
-
+.file-size{
+	color: black;
+}
 code {
 	font-size: calc(1em - 2px);
 	color: #555;
