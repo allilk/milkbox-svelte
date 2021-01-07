@@ -15,11 +15,9 @@
 	import natsort from '../../scripts/natsort.min.js';
 
 
-
-
 	let keyCode;
 	let itemList;
-	$: lineSelected = 0;
+	let lineSelected = 0;
 	
 	async function handleKeydown(event) {
 		keyCode = event.keyCode;
@@ -47,12 +45,9 @@
 			}
 		} else if(keyCode == 13){
 			event.preventDefault();
-			await tick()
-			let fileId = itemList[lineSelected].getElementsByClassName("text-gray-500")[0];
-			let str = fileId.textContent
-			str = str.replace(' (','')
-			str = str.replace(')', '')
-			
+			let selObj = document.getElementsByClassName('selected')[0];
+			let linkObj = selObj.getElementsByTagName('a')[0]
+			linkObj.click()
 		}
 	}
 
