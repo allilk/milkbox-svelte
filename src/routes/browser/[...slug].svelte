@@ -10,9 +10,51 @@
 <script type="text/javascript">
 	export let folder_id;
 	import db from './connection';
-	import { afterUpdate, beforeUpdate } from 'svelte';
+	import { afterUpdate, beforeUpdate, tick } from 'svelte';
 	import loading from 'images/loading.gif';
 	import natsort from '../../scripts/natsort.min.js';
+
+
+
+
+	let keyCode;
+	let itemList;
+	$: lineSelected = 0;
+	
+	async function handleKeydown(event) {
+		keyCode = event.keyCode;
+		if (keyCode == 83 || keyCode == 40) {
+			if (lineSelected < itemList.length - 1){
+				if (typeof itemList[lineSelected] != undefined){
+					itemList[lineSelected].classList.remove('selected');
+				}
+				lineSelected+=1;
+				let objSelected=itemList[lineSelected];
+				objSelected.classList.add('selected');
+				let obj = document.getElementsByClassName("selected")[0];
+				obj.scrollIntoView({behavior: "smooth", block: "center"});
+			}
+		} else if(keyCode == 87 || keyCode == 38){
+			if (lineSelected > 0){
+				if (typeof itemList[lineSelected] != undefined){
+					itemList[lineSelected].classList.remove('selected');
+				}
+				lineSelected-=1;
+				let objSelected=itemList[lineSelected];
+				objSelected.classList.add('selected');
+				let obj = document.getElementsByClassName("selected")[0];
+				obj.scrollIntoView({behavior: "smooth", block: "center"});
+			}
+		} else if(keyCode == 13){
+			event.preventDefault();
+			await tick()
+			let fileId = itemList[lineSelected].getElementsByClassName("text-gray-500")[0];
+			let str = fileId.textContent
+			str = str.replace(' (','')
+			str = str.replace(')', '')
+			
+		}
+	}
 
 	async function setLoading(){
 			let loadingIcon = document.getElementById('#loading');
@@ -24,6 +66,7 @@
 		setLoading();
 	});
 	afterUpdate(async () => {
+		lineSelected = 0;
 		let FOLDER_ID = folder_id[0];
 		let PEOPLE_ID;
 		let REFRESH = false;
@@ -169,10 +212,10 @@
 			let sorter = natsort({ insensitive: true });
 			// Declare complete list
 			let masterList = [];
+			
 			// Remove whatever content that is there now.
 			let oldContent = document.getElementById('content-list');
 			oldContent.innerHTML = '';
-			
 
 			if (IS_SEARCH == "false"){
 				// Get folders
@@ -249,6 +292,7 @@
 					sizeTotal.innerText = formatBytes(totalSize);
 					// Initialize links
 					onLinkInit();
+					itemList = document.getElementsByClassName("not-selected");
 					IS_SEARCH = "false";
 				})
 			});
@@ -314,54 +358,7 @@
 			if (ifCache.length > 0) {cacheExists = true;};
 			return cacheExists;
 		};
-		const initKeyNav = async () => {
-			let itemList = document.getElementsByClassName("not-selected");
-			let lineSelected = 0;
-			let objSelected
-			let obj;
-			let str;
-			let fileId;
-			document.querySelector('body').addEventListener('keydown', function(ev){
-				if (ev.keyCode === 83) {
-                if (lineSelected < itemList.length - 1){
-                    if (typeof itemList[lineSelected] != undefined){
-                        itemList[lineSelected].classList.remove('selected');
-                    }
-						lineSelected+=1;
-						objSelected=itemList[lineSelected];
-						objSelected.classList.add('selected');
-						obj = document.getElementsByClassName("selected")[0];
-						obj.scrollIntoView({behavior: "smooth", block: "center"});
-					}
-				} else if (ev.keyCode === 87) {
-					if (lineSelected > 0){
-						if (typeof itemList[lineSelected] != undefined){
-							itemList[lineSelected].classList.remove('selected');
-						}
-						lineSelected-=1;
-						objSelected=itemList[lineSelected];
-						objSelected.classList.add('selected');
-						obj = document.getElementsByClassName("selected")[0];
-						obj.scrollIntoView({behavior: "smooth", block: "center"});
-					}
-				} else if (ev.keyCode === 13) {
-					if (typeof itemList[lineSelected] != undefined){
-						fileId = itemList[lineSelected].getElementsByClassName("text-gray-500")[0];
-						str = fileId.textContent
-						str = str.replace(' (','')
-						str = str.replace(')', '')
-						if ( str == 'shared-drives' || str == 'root') {
-							window.location.replace('browser/'+str)
-						} else {
-							FOLDER_ID = str;
-							getFiles()
-
-						}
-					}
-				}
-			});
-			
-		}
+	
 		async function getFiles(){
 			let fetchFiles = true;
 			let fileList = [];
@@ -432,19 +429,14 @@
 					};
 				};
 			}).then(async function(){
-				// if (IS_SEARCH == 'false'){
-				// 	await getParent();
-				// };
+				
 			}).then(async function(){
-				await loadContent().then(function(){
-					initKeyNav();
-				});
+				await loadContent()
 				
 			});
 			
 		};
 
-	
 
 		function getAllWords(text) {
 			var allWordsIncludingDups = text.split(' ');
@@ -476,7 +468,7 @@
 <button id="refresh_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
 	Refresh</button>
 
-
+<svelte:window on:keydown={handleKeydown}/>
 <div class="grid grid-cols-6 gap-1 text-xl">
 
 	<div class="col-span-4 font-bold">Name</div>
