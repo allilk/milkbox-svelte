@@ -109,7 +109,7 @@
 			idWithin.innerText = ` (${fileId})`
 
 			
-			let divClasses = `grid grid-cols-6 not-selected ${fileMimeType}`;
+			let divClasses = `grid grid-cols-6 not-selected ${fileMimeType} px-4 py-1`;
 
 			if (fileMimeType == 'folder') {
 				linkWithin.innerText += `/`
@@ -400,7 +400,7 @@
 <button id="refresh_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
 	Refresh</button>
 <svelte:window on:keydown={handleKeydown}/>
-<div class="grid grid-cols-6 text-xl">
+<div class="grid grid-cols-6 text-sm">
 
 	<div class="col-span-4 font-bold">Name</div>
 	<div class="col-span-2 font-bold text-center">Size</div>
@@ -412,6 +412,6 @@
 		</center>
 	</div>
 </div>
-<div id="content-list" class="text-xl">
+<div id="content-list" class="text-sm">
 
 </div>

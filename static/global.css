@@ -1,10 +1,12 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300&display=swap');
 body {
 	margin: 0;
-	font-family: 'Darker Grotesque', sans-serif;
-	font-size: 30px;
+	font-family: 'Fira Code', monospace;
+	font-size: 20px;
 	line-height: 1.5;
-	color:black;
-	background-color: #404040;
+	color:#eeeeee;
+	background-color: #232931;
 }
 button{
 	font-size: 12px;
@@ -13,17 +15,17 @@ a {
 	text-decoration: none;
 }
 .folder {
-	color: #3399ff;
+	color: #4ecca3;
 }
 .not-selected:hover, .selected {
-	color:white;
-	background-color: #858c8c;
+	color:#232931;
+	background-color: #4ecca3;
 }
 .not-selected{
 	white-space: nowrap;
 }
 .file-size{
-	color: black;
+	color: #eeeeee;
 }
 code {
 	font-size: calc(1em - 2px);

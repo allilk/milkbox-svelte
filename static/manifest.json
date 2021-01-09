@@ -1,6 +1,6 @@
 {
-	"background_color": "#404040",
-	"theme_color": "#404040",
+	"background_color": "#232931",
+	"theme_color": "#232931",
 	"name": "milkbox",
 	"short_name": "milkbox",
 	"display": "minimal-ui",
