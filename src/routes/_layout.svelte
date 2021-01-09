@@ -13,7 +13,9 @@
 </style>
 
 <Nav {segment}/>
-
+<svelte:head>
+	<title>📦</title>
+</svelte:head>
 <main>
 	<slot></slot>
 </main>

@@ -15,6 +15,7 @@
     import natsort from '../../scripts/natsort.min.js';
 	
 
+	
 	let keyCode;
 	let itemList;
 	let lineSelected = 0;
@@ -105,21 +106,39 @@
 			linkWithin.innerText = fileName;
 
 			let idWithin = document.createElement('span');
-			idWithin.setAttribute("class", "text-sm text-gray-500");
+			idWithin.setAttribute("class", "text-xs text-gray-500");
 			idWithin.innerText = ` (${fileId})`
 
 			
 			let divClasses = `grid grid-cols-6 not-selected ${fileMimeType} px-4 py-1`;
-
+			let emojiMime = '❔';
 			if (fileMimeType == 'folder') {
 				linkWithin.innerText += `/`
+				emojiMime = '📂';
 				linkWithin.href = `browser/${fileId}`;
 			} else { 
 				divClasses += " file"
+				
+				if (fileMimeType.includes('video')) {
+					emojiMime = '📺';
+				} else if (fileMimeType.includes('audio')) {
+					emojiMime = '🎵';
+				} else if (fileMimeType.includes('image/')) {
+					emojiMime = '🖼️';
+				} else if (fileMimeType.includes('/x-iso') || fileMimeType.includes('cd-image')) {
+					emojiMime = '💿';
+				} else if (fileMimeType.includes('/zip') || fileMimeType.includes('rar') || fileMimeType.includes('compressed')) {
+					emojiMime = '🗄️';
+				} else if (fileMimeType.includes('text')) {
+					emojiMime = '📃';
+				} else {
+					emojiMime = '❔';
+				}
 			};
-			
+			linkWithin.innerText = `${emojiMime} ${linkWithin.innerText}`
+
 			linkWithin.appendChild(idWithin)
-			divElement.setAttribute("class", "col-span-4 overflow-x-hidden");
+			divElement.setAttribute("class", "col-span-4 file-title overflow-x-hidden");
 			divElement.appendChild(linkWithin);
 			mainDiv.appendChild(divElement)
 			mainDiv.appendChild(sizeElement)
@@ -391,24 +410,27 @@
 	});
 
 </script>
-<span id="index-header" class="text-2xl"><span>Index of ./<span id="dir-title"></span>/</span> <span class="text-gray-500">({folder_id})</span></span>
-<br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr><br>
-<button id="authorize_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
-	Authorize</button>
-<button id="signout_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
-	Sign Out</button>
-<button id="refresh_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
-	Refresh</button>
+<span id="index-header" class="text-2xl"><span>index of ./<span id="dir-title"></span>/</span> <span class="text-xl text-gray-500">({folder_id})</span></span>
+<br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr>
+<br>
+<div class="inline-flex px-4">
+	<button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 border border-gray-400 rounded-none shadow">
+		Authorize</button>
+	<button id="signout_button" style="display: none;" class="font-semibold px-2 py-2 border border-gray-400 rounded-none shadow">
+		Sign Out</button>
+	<button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 border border-gray-400 rounded-none shadow">
+		Refresh</button>
+</div>
 <svelte:window on:keydown={handleKeydown}/>
 <div class="grid grid-cols-6 text-sm">
-
-	<div class="col-span-4 font-bold">Name</div>
-	<div class="col-span-2 font-bold text-center">Size</div>
+	
+	<div class="col-span-4 font-bold px-4 py-3 animation-pulse">Name</div>
+	<div class="col-span-2 font-bold file-size py-3 text-center">Size</div>
 
 
 	<div id="#loading" class="col-span-full">
 		<center>
-			<img width="30px" height="30px" alt="Loading.." src="{loading}">
+			<div class="lds-ripple"><div></div><div></div></div>
 		</center>
 	</div>
 </div>
