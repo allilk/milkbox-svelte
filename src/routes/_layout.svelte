@@ -6,10 +6,8 @@
 
 <style>
 	main {
-		position: relative;
-		background-color: white;
-		padding: 2em;
 		margin: 0 auto;
+		margin-left: 10px;
 		box-sizing: border-box;
 	}
 </style>

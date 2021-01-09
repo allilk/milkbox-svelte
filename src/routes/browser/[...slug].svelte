@@ -14,7 +14,7 @@
     import loading from 'images/loading.gif';
     import natsort from '../../scripts/natsort.min.js';
 	
-    
+
 	let keyCode;
 	let itemList;
 	let lineSelected = 0;
@@ -99,7 +99,7 @@
 			
 			let sizeElement = document.createElement('div');
 			sizeElement.innerText = formatBytes(fileSize);
-			sizeElement.setAttribute("class", "col-span-2 file-size");
+			sizeElement.setAttribute("class", "col-span-2 file-size text-center");
 
 			let linkWithin = document.createElement('a');
 			linkWithin.innerText = fileName;
@@ -119,7 +119,7 @@
 			};
 			
 			linkWithin.appendChild(idWithin)
-			divElement.setAttribute("class", "col-span-4");
+			divElement.setAttribute("class", "col-span-4 overflow-x-hidden");
 			divElement.appendChild(linkWithin);
 			mainDiv.appendChild(divElement)
 			mainDiv.appendChild(sizeElement)
@@ -400,10 +400,10 @@
 <button id="refresh_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
 	Refresh</button>
 <svelte:window on:keydown={handleKeydown}/>
-<div class="grid grid-cols-6 gap-1 text-xl">
+<div class="grid grid-cols-6 text-xl">
 
 	<div class="col-span-4 font-bold">Name</div>
-	<div class="font-bold">Size</div>
+	<div class="col-span-2 font-bold text-center">Size</div>
 
 
 	<div id="#loading" class="col-span-full">
@@ -412,6 +412,6 @@
 		</center>
 	</div>
 </div>
-<div id="content-list" class="gap-1 text-xl">
+<div id="content-list" class="text-xl">
 
 </div>

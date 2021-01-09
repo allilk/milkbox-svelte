@@ -1,8 +1,8 @@
 {
-	"background_color": "#ffffff",
-	"theme_color": "#333333",
-	"name": "TODO",
-	"short_name": "TODO",
+	"background_color": "#404040",
+	"theme_color": "#404040",
+	"name": "milkbox",
+	"short_name": "milkbox",
 	"display": "minimal-ui",
 	"start_url": "/",
 	"icons": [
