@@ -60,6 +60,7 @@
 		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">home</a></li>
 		<li><a rel=prefetch aria-current="{segment === 'browser' ? 'page' : undefined}" href="browser">browser</a></li>
 		<li><a rel=prefetch aria-current="{segment === 'shared-drives' ? 'page' : undefined}" href="browser/shared-drives">shared drives</a></li>
+		<li><a aria-current="{segment === 'settings' ? 'page' : undefined}" href="settings">settings</a></li>
 		<!-- for the blog link, we're using rel=prefetch so that Sapper prefetches
 		     the blog data when we hover over the link or tap it on a touchscreen -->
 	</ul>

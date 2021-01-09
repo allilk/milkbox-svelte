@@ -9,7 +9,10 @@ body {
 a {
 	text-decoration: none;
 }
-.file:hover, .folder:hover, .selected {
+.folder {
+	color: #3399ff;
+}
+.not-selected:hover, .selected {
 	color:white;
 	background-color: #858c8c;
 }
@@ -24,10 +27,6 @@ code {
 	border-radius: 2px;
 }
 
-
-.folder {
-	color: #3399ff;
-}
 @media (min-width: 400px) {
 	body {
 		font-size: 16px;

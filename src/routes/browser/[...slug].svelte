@@ -1,5 +1,5 @@
 <script context="module">
-	
+	import {darkmode} from '../stores';
 	export async function preload(page, folder_id) {
 		const { slug } = page.params;
 		folder_id = slug;
@@ -7,19 +7,43 @@
 	}
 
 </script>
-<script type="text/javascript">
+<script type='text/javascript'>
 	export let folder_id;
-	import db from './connection';
-	import { afterUpdate, beforeUpdate, tick } from 'svelte';
-	import loading from 'images/loading.gif';
-	import natsort from '../../scripts/natsort.min.js';
-
-
+    import db from './connection';
+    import { afterUpdate, beforeUpdate, onMount, tick } from 'svelte';
+    import loading from 'images/loading.gif';
+    import natsort from '../../scripts/natsort.min.js';
+	
+    
 	let keyCode;
 	let itemList;
 	let lineSelected = 0;
-	
-	async function handleKeydown(event) {
+
+	const getAllWords = (text) => {
+			var allWordsIncludingDups = text.split(' ');
+			var wordSet = allWordsIncludingDups.reduce(function (prev, current) {
+				prev[current] = true;
+				return prev;
+			}, {});
+			return Object.keys(wordSet);
+			};
+    const formatBytes = (bytes, decimals=2) => {
+            if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const dm = decimals < 0 ? 0 : decimals;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        };
+	const setLoading = async () => {
+		let loadingIcon = document.getElementById('#loading');
+		loadingIcon.style = "";
+		let Content = document.getElementById("content-list");
+		Content.style = "display: none;";
+		}
+	const handleKeydown = async (event) => {
 		keyCode = event.keyCode;
 		if (keyCode == 83 || keyCode == 40) {
 			if (lineSelected < itemList.length - 1){
@@ -49,123 +73,24 @@
 			let linkObj = selObj.getElementsByTagName('a')[0]
 			linkObj.click()
 		}
-	}
-
-	async function setLoading(){
-			let loadingIcon = document.getElementById('#loading');
-			loadingIcon.style = "";
-			let Content = document.getElementById("content-list");
-			Content.style = "display: none;";
-		}
+	
+		};
 	beforeUpdate(async () => {
 		setLoading();
 	});
-	afterUpdate(async () => {
+	afterUpdate(async() => {
 		lineSelected = 0;
 		let FOLDER_ID = folder_id[0];
 		let PEOPLE_ID;
 		let REFRESH = false;
 		let IS_SEARCH = 'false';
 		let QUERY;
+		
 		const authorizeButton = document.getElementById('authorize_button');
 		const signoutButton = document.getElementById('signout_button');
 		const refreshButton = document.getElementById('refresh_button');
-		
-		function handleClick(e) {
-			e.preventDefault();
-		}
-		async function downloadFile(fileId){
-			let theFile = await gapi.client.drive.files.get({
-				'fileId':fileId,
-				'supportsAllDrives':true,
-				'includeItemsFromAllDrives':true,
-				'fields': "webContentLink",
-			})
-			window.location.href = theFile.result.webContentLink;
-		}
-		async function onLinkClick(listItem) {
-            // listItem.addEventListener('dblclick', function(ev){
-            //     ev.preventDefault();
-			// 	let str = listItem.getElementsByTagName("span")[0].innerText
-            //     str = str.replace('(','')
-            //     str = str.replace(')', '')
-			// 	downloadFile(str)
-			// }, false);
-		}
-		async function onLinkInit(){
-			let itemList = document.getElementsByClassName("file");
-			for (var i = 0; i < itemList.length; i++) {
-				let fileObj = itemList[i].getElementsByTagName("span")[0]
-				onLinkClick(fileObj);
-			}
-		}
-		async function refreshContent(){
-			REFRESH = true;
-			setLoading().then(async function(res) {
-				listFiles();
-			});
-		}
-		function handleClientLoad() {
-			gapi.load('client:auth2', onLoadCallback);
-		}
-		function onLoadCallback() {
-			gapi.client.init({
-			cookiepolicy: 'single_host_origin',
-			apiKey: API_KEY,
-			clientId: CLIENT_ID,
-			discoveryDocs: DISCOVERY_DOCS,
-			scope: SCOPES
-			}).then(function () {
 
-			gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-
-			updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-			authorizeButton.onclick = handleAuthClick;
-			signoutButton.onclick = handleSignoutClick;
-			refreshButton.onclick = refreshContent;
-			}, function(error) {
-			console.log(JSON.stringify(error, null, 2));
-			});
-		}
-		function updateSigninStatus(isSignedIn) {
-			if (isSignedIn) {
-			authorizeButton.style.display = 'none';
-			signoutButton.style.display = 'block';
-			refreshButton.style.display = 'block';
-			gapi.client.people.people.get({
-				'resourceName': 'people/me',
-				'requestMask.includeField': 'person.names'
-			}).then(function(resp) {
-				PEOPLE_ID = (resp.result.resourceName).split('people/')[1];
-				listFiles();
-			});
-			} else {
-			authorizeButton.style.display = 'block';
-			signoutButton.style.display = 'none';
-			refreshButton.style.display = 'none';
-			}
-		}
-		function handleAuthClick(event) {
-			gapi.auth2.getAuthInstance().signIn();
-		}
-		function handleSignoutClick(event) {
-			gapi.auth2.getAuthInstance().signOut();
-			}
-		function formatBytes(bytes, decimals = 2) {
-			if (bytes === 0) return '0 Bytes';
-
-			const k = 1024;
-			const dm = decimals < 0 ? 0 : decimals;
-			const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
-			const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-			return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-		}
-		const updateParent = async () => {
-			// formatBytes(parseInt(fileObj.size))
-			
-		}
+		handleClientLoad()
 		const createContent = async (fileName, fileId, fileMimeType, fileSize) => {
 			let mainDiv = document.createElement('div');
 			let existingContent = document.getElementById('content-list');
@@ -201,101 +126,8 @@
 			mainDiv.setAttribute("class", divClasses);
 			existingContent.appendChild(mainDiv)
 
-		};
-		async function loadContent(){
-			// Declare natsort sorter
-			let sorter = natsort({ insensitive: true });
-			// Declare complete list
-			let masterList = [];
-			
-			// Remove whatever content that is there now.
-			let oldContent = document.getElementById('content-list');
-			oldContent.innerHTML = '';
-
-			if (IS_SEARCH == "false"){
-				// Get folders
-				let folderList = await db.files.where({
-					'parents': FOLDER_ID,
-					'peopleid': PEOPLE_ID,
-					'issearch': IS_SEARCH,
-				}).and(function(item){
-					return item.mimetype == 'folder';
-				}).sortBy('name');
-				// Sort using natsort!
-				folderList.sort(function(a, b) {
-					return sorter(a.name, b.name);
-				});
-
-				masterList.push(folderList);
-
-				// Get files
-				let fileList = await db.files.where({
-					'parents': FOLDER_ID,
-					'peopleid': PEOPLE_ID,
-					'issearch': IS_SEARCH,
-				}).and(function(item){
-					return item.mimetype != 'folder';
-				}).sortBy('name');
-
-				// Sort using natsort!
-				fileList.sort(function(a, b) {
-					return sorter(a.name, b.name);
-				});
-
-				masterList.push(fileList);
-				// Flatten array
-				masterList = [].concat.apply([], masterList);
-
-			} else {
-				masterList = await db.files.where('words').startsWithIgnoreCase(QUERY).distinct().toArray()
-				let indexHeader = document.getElementById('index-header');
-				indexHeader.innerText = 'Search Results'
-				console.log(masterList)
-			}
-
-
-			// Remove loading icon
-			let loadingIcon = document.getElementById('#loading');
-			loadingIcon.style = "display: none;";
-			let oContent = document.getElementById("content-list");
-			oContent.style = "";
-
-			// Display file count in header
-			const fileCount = document.getElementById("file-count");
-			// Set file count in header
-			fileCount.innerText = masterList.length;
-			
-			// Declare cumulative size variable
-			let totalSize = 0;
-
-			// Create elements for each file
-			getParent().then(function (resp) {
-				createContent('..', resp, 'folder', 0).then(function () {
-					for (let i = 0; i < masterList.length; i++){
-						let fileObj = masterList[i];
-						let fileSize = 0;
-						// Add to total directory size
-						if (parseInt(fileObj.size) > 0){
-							totalSize += parseInt(fileObj.size);
-							fileSize = parseInt(fileObj.size);
-						};
-						createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
-					};
-				}).then(function (){
-					// Reflect directory size in header
-					const sizeTotal = document.getElementById("total-size");
-					sizeTotal.innerText = formatBytes(totalSize);
-					// Initialize links
-					onLinkInit();
-					itemList = document.getElementsByClassName("not-selected");
-					IS_SEARCH = "false";
-				})
-			});
-			
-
-			
-		};
-		async function getParent(){
+			};
+		const getParent = async() => {
 			// To display the directory title at top
 			const dirTitle = document.getElementById("dir-title");
 			let folderName = "my drive";
@@ -332,11 +164,96 @@
 			dirTitle.innerText = folderName;
 			return parentId;
 			
-		};
-		async function listFiles(){
-			await getFiles();
-		};
-		async function checkForCache(){
+			};
+		const loadContent = async () => {
+			// Declare natsort sorter
+			let sorter = natsort({ insensitive: true });
+			// Declare complete list
+			let masterList = [];
+			// // Remove whatever content that is there now.
+			let oldContent = document.getElementById('content-list');
+			oldContent.innerHTML = '';
+			
+			if (IS_SEARCH == "false"){
+				// Get folders
+				let folderList = await db.files.where({
+					'parents': FOLDER_ID,
+					'peopleid': PEOPLE_ID,
+					'issearch': IS_SEARCH,
+				}).and(function(item){
+					return item.mimetype == 'folder';
+				}).sortBy('name');
+				// Sort using natsort!
+				folderList.sort(function(a, b) {
+					return sorter(a.name, b.name);
+				});
+
+				masterList.push(folderList);
+
+				// Get files
+				let fileList = await db.files.where({
+					'parents': FOLDER_ID,
+					'peopleid': PEOPLE_ID,
+					'issearch': IS_SEARCH,
+				}).and(function(item){
+					return item.mimetype != 'folder';
+				}).sortBy('name');
+
+				// Sort using natsort!
+				fileList.sort(function(a, b) {
+					return sorter(a.name, b.name);
+				});
+
+				masterList.push(fileList);
+				// Flatten array
+				masterList = [].concat.apply([], masterList);
+			} else {
+				masterList = await db.files.where('words').startsWithIgnoreCase(QUERY).distinct().toArray()
+				let indexHeader = document.getElementById('index-header');
+				indexHeader.innerText = 'Search Results'
+			}
+
+
+			// Remove loading icon
+			let loadingIcon = document.getElementById('#loading');
+			loadingIcon.style = "display: none;";
+			let oContent = document.getElementById("content-list");
+			oContent.style = "";
+
+			// Display file count in header
+			const fileCount = document.getElementById("file-count");
+			// Set file count in header
+			fileCount.innerText = masterList.length;
+			
+			// Declare cumulative size variable
+			let totalSize = 0;
+
+			// Create elements for each file
+			getParent().then(function (resp) {
+				createContent('..', resp, 'folder', 0).then(function () {
+					for (let i = 0; i < masterList.length; i++){
+						let fileObj = masterList[i];
+						let fileSize = 0;
+						// Add to total directory size
+						if (parseInt(fileObj.size) > 0){
+							totalSize += parseInt(fileObj.size);
+							fileSize = parseInt(fileObj.size);
+						};
+						createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
+					};
+				}).then(function (){
+					// Reflect directory size in header
+					const sizeTotal = document.getElementById("total-size");
+					sizeTotal.innerText = formatBytes(totalSize);
+					// // Initialize links
+					// onLinkInit();
+					itemList = document.getElementsByClassName("not-selected");
+					// IS_SEARCH = "false";
+				})
+			});
+			
+			};
+		const checkForCache = async () => {
 			if (REFRESH) {
 				await db.files.where({
 					'parents': FOLDER_ID,
@@ -352,9 +269,8 @@
 			}).sortBy('name');
 			if (ifCache.length > 0) {cacheExists = true;};
 			return cacheExists;
-		};
-	
-		async function getFiles(){
+			};
+		const getFiles = async () => {
 			let fetchFiles = true;
 			let fileList = [];
 			let parentFolder = 'root';
@@ -373,6 +289,7 @@
 					} else {
 						querySearch = `'${FOLDER_ID}' in parents and trashed=false`;
 					};
+
 					while (fetchFiles){
 						await gapi.client.drive.files.list({
 							'q':querySearch,
@@ -383,10 +300,6 @@
 							'fields': 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId)',
 							'pageToken': nextPageToken,
 						}).then(async function(resp) {
-							// for (let i = 0; i < resp.result.files.length; i++){
-							// 	let fileObj = resp.result.files[i];
-							// 	createContent(fileObj.name, fileObj.id, fileObj.mimeType)
-							// }
 							fileList.push(resp.result.files);
 							if (!resp.result.nextPageToken) {fetchFiles = false;}
 							else { nextPageToken = resp.result.nextPageToken; };
@@ -417,43 +330,67 @@
 							peopleid: PEOPLE_ID,
 							issearch: IS_SEARCH,
 							words: getAllWords(fileObj.name)
-						}).then(async function(res){
-							// console.log(res)
 						});
-						
 					};
 				};
 			}).then(async function(){
 				
-			}).then(async function(){
-				await loadContent()
+			}).then(function(){
+				loadContent()
 				
 			});
 			
-		};
+			};
+			
+        function handleClientLoad() {
+			gapi.load('client:auth2', onLoadCallback);
+		    }
+		function onLoadCallback() {
+			gapi.client.init({
+			cookiepolicy: 'single_host_origin',
+			apiKey: API_KEY,
+			clientId: CLIENT_ID,
+			discoveryDocs: DISCOVERY_DOCS,
+			scope: SCOPES
+			}).then(function () {
 
+			gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
-		function getAllWords(text) {
-			var allWordsIncludingDups = text.split(' ');
-			var wordSet = allWordsIncludingDups.reduce(function (prev, current) {
-				prev[current] = true;
-				return prev;
-			}, {});
-			return Object.keys(wordSet);
-		}
-		handleClientLoad();
-	// 	const searchContent = document.getElementById("search_input")
-	// 		document.getElementById("search_input").addEventListener('keypress', function (e) {
-	// 			if (e.key === 'Enter') {
-	// 				setLoading().then(function(res){
-	// 					QUERY = searchContent.value;
-	// 					getFiles();
-	// 				});
-	// 			};
-	// 		});
+			updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+			authorizeButton.onclick = handleAuthClick;
+			signoutButton.onclick = handleSignoutClick;
+			refreshButton.onclick = getFiles;
+			}, function(error) {
+			console.log(JSON.stringify(error, null, 2));
+			});
+		    }
+		function updateSigninStatus(isSignedIn) {
+			if (isSignedIn) {
+			authorizeButton.style.display = 'none';
+			signoutButton.style.display = 'block';
+			refreshButton.style.display = 'block';
+			gapi.client.people.people.get({
+				'resourceName': 'people/me',
+				'requestMask.includeField': 'person.names'
+			}).then(function(resp) {
+				PEOPLE_ID = (resp.result.resourceName).split('people/')[1];
+				getFiles();
+			});
+			} else {
+			authorizeButton.style.display = 'block';
+			signoutButton.style.display = 'none';
+			refreshButton.style.display = 'none';
+			}
+		    }
+		function handleAuthClick(event) {
+			gapi.auth2.getAuthInstance().signIn();
+		    }
+		function handleSignoutClick(event) {
+			gapi.auth2.getAuthInstance().signOut();
+			}
 	});
-</script>
 
+</script>
 <span id="index-header" class="text-2xl"><span>Index of ./<span id="dir-title"></span>/</span> <span class="text-gray-500">({folder_id})</span></span>
 <br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr><br>
 <button id="authorize_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
@@ -462,7 +399,6 @@
 	Sign Out</button>
 <button id="refresh_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
 	Refresh</button>
-
 <svelte:window on:keydown={handleKeydown}/>
 <div class="grid grid-cols-6 gap-1 text-xl">
 
