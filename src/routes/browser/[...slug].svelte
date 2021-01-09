@@ -100,7 +100,7 @@
 			
 			let sizeElement = document.createElement('div');
 			sizeElement.innerText = formatBytes(fileSize);
-			sizeElement.setAttribute("class", "col-span-2 file-size text-center");
+			sizeElement.setAttribute("class", "col-span-2 file-size text-right");
 
 			let linkWithin = document.createElement('a');
 			linkWithin.innerText = fileName;
@@ -110,7 +110,7 @@
 			idWithin.innerText = ` (${fileId})`
 
 			
-			let divClasses = `grid grid-cols-6 not-selected ${fileMimeType} px-4 py-1`;
+			let divClasses = `grid grid-cols-6 align-middle not-selected ${fileMimeType} px-4 py-2`;
 			let emojiMime = '❔';
 			if (fileMimeType == 'folder') {
 				linkWithin.innerText += `/`
@@ -410,30 +410,34 @@
 	});
 
 </script>
-<span id="index-header" class="text-2xl"><span>index of ./<span id="dir-title"></span>/</span> <span class="text-xl text-gray-500">({folder_id})</span></span>
-<br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr>
-<br>
-<div class="inline-flex px-4">
-	<button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 border border-gray-400 rounded-none shadow">
-		Authorize</button>
-	<button id="signout_button" style="display: none;" class="font-semibold px-2 py-2 border border-gray-400 rounded-none shadow">
-		Sign Out</button>
-	<button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 border border-gray-400 rounded-none shadow">
-		Refresh</button>
-</div>
 <svelte:window on:keydown={handleKeydown}/>
-<div class="grid grid-cols-6 text-sm">
-	
-	<div class="col-span-4 font-bold px-4 py-3 animation-pulse">Name</div>
-	<div class="col-span-2 font-bold file-size py-3 text-center">Size</div>
-
-
-	<div id="#loading" class="col-span-full">
-		<center>
-			<div class="lds-ripple"><div></div><div></div></div>
-		</center>
-	</div>
+<div class="top-header shadow-2xl px-8 py-16 sm:py-12 ">
+	<span id="index-header" class="text-2xl"><span>index of ./<span id="dir-title"></span>/</span> <span class="text-xl text-gray-500">({folder_id})</span></span>
+	<br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr>
+	<br>
 </div>
-<div id="content-list" class="text-sm">
-
+<div class="px-8 shadow-inner">
+	<div class="inline-flex px-4 space-y-4">
+		<button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+			Authorize</button>
+		<button id="signout_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+			Sign Out</button>
+		<button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+			Refresh</button>
+	</div>
+	<div class="grid grid-cols-6 text-sm">
+		
+		<div class="col-span-4 font-bold px-4 py-3 animation-pulse">Name</div>
+		<div class="col-span-2 font-bold file-size mr-8 text-right">Size</div>
+	
+	
+		<div id="#loading" class="col-span-full">
+			<center>
+				<div class="lds-ripple"><div></div><div></div></div>
+			</center>
+		</div>
+	</div>
+	<div id="content-list" class="text-sm">
+	
+	</div>
 </div>

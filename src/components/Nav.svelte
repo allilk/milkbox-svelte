@@ -11,7 +11,6 @@
 
 	ul {
 		margin: 0;
-		padding: 0;
 	}
 
 	/* clearfix */
@@ -49,7 +48,7 @@
 </style>
 
 <nav>
-	<ul>
+	<ul class="px-4 py-3">
 		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">home</a></li>
 		<li><a rel=prefetch aria-current="{segment === 'browser' ? 'page' : undefined}" href="browser">browser</a></li>
 		<li><a rel=prefetch aria-current="{segment === 'shared-drives' ? 'page' : undefined}" href="browser/shared-drives">shared drives</a></li>
