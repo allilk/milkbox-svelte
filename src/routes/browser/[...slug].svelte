@@ -15,11 +15,13 @@
     import natsort from '../../scripts/natsort.min.js';
 	
 
-	
 	let keyCode;
 	let itemList;
 	let lineSelected = 0;
-
+	let finalList = [];
+	let folderParent;
+	let sorted = 0;
+	let sortedname = 0;
 	const getAllWords = (text) => {
 			var allWordsIncludingDups = text.split(' ');
 			var wordSet = allWordsIncludingDups.reduce(function (prev, current) {
@@ -90,6 +92,8 @@
 		const authorizeButton = document.getElementById('authorize_button');
 		const signoutButton = document.getElementById('signout_button');
 		const refreshButton = document.getElementById('refresh_button');
+		const nameHeader = document.getElementById('sort-name');
+		const sizeHeader = document.getElementById('sort-size');
 
 		handleClientLoad()
 		const createContent = async (fileName, fileId, fileMimeType, fileSize) => {
@@ -187,7 +191,7 @@
 		const loadContent = async () => {
 			// Declare natsort sorter
 			let sorter = natsort({ insensitive: true });
-			// Declare complete list
+
 			let masterList = [];
 			// // Remove whatever content that is there now.
 			let oldContent = document.getElementById('content-list');
@@ -249,6 +253,7 @@
 
 			// Create elements for each file
 			getParent().then(function (resp) {
+				folderParent = resp;
 				createContent('..', resp, 'folder', 0).then(function () {
 					for (let i = 0; i < masterList.length; i++){
 						let fileObj = masterList[i];
@@ -258,6 +263,7 @@
 							totalSize += parseInt(fileObj.size);
 							fileSize = parseInt(fileObj.size);
 						};
+						finalList.push(fileObj)
 						createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
 					};
 				}).then(function (){
@@ -294,7 +300,7 @@
 			let fileList = [];
 			let parentFolder = 'root';
 			let nextPageToken;
-
+			
 			// Get files from API and cache
 			checkForCache().then(async function(res){
 				let querySearch;
@@ -353,14 +359,106 @@
 					};
 				};
 			}).then(async function(){
-				
+				// Remove whatever content that is there now.
+				let oldContent = document.getElementById('content-list');
+				oldContent.innerHTML = '';
+				finalList = [];
 			}).then(function(){
 				loadContent()
 				
 			});
 			
 			};
+
+		const sortSize = async () => {
+			// // Remove whatever content that is there now.
+			let oldContent = document.getElementById('content-list');
+			oldContent.innerHTML = '';
+			let newList = [];
+			setLoading();
+			// console.log(finalList)
+			for (let i = 0; i < finalList.length; i++){
+				let obj = finalList[i]
+				let newSize = obj.size;
+				if (obj.size == undefined) {
+					newSize = '0';
+				}
+				let newobj = {
+					name: obj.name,
+					id: obj.id,
+					mimetype: obj.mimetype,
+					size:parseInt(newSize),
+				}
+				// console.log(newobj)
+				newList.push(newobj)
+			}
+			if (sorted == 1){
+				sorted = 0;
+				newList = newList.sort(function (a, b) {
+				return a.size - b.size;
+				});
+			} else {
+				sorted = 1;
+				newList = newList.sort(function (a, b) {
+				return b.size - a.size;
+				});
+			}
 			
+			// console.log(newList)
+			createContent('..', folderParent, 'folder', 0).then(function () {
+				// Remove loading icon
+				let loadingIcon = document.getElementById('#loading');
+				loadingIcon.style = "display: none;";
+				oldContent.style = "";
+				for (let i = 0; i < newList.length; i++){
+					let fileObj = newList[i];
+					let fileSize = 0;
+					// Add to total directory size
+					if (parseInt(fileObj.size) > 0){
+						fileSize = parseInt(fileObj.size);
+					};
+					createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
+				};
+			})
+			}	
+		const sortName = async () => {
+			let sorter = natsort({ insensitive: true });
+			// // Remove whatever content that is there now.
+			let oldContent = document.getElementById('content-list');
+			oldContent.innerHTML = '';
+			let newList = finalList;
+			
+			setLoading();
+			if (sortedname == 1){
+				sortedname = 0;
+				newList = newList.sort(function(a, b) {
+					return sorter(a.name, b.name);
+				});
+			} else {
+				sortedname = 1;
+				sorter = natsort({ insensitive: true, desc: true });
+				newList = newList.sort(function(a, b) {
+					return sorter(a.name, b.name);
+				});
+			}
+			
+			// console.log(newList)
+			createContent('..', folderParent, 'folder', 0).then(function () {
+				// Remove loading icon
+				let loadingIcon = document.getElementById('#loading');
+				loadingIcon.style = "display: none;";
+				oldContent.style = "";
+				for (let i = 0; i < newList.length; i++){
+					let fileObj = newList[i];
+					let fileSize = 0;
+					// Add to total directory size
+					if (parseInt(fileObj.size) > 0){
+						fileSize = parseInt(fileObj.size);
+					};
+					createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
+				};
+			})
+			}	
         function handleClientLoad() {
 			gapi.load('client:auth2', onLoadCallback);
 		    }
@@ -379,6 +477,8 @@
 			authorizeButton.onclick = handleAuthClick;
 			signoutButton.onclick = handleSignoutClick;
 			refreshButton.onclick = getFiles;
+			nameHeader.onclick = sortName;
+			sizeHeader.onclick = sortSize;
 			}, function(error) {
 			console.log(JSON.stringify(error, null, 2));
 			});
@@ -425,10 +525,10 @@
 		<button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
 			Refresh</button>
 	</div>
-	<div class="grid grid-cols-6 text-sm">
+	<div class="grid grid-cols-6 text-sm sticky">
 		
-		<div class="col-span-4 font-bold px-4 py-3 animation-pulse">Name</div>
-		<div class="col-span-2 font-bold file-size mr-8 text-right">Size</div>
+		<div id="sort-name" class="col-span-4 font-bold px-4 py-3 animation-pulse">Name</div>
+		<div id="sort-size" class="col-span-2 font-bold file-size mr-8 text-right">Size</div>
 	
 	
 		<div id="#loading" class="col-span-full">
