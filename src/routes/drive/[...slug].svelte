@@ -87,7 +87,7 @@
 		let REFRESH = false;
 		let IS_SEARCH = 'false';
 		let QUERY;
-		
+		let SHARED = 'false';
 		const authorizeButton = document.getElementById('authorize_button');
 		const signoutButton = document.getElementById('signout_button');
 		const refreshButton = document.getElementById('refresh_button');
@@ -114,11 +114,12 @@
 
 			
 			let divClasses = `grid grid-cols-6 align-middle not-selected ${fileMimeType} px-4 py-2`;
+			mainDiv.title = fileName;
 			let emojiMime = '❔';
 			if (fileMimeType == 'folder') {
 				linkWithin.innerText += `/`
 				emojiMime = '📂';
-				linkWithin.href = `browser/${fileId}`;
+				linkWithin.href = `drive/${fileId}`;
 			} else { 
 				divClasses += " file"
 				
@@ -206,6 +207,7 @@
 					'parents': FOLDER_ID,
 					'peopleid': PEOPLE_ID,
 					'issearch': IS_SEARCH,
+					'shared': SHARED
 				}).and(function(item){
 					return item.mimetype == 'folder';
 				}).sortBy('name');
@@ -215,11 +217,14 @@
 				});
 				masterList.push(folderList);
 
+
+				
 				// Get files
 				let fileList = await db.files.where({
 					'parents': FOLDER_ID,
 					'peopleid': PEOPLE_ID,
 					'issearch': IS_SEARCH,
+					'shared':SHARED
 				}).and(function(item){
 					return item.mimetype != 'folder';
 				}).sortBy('name');
@@ -233,7 +238,12 @@
 				// Flatten array
 				masterList = [].concat.apply([], masterList);
 			} else if (FOLDER_ID == 'shared-with-me'){
-				masterList = await db.files.where('shared').equals('true').toArray()
+				masterList = await db.files.where({
+					'parents': 'root',
+					'peopleid': PEOPLE_ID,
+					'issearch': IS_SEARCH,
+					'shared': SHARED
+				}).toArray()
 			} else {
 				masterList = await db.files.where('words').startsWithIgnoreCase(QUERY).distinct().toArray()
 				let indexHeader = document.getElementById('index-header');
@@ -288,6 +298,7 @@
 					'parents': FOLDER_ID,
 					'peopleid': PEOPLE_ID,
 					'issearch': IS_SEARCH,
+					'shared':SHARED
 				}).delete()
 			}
 			let cacheExists = false;
@@ -295,6 +306,7 @@
 				'parents': FOLDER_ID,
 				'peopleid': PEOPLE_ID,
 				'issearch': IS_SEARCH,
+				'shared': SHARED
 			}).sortBy('name');
 			if (ifCache.length > 0) {cacheExists = true;};
 			return cacheExists;
@@ -308,7 +320,6 @@
 			// Get files from API and cache
 			checkForCache().then(async function(res){
 				let querySearch;
-				let sharedWith = 'false';
 				// fullText contains '{query}' or name contains '{query}'
 				if (res == false || typeof QUERY != "undefined") {
 					
@@ -317,7 +328,7 @@
 						
 					} else if (FOLDER_ID == 'shared-with-me'){
 						querySearch = 'sharedWithMe'
-						sharedWith = 'true';
+						SHARED = 'true';
 					} else if (FOLDER_ID != 'shared-with-me') {
 						querySearch = `'${FOLDER_ID}' in parents and trashed=false`;
 					};
@@ -361,7 +372,7 @@
 							driveid: fileObj.driveId,
 							peopleid: PEOPLE_ID,
 							issearch: IS_SEARCH,
-							shared: sharedWith,
+							shared: SHARED,
 							words: getAllWords(fileObj.name)
 						});
 					};
@@ -473,7 +484,7 @@
 					REFRESH = false;
 				});
 			})
-		}
+			}
 		function handleClientLoad() {
 			gapi.load('client:auth2', onLoadCallback);
 		    }

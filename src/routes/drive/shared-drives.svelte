@@ -136,7 +136,7 @@
                 let newObj = document.createElement("a");
                 let newContent = document.createTextNode(drive.name);
                 newObj.style = 'color:#1da3a3;';
-                newObj.href = `browser/${drive.id}`;
+                newObj.href = `drive/${drive.id}`;
                 newObj.rel = "prefetch";
 				newObj.appendChild(newContent);
 
