@@ -15,20 +15,18 @@ body {
 	color:#eeeeee;
 	background-color: #232931;
 }
-button{
-	font-size: 12px;
-}
 a {
 	text-decoration: none;
 }
 .top-header {
-	background-color: #4ecca3;
+	background-color: #393e46;
+	color: #eeeeee;
 }
 .folder {
 	color: #4ecca3;
 }
 #file-count, #total-size {
-	color: #232931;
+	color: #4ecca3;
 }
 .not-selected:hover, .selected {
 	color:#232931;
@@ -43,6 +41,7 @@ a {
 }
 button{
 	background-color: #393e46;
+	font-size: 12px;
 	color: #4ecca3;
 	transition: background-color .2s;
 }

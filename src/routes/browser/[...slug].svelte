@@ -11,10 +11,10 @@
 	export let folder_id;
     import db from './connection';
     import { afterUpdate, beforeUpdate, onMount, tick } from 'svelte';
-    import loading from 'images/loading.gif';
     import natsort from '../../scripts/natsort.min.js';
 	
 
+	
 	let keyCode;
 	let itemList;
 	let lineSelected = 0;
@@ -459,7 +459,15 @@
 				};
 			})
 			}	
-        function handleClientLoad() {
+		const refreshContent = async () => {
+			setLoading().then(function(){
+				REFRESH = true;
+				getFiles().then(function(){
+					REFRESH = false;
+				});
+			})
+		}
+		function handleClientLoad() {
 			gapi.load('client:auth2', onLoadCallback);
 		    }
 		function onLoadCallback() {
@@ -476,7 +484,7 @@
 			updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
 			authorizeButton.onclick = handleAuthClick;
 			signoutButton.onclick = handleSignoutClick;
-			refreshButton.onclick = getFiles;
+			refreshButton.onclick = refreshContent;
 			nameHeader.onclick = sortName;
 			sizeHeader.onclick = sortSize;
 			}, function(error) {
