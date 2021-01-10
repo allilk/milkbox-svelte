@@ -14,7 +14,6 @@
     import natsort from '../../scripts/natsort.min.js';
 	
 
-	
 	let keyCode;
 	let itemList;
 	let lineSelected = 0;
@@ -154,40 +153,43 @@
 			// To display the directory title at top
 			const dirTitle = document.getElementById("dir-title");
 			let folderName = "my drive";
-			let parentId;
-
-			// CHECK IF IN/IS TEAM DRIVE OR NOT
-			await gapi.client.drive.files.get({
-						'fileId':FOLDER_ID,
-						'supportsAllDrives':true,
-						'includeItemsFromAllDrives':true,
-						'fields': "name, id, parents, driveId"
-			}).then(async function(resp){
-				// Check if "driveId" is present and 
-				// the folder id length is less than 30
-				// (to make sure, it is infact, a team drive)
-				if (resp.result.driveId && FOLDER_ID.length < 30){
-					await gapi.client.drive.drives.get({'driveId':FOLDER_ID})
-					.then(async function(resp){
-						// IS A TEAM DRIVE 
+			let parentId= 'root';
+			if (FOLDER_ID == 'shared-with-me'){
+				folderName = "Shared With Me";
+			} else {
+				// CHECK IF IN/IS TEAM DRIVE OR NOT
+				await gapi.client.drive.files.get({
+							'fileId':FOLDER_ID,
+							'supportsAllDrives':true,
+							'includeItemsFromAllDrives':true,
+							'fields': "name, id, parents, driveId"
+				}).then(async function(resp){
+					// Check if "driveId" is present and 
+					// the folder id length is less than 30
+					// (to make sure, it is infact, a team drive)
+					if (resp.result.driveId && FOLDER_ID.length < 30){
+						await gapi.client.drive.drives.get({'driveId':FOLDER_ID})
+						.then(async function(resp){
+							// IS A TEAM DRIVE 
+							folderName = resp.result.name;
+							parentId = 'shared-drives';
+						});
+					} else {
+						// NOT A TEAM DRIVE
 						folderName = resp.result.name;
-						parentId = 'shared-drives';
-					});
-				} else {
-					// NOT A TEAM DRIVE
-					folderName = resp.result.name;
-					if (FOLDER_ID.length > 30 || resp.result.driveId){
-						parentId = resp.result.parents[0];
-					} else  if(!resp.result.driveId) {
-						parentId = 'root'
+						if (FOLDER_ID.length > 30 || resp.result.driveId){
+							try {
+								parentId = resp.result.parents[0];
+							} catch { parentId = 'shared-with-me'}
+						}
 					}
-				}
-			})
-			// Add directory name to top
-			dirTitle.innerText = folderName;
-			return parentId;
-			
-			};
+				})
+				};
+				// Add directory name to top
+				dirTitle.innerText = folderName;
+				return parentId;
+				
+			}			
 		const loadContent = async () => {
 			// Declare natsort sorter
 			let sorter = natsort({ insensitive: true });
@@ -197,8 +199,9 @@
 			let oldContent = document.getElementById('content-list');
 			oldContent.innerHTML = '';
 			
-			if (IS_SEARCH == "false"){
+			if (IS_SEARCH == "false" && FOLDER_ID != 'shared-with-me'){
 				// Get folders
+				
 				let folderList = await db.files.where({
 					'parents': FOLDER_ID,
 					'peopleid': PEOPLE_ID,
@@ -210,7 +213,6 @@
 				folderList.sort(function(a, b) {
 					return sorter(a.name, b.name);
 				});
-
 				masterList.push(folderList);
 
 				// Get files
@@ -230,6 +232,8 @@
 				masterList.push(fileList);
 				// Flatten array
 				masterList = [].concat.apply([], masterList);
+			} else if (FOLDER_ID == 'shared-with-me'){
+				masterList = await db.files.where('shared').equals('true').toArray()
 			} else {
 				masterList = await db.files.where('words').startsWithIgnoreCase(QUERY).distinct().toArray()
 				let indexHeader = document.getElementById('index-header');
@@ -304,14 +308,17 @@
 			// Get files from API and cache
 			checkForCache().then(async function(res){
 				let querySearch;
-				
+				let sharedWith = 'false';
 				// fullText contains '{query}' or name contains '{query}'
 				if (res == false || typeof QUERY != "undefined") {
 					
 					if (typeof QUERY != "undefined"){
 						querySearch = `name contains '${QUERY}'`;
 						
-					} else {
+					} else if (FOLDER_ID == 'shared-with-me'){
+						querySearch = 'sharedWithMe'
+						sharedWith = 'true';
+					} else if (FOLDER_ID != 'shared-with-me') {
 						querySearch = `'${FOLDER_ID}' in parents and trashed=false`;
 					};
 
@@ -335,7 +342,7 @@
 					
 					for (let i = 0; i < fileList.length; i++){
 						let fileObj = fileList[i];
-						if (FOLDER_ID != 'root' || typeof QUERY != "undefined") {
+						if (FOLDER_ID != 'root' && FOLDER_ID != 'shared-with-me' || typeof QUERY != "undefined" ) {
 							parentFolder = (fileObj.parents).toString();
 						};
 						if (typeof QUERY != "undefined"){
@@ -354,6 +361,7 @@
 							driveid: fileObj.driveId,
 							peopleid: PEOPLE_ID,
 							issearch: IS_SEARCH,
+							shared: sharedWith,
 							words: getAllWords(fileObj.name)
 						});
 					};
@@ -364,8 +372,7 @@
 				oldContent.innerHTML = '';
 				finalList = [];
 			}).then(function(){
-				loadContent()
-				
+				loadContent()		
 			});
 			
 			};
