@@ -1,14 +1,13 @@
 <script>
     import { afterUpdate, beforeUpdate } from 'svelte';
-    import loading from 'images/loading.gif';
     import db from './connection';
 
 
-    async function setLoading(){
-			let loadingIcon = document.getElementById('#loading');
-			loadingIcon.style = "";
-			let Content = document.getElementById("#content");
-			Content.style = "display: none;";
+	const setLoading = async () => {
+		let loadingIcon = document.getElementById('#loading');
+		loadingIcon.style = "";
+		let Content = document.getElementById("content-list");
+		Content.style = "display: none;";
 		}
 	beforeUpdate(async () => {
         setLoading();
@@ -122,26 +121,25 @@
         async function loadContent() {
             let driveList = await db.drives.where('peopleid').equals(PEOPLE_ID).toArray();
 
-            let oldContent = document.getElementById('content');
+            let oldContent = document.getElementById('content-list');
             oldContent.innerHTML = '';
 
             let loadingIcon = document.getElementById('#loading');
             loadingIcon.style = 'display: none;';
-            
-            let newContent = document.getElementById('#content');
-            newContent.style = '';
 
             for (let i = 0; i < driveList.length; i++){
+                let divElement = document.createElement('div');
+                divElement.setAttribute("class", "col-span-4 md:col-span-2 align-middle py-1 pl-0");
                 let drive = driveList[i];
                 let newObj = document.createElement("a");
                 let newContent = document.createTextNode(drive.name);
-                newObj.style = 'color:#1da3a3;';
                 newObj.href = `drive/${drive.id}`;
-                newObj.rel = "prefetch";
 				newObj.appendChild(newContent);
 
                 newObj.innerHTML = "<span class='drive-obj'>" + newObj.innerHTML + ` <span id="file" class="text-xs text-gray-500">(${drive.id})</span></span>\n`;
-				oldContent.appendChild(newObj);
+                divElement.appendChild(newObj);
+                oldContent.appendChild(divElement);
+                
             };
             let totalDrives = document.getElementById('total-drives');
             totalDrives.innerText = `(${driveList.length})`;
@@ -151,24 +149,42 @@
 		
 </script>
 
-<span class="text-xl">my shared drives </span><span id="total-drives" class=" text-gray-500"></span>
-<br><hr><br>
-<button id="authorize_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
-	Authorize</button>
-<button id="signout_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
-	Sign Out</button>
-<button id="refresh_button" style="display: none;" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold px-2 border border-gray-400 rounded shadow">
-	Refresh</button>
 
 
-<div>
-	<div id="#loading">
-		<br>
-		<img width="30px" height="30px" alt="Loading.." src="{loading}">
-	</div>
-	<div id="#content" style="display: none;">
-		<pre class="content-list" id="content">
-			
-		</pre>
-	</div>
-</div>
+    <div class="top-header shadow-2xl px-8 py-16 sm:py-12 ">
+        <span id="index-header" class="text-2xl">my shared drives <span id="total-drives" class=" text-gray-500"></span></span>
+        <br><hr>
+        quick links: 
+        <a href="drive/root">
+            <button class="font-semibold px-2 py-2 rounded-none shadow">my drive</button>
+        </a>
+        <a href="drive/shared-with-me" >
+            <button class="font-semibold px-2 py-2 rounded-none shadow">shared with me</button>
+        </a>
+        <a href="drive/shared-drives">
+            <button class="font-semibold px-2 py-2 rounded-none shadow">shared drives</button>
+        </a>
+        <br>
+    </div>
+    <div class="px-2 shadow-inner whitespace-nowrap overflow-x-hidden">
+        <div class="inline-flex space-y-4">
+            <button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+                Authorize</button>
+            <button id="signout_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+                Sign Out</button>
+            <button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+                Refresh</button>
+        </div>
+        <div class="grid grid-cols-4 text-sm sticky">
+            
+            <div id="sort-name" class="col-span-4 font-bold py-3 animation-pulse">Name</div>
+            <div id="#loading" class="col-span-full">
+                <center>
+                    <div class="lds-ripple"><div></div><div></div></div>
+                </center>
+            </div>
+        </div>
+        <div id="content-list" class="grid grid-cols-4 text-sm">
+        
+        </div>
+    </div>

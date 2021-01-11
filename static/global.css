@@ -12,42 +12,19 @@ body {
 	font-family: 'Fira Code', monospace;
 	font-size: 20px;
 	line-height: 1.5;
-	color:#eeeeee;
-	background-color: #232931;
 }
 a {
 	text-decoration: none;
-}
-.top-header {
-	background-color: #393e46;
-	color: #eeeeee;
-}
-.folder {
-	color: #4ecca3;
-}
-#file-count, #total-size {
-	color: #4ecca3;
-}
-.not-selected:hover, .selected {
-	color:#232931;
-	background-color: #4ecca3;
 }
 .not-selected{
 	transition: 0.2s;
 	white-space: nowrap;
 }
-.file-size{
-	color: #eeeeee;
-}
 button{
-	background-color: #393e46;
 	font-size: 12px;
-	color: #4ecca3;
 	transition: background-color .2s;
 }
-button:hover{
-	background-color: #232931;
-}
+
 code {
 	font-size: calc(1em - 2px);
 	color: #555;
@@ -67,11 +44,10 @@ code {
 	height: 80px;
   }
 .lds-ripple div {
-position: absolute;
-border: 4px solid #4ecca3;
-opacity: 1;
-border-radius: 50%;
-animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+	position: absolute;
+	opacity: 1;
+	border-radius: 50%;
+	animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
 }
 .lds-ripple div:nth-child(2) {
 animation-delay: -0.5s;

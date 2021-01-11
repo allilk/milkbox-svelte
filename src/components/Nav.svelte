@@ -35,7 +35,6 @@
 		content: '';
 		width: calc(100% - 1em);
 		height: 2px;
-		background-color: #4ecca3;
 		display: block;
 		bottom: -1px;
 	}
@@ -51,7 +50,6 @@
 	<ul class="px-4 py-3">
 		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">home</a></li>
 		<li><a rel=prefetch aria-current="{segment === 'drive' ? 'page' : undefined}" href="drive">drive</a></li>
-		<li><a rel=prefetch aria-current="{segment === 'shared-drives' ? 'page' : undefined}" href="drive/shared-drives">shared drives</a></li>
 		<li><a aria-current="{segment === 'settings' ? 'page' : undefined}" href="settings">settings</a></li>
 	</ul>
 </nav>

@@ -12,7 +12,6 @@
     import db from './connection';
     import { afterUpdate, beforeUpdate, onMount, tick } from 'svelte';
     import natsort from '../../scripts/natsort.min.js';
-	
 
 	let keyCode;
 	let itemList;
@@ -103,7 +102,7 @@
 			
 			let sizeElement = document.createElement('div');
 			sizeElement.innerText = formatBytes(fileSize);
-			sizeElement.setAttribute("class", "col-span-2 file-size text-right");
+			sizeElement.setAttribute("class", "col-span-1 file-size text-right");
 
 			let linkWithin = document.createElement('a');
 			linkWithin.innerText = fileName;
@@ -113,7 +112,7 @@
 			idWithin.innerText = ` (${fileId})`
 
 			
-			let divClasses = `grid grid-cols-6 align-middle not-selected ${fileMimeType} px-4 py-2`;
+			let divClasses = `grid grid-cols-6 align-middle space-x-2 not-selected ${fileMimeType} px-4 py-2 `;
 			mainDiv.title = fileName;
 			let emojiMime = '❔';
 			if (fileMimeType == 'folder') {
@@ -142,7 +141,7 @@
 			linkWithin.innerText = `${emojiMime} ${linkWithin.innerText}`
 
 			linkWithin.appendChild(idWithin)
-			divElement.setAttribute("class", "col-span-4 file-title overflow-x-hidden");
+			divElement.setAttribute("class", "col-span-5 file-title overflow-x-hidden");
 			divElement.appendChild(linkWithin);
 			mainDiv.appendChild(divElement)
 			mainDiv.appendChild(sizeElement)
@@ -540,10 +539,20 @@
 <div class="top-header shadow-2xl px-8 py-16 sm:py-12 ">
 	<span id="index-header" class="text-2xl"><span>index of ./<span id="dir-title"></span>/</span> <span class="text-xl text-gray-500">({folder_id})</span></span>
 	<br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr>
+	quick links: 
+	<a href="drive/root">
+		<button class="font-semibold px-2 py-2 rounded-none shadow">my drive</button>
+	</a>
+	<a href="drive/shared-with-me" >
+		<button class="font-semibold px-2 py-2 rounded-none shadow">shared with me</button>
+	</a>
+	<a href="drive/shared-drives">
+		<button class="font-semibold px-2 py-2 rounded-none shadow">shared drives</button>
+	</a>
 	<br>
 </div>
 <div class="px-8 shadow-inner">
-	<div class="inline-flex px-4 space-y-4">
+	<div class="inline-flex space-y-4">
 		<button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
 			Authorize</button>
 		<button id="signout_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
@@ -553,8 +562,8 @@
 	</div>
 	<div class="grid grid-cols-6 text-sm sticky">
 		
-		<div id="sort-name" class="col-span-4 font-bold px-4 py-3 animation-pulse">Name</div>
-		<div id="sort-size" class="col-span-2 font-bold file-size mr-8 text-right">Size</div>
+		<div id="sort-name" class="col-span-5 font-bold py-3 animation-pulse">Name</div>
+		<div id="sort-size" class="col-span-1 font-bold file-size mr-8 text-right">Size</div>
 	
 	
 		<div id="#loading" class="col-span-full">
