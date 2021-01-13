@@ -1,5 +1,4 @@
 <script context="module">
-	import {darkmode} from '../stores';
 	export async function preload(page, folder_id) {
 		const { slug } = page.params;
 		folder_id = slug;
@@ -12,7 +11,8 @@
     import db from './connection';
     import { afterUpdate, beforeUpdate, onMount, tick } from 'svelte';
     import natsort from '../../scripts/natsort.min.js';
-
+	import {api_key, client_id, discovery_docs, scopes} from '../stores';
+	
 	let keyCode;
 	let itemList;
 	let lineSelected = 0;
@@ -490,10 +490,10 @@
 		function onLoadCallback() {
 			gapi.client.init({
 			cookiepolicy: 'single_host_origin',
-			apiKey: API_KEY,
-			clientId: CLIENT_ID,
-			discoveryDocs: DISCOVERY_DOCS,
-			scope: SCOPES
+			apiKey: $api_key,
+			clientId: $client_id,
+			discoveryDocs: $discovery_docs,
+			scope: $scopes
 			}).then(function () {
 
 			gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);

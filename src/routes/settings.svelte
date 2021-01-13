@@ -1,55 +1,30 @@
 <script>
-    // import {darkmode} from './stores';
-    import { writable } from "svelte/store";
-    import { onMount, beforeUpdate } from 'svelte';
+    import {onMount} from 'svelte';
+    import db from './drive/connection';
+    onMount(async ()=>{
+        let themeSelection = document.getElementById('themes');
+        themeSelection.addEventListener('change', async (ev) => {
+            console.log(ev.target.value)
+            let currentTheme = document.getElementById('current-theme');
+            currentTheme.href = ev.target.value+'.css'
+            await db.settings.where("user").equals(0).modify({theme: ev.target.value});
 
-    // import {onMount} from 'svelte';
-    export let darkmode;
-    onMount(()=>{
-        darkmode = writable(localStorage.getItem("darkmode"));
-        darkmode.subscribe(val => localStorage.setItem("darkmode", val));
-        const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-        const darkModeEnabled = darkModeQuery.matches
-
-        darkModeQuery.addListener(event => {
-            console.log('Theme changed to:', event.matches ? 'dark' : 'light')
-        })
-
-    })
-    // onMount(() => {
-    //     console.log(localStorage.getItem("darkmode"))
-    // })
-    function toggleDarkMode(){
-            if ($darkmode == false){
-                darkmode.update(n => true);
-            } else {
-                darkmode.update(n => false);
-            };
-        }
-    
+        });
+    });
 </script>
 
 <svelte:head>
     <title>milkbox</title>
 </svelte:head>
-{#if process.browser}
-    {#if $darkmode == true}
-    <style>
-        body{
-            background-color: grey;
-        }
-    </style>
-    {:else if $darkmode == false}
-    <style>
-        body{
-            background-color: red;
-        }
-    </style>
-    {/if}
-{/if}
 
-
-<input bind:value={$darkmode}>
-<button on:click={toggleDarkMode}>Enable Dark Mode</button>
-
+<form>
+    <label for="theme">Theme:</label>
+    <select name="theme" id="themes">
+      <option value="dark-theme">Dark Theme</option>
+      <option value="dark-gold-theme">Dark Gold Theme</option>
+      <option value="darker-dark-theme">Darker Dark Theme</option>
+      <option value="light-theme">Light Theme</option>
+      <option value="silver-theme">Silver Theme</option>
+    </select>
+</form>
+  

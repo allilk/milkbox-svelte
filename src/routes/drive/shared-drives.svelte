@@ -1,8 +1,8 @@
 <script>
     import { afterUpdate, beforeUpdate } from 'svelte';
     import db from './connection';
-
-
+    import {api_key, client_id, discovery_docs, scopes} from '../stores';
+    
 	const setLoading = async () => {
 		let loadingIcon = document.getElementById('#loading');
 		loadingIcon.style = "";
@@ -32,10 +32,10 @@
         function onLoadCallback() {
             gapi.client.init({
             cookiepolicy: 'single_host_origin',
-            apiKey: API_KEY,
-            clientId: CLIENT_ID,
-            discoveryDocs: DISCOVERY_DOCS,
-            scope: SCOPES
+            apiKey: $api_key,
+            clientId: $client_id,
+            discoveryDocs: $discovery_docs,
+            scope: $scopes
             }).then(function () {
             // console.log(gapi.auth2.GoogleAuth.currentUser.get())
             gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);

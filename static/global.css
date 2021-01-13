@@ -13,6 +13,9 @@ body {
 	font-size: 20px;
 	line-height: 1.5;
 }
+option, select {
+	color:black;
+}
 a {
 	text-decoration: none;
 }

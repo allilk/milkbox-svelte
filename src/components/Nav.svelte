@@ -1,5 +1,22 @@
 <script>
+	export let selected_theme = 'dark-theme';
 	export let segment;
+    import db from '../routes/drive/connection';
+	import {afterUpdate} from 'svelte';
+	
+	afterUpdate(async () => {
+		db.settings.where('user').equals(0).toArray().then(function(resp){
+			if (!resp[0].theme){
+				db.settings.put({
+						theme: 'dark-theme',
+						user: 0
+					});
+			} else {
+				selected_theme = resp[0].theme;
+			}
+		})	
+	})
+	
 </script>
 
 <style>
@@ -45,7 +62,9 @@
 		display: block;
 	}
 </style>
-
+<svelte:head>
+	<link id='current-theme' rel="stylesheet" href="{selected_theme}.css">
+</svelte:head>
 <nav>
 	<ul class="px-4 py-3">
 		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">home</a></li>
