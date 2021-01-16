@@ -4,10 +4,14 @@
     import {api_key, client_id, discovery_docs, scopes} from '../stores';
     
 	const setLoading = async () => {
-		let loadingIcon = document.getElementById('#loading');
-		loadingIcon.style = "";
-		let Content = document.getElementById("content-list");
-		Content.style = "display: none;";
+		try {
+			let loadingIcon = document.getElementById('#loading');
+			loadingIcon.style = "";
+			let Content = document.getElementById("content-list");
+			Content.style = "display: none;";
+		} catch {
+
+		}
 		}
 	beforeUpdate(async () => {
         setLoading();

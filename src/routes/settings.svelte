@@ -1,5 +1,5 @@
 <script>
-    import {onMount} from 'svelte';
+    import {onMount, afterUpdate} from 'svelte';
     import db from './drive/connection';
     onMount(async ()=>{
         let themeSelection = document.getElementById('themes');
@@ -7,8 +7,10 @@
             console.log(ev.target.value)
             let currentTheme = document.getElementById('current-theme');
             currentTheme.href = ev.target.value+'.css'
-            await db.settings.where("user").equals(0).modify({theme: ev.target.value});
-
+            db.settings.put({
+						theme: ev.target.value,
+						user: 0
+					});
         });
     });
 </script>

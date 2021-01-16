@@ -3,7 +3,7 @@
 	export let segment;
     import db from '../routes/drive/connection';
 	import {afterUpdate} from 'svelte';
-	
+
 	afterUpdate(async () => {
 		db.settings.where('user').equals(0).toArray().then(function(resp){
 			if (!resp[0].theme){
@@ -16,6 +16,7 @@
 			}
 		})	
 	})
+	
 	
 </script>
 
@@ -68,7 +69,7 @@
 <nav>
 	<ul class="px-4 py-3">
 		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">home</a></li>
-		<li><a rel=prefetch aria-current="{segment === 'drive' ? 'page' : undefined}" href="drive">drive</a></li>
+		<li><a aria-current="{segment === 'drive' ? 'page' : undefined}" href="drive">drive</a></li>
 		<li><a aria-current="{segment === 'settings' ? 'page' : undefined}" href="settings">settings</a></li>
 	</ul>
 </nav>

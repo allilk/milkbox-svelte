@@ -39,10 +39,15 @@
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
         };
 	const setLoading = async () => {
-		let loadingIcon = document.getElementById('#loading');
-		loadingIcon.style = "";
-		let Content = document.getElementById("content-list");
-		Content.style = "display: none;";
+		try {
+			let loadingIcon = document.getElementById('#loading');
+			loadingIcon.style = "";
+			let Content = document.getElementById("content-list");
+			Content.style = "display: none;";
+		} catch {
+
+		}
+
 		}
 	const handleKeydown = async (event) => {
 		keyCode = event.keyCode;
