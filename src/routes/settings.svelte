@@ -22,11 +22,12 @@
 <form>
     <label for="theme">Theme:</label>
     <select name="theme" id="themes">
-      <option value="dark-theme">Dark Theme</option>
-      <option value="dark-gold-theme">Dark Gold Theme</option>
-      <option value="darker-dark-theme">Darker Dark Theme</option>
-      <option value="light-theme">Light Theme</option>
-      <option value="silver-theme">Silver Theme</option>
+        <option value="" selected disabled hidden>Choose Theme</option>
+        <option value="dark-theme">Dark Theme</option>
+        <option value="dark-gold-theme">Dark Gold Theme</option>
+        <option value="darker-dark-theme">Darker Dark Theme</option>
+        <option value="light-theme">Light Theme</option>
+        <option value="silver-theme">Silver Theme</option>
     </select>
 </form>
   

@@ -1,4 +1,4 @@
-import { readable, writable } from 'svelte/store';
+import { readable } from 'svelte/store';
 
 export const client_id = readable(
     ''

@@ -117,7 +117,7 @@
 			idWithin.innerText = ` (${fileId})`
 
 			
-			let divClasses = `grid grid-cols-6 align-middle space-x-2 not-selected ${fileMimeType} px-4 py-2 `;
+			let divClasses = `grid grid-cols-6 align-middle space-x-2 not-selected ${fileMimeType} py-2 `;
 			mainDiv.title = fileName;
 			let emojiMime = '❔';
 			if (fileMimeType == 'folder') {
@@ -541,10 +541,10 @@
 
 </script>
 <svelte:window on:keydown={handleKeydown}/>
-<div class="top-header shadow-2xl px-8 py-16 sm:py-12 ">
-	<span id="index-header" class="text-2xl"><span>index of ./<span id="dir-title"></span>/</span> <span class="text-xl text-gray-500">({folder_id})</span></span>
+<div class="top-header shadow-2xl px-4 md:px-8 py-12 md:py-16 ">
+	<span id="index-header" class="font-bold text-xl md:text-2xl"><span>index of ./<span id="dir-title"></span>/ </span></span><span class="text-lg md:text-xl text-gray-500">({folder_id})</span>
 	<br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr>
-	quick links: 
+	<span class="text-sm">quick links: </span>
 	<a href="drive/root">
 		<button class="font-semibold px-2 py-2 rounded-none shadow">my drive</button>
 	</a>
@@ -556,7 +556,7 @@
 	</a>
 	<br>
 </div>
-<div class="px-8 shadow-inner">
+<div class="px-4 md:px-8 shadow-inner">
 	<div class="inline-flex space-y-4">
 		<button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
 			Authorize</button>

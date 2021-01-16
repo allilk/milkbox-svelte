@@ -26,13 +26,11 @@
 		}
 	}
 </style>
+<div class='px-8'>
+	<h1>{status}</h1>
 
-
-
-<h1>{status}</h1>
-
-<p>{error.message}</p>
-
+	<p>{error.message}</p>
+</div>
 {#if dev && error.stack}
 	<pre>{error.stack}</pre>
 {/if}
