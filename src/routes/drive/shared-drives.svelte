@@ -133,16 +133,20 @@
 
             for (let i = 0; i < driveList.length; i++){
                 let divElement = document.createElement('div');
-                divElement.setAttribute("class", "col-span-4 md:col-span-2 align-middle py-1 pl-0");
                 let drive = driveList[i];
                 let newObj = document.createElement("a");
                 let newContent = document.createTextNode(drive.name);
+                let bottomContent = document.createElement('div');
+                bottomContent.innerText = `(${drive.id})`;
+                bottomContent.setAttribute('class','text-xs text-gray-500')
+                bottomContent.id = 'file';
                 newObj.href = `drive/${drive.id}`;
-				newObj.appendChild(newContent);
-
-                newObj.innerHTML = "<span class='drive-obj'>" + newObj.innerHTML + ` <span id="file" class="text-xs text-gray-500">(${drive.id})</span></span>\n`;
-                divElement.appendChild(newObj);
-                oldContent.appendChild(divElement);
+                newObj.setAttribute("class", "drive-obj whitespace-normal text-center text-lg px-16 py-6 shadow-inner col-span-2 md:col-span-1");
+                
+                divElement.appendChild(newContent);
+                divElement.appendChild(bottomContent)
+                newObj.appendChild(divElement);
+                oldContent.appendChild(newObj);
                 
             };
             let totalDrives = document.getElementById('total-drives');
@@ -170,7 +174,7 @@
         </a>
         <br>
     </div>
-    <div class="px-2 shadow-inner whitespace-nowrap overflow-x-hidden">
+    <div class="px-4 md:px-8 shadow-inner whitespace-nowrap overflow-x-hidden">
         <div class="inline-flex space-y-4">
             <button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
                 Authorize</button>
@@ -179,16 +183,15 @@
             <button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
                 Refresh</button>
         </div>
-        <div class="grid grid-cols-4 text-sm sticky">
-            
-            <div id="sort-name" class="col-span-4 font-bold py-3 animation-pulse">Name</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 text-sm sticky px-4 md:px-8">
             <div id="#loading" class="col-span-full">
                 <center>
                     <div class="lds-ripple"><div></div><div></div></div>
                 </center>
             </div>
         </div>
-        <div id="content-list" class="grid grid-cols-4 text-sm">
+        <br>
+        <div id="content-list" class="grid grid-cols-1 md:grid-cols-2">
         
         </div>
     </div>
