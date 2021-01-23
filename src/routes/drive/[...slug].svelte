@@ -112,12 +112,7 @@
 			let linkWithin = document.createElement('a');
 			linkWithin.innerText = fileName;
 
-			let idWithin = document.createElement('span');
-			idWithin.setAttribute("class", "text-xs text-gray-500");
-			idWithin.innerText = ` (${fileId})`
-
-			
-			let divClasses = `grid grid-cols-6 align-middle space-x-2 not-selected ${fileMimeType} py-2 `;
+			let divClasses = `grid grid-cols-6 align-middle space-x-2 shadow-sm not-selected ${fileMimeType} py-3 px-4`;
 			mainDiv.title = fileName;
 			let emojiMime = '❔';
 			if (fileMimeType == 'folder') {
@@ -145,12 +140,24 @@
 			};
 			linkWithin.innerText = `${emojiMime} ${linkWithin.innerText}`
 
-			linkWithin.appendChild(idWithin)
+			db.settings.where('user').equals(0).toArray().then(function(resp){
+				if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
+					let idWithin = document.createElement('span');
+					idWithin.setAttribute("class", "text-xs text-gray-500");
+					idWithin.innerText = ` (${fileId})`
+					linkWithin.appendChild(idWithin)
+				}
+			})
+
+			
+
 			divElement.setAttribute("class", "col-span-5 file-title overflow-x-hidden");
 			divElement.appendChild(linkWithin);
+
 			mainDiv.appendChild(divElement)
 			mainDiv.appendChild(sizeElement)
 			mainDiv.setAttribute("class", divClasses);
+
 			existingContent.appendChild(mainDiv)
 
 			};
@@ -577,7 +584,9 @@
 			</center>
 		</div>
 	</div>
-	<div id="content-list" class="text-sm">
+	<form>
+		<div id="content-list" class="text-sm">
 	
-	</div>
+		</div>
+	</form>
 </div>

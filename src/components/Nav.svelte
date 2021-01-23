@@ -9,6 +9,7 @@
 			if (!resp[0].theme){
 				db.settings.put({
 						theme: 'dark-theme',
+						displayfid: 'yes',
 						user: 0
 					});
 			} else {
