@@ -4,5 +4,6 @@
     Created by the dev <a href="https://github.com/allilk" class="font-bold">@allilk</a>.
     <br>Check out the source on <a href="https://github.com/allilk/milkbox-svelte" class="font-bold">GitHub</a>.
     <br>
-    <a class="font-bold" href="/privacy-policy">Privacy Policy </a>
+    <a class="font-bold" href="/privacy-policy">Privacy Policy </a>|
+    <a class="font-bold" href="/terms-of-service"> Terms of Service</a>
 </div>
