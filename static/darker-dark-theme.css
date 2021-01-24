@@ -15,10 +15,7 @@ body {
 	background-color: var(--color-2);
 	color: var(--color-4);
 }
-.folder {
-	color: var(--color-3);
-}
-#file-count, #total-size{
+#file-count, #total-size, .folder{
 	color: var(--color-3);
 }
 .not-selected:hover, .selected {

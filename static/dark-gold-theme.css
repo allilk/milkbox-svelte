@@ -1,6 +1,6 @@
 :root{
-    --color-1: #393e46;
-    --color-2: #222831;
+    --color-1: #222831;
+    --color-2: #393e46;
     --color-3: #4f8a8b;
     --color-4: #fbd46d;
 }
@@ -15,10 +15,7 @@ body {
 	background-color: var(--color-2);
 	color: var(--color-4);
 }
-.folder {
-	color: var(--color-3);
-}
-#file-count, #total-size{
+#file-count, #total-size, .folder{
 	color: var(--color-3);
 }
 .not-selected:hover, .selected {

@@ -143,7 +143,7 @@
 			db.settings.where('user').equals(0).toArray().then(function(resp){
 				if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
 					let idWithin = document.createElement('span');
-					idWithin.setAttribute("class", "text-xs text-gray-500");
+					idWithin.setAttribute("class", "text-xs file-id");
 					idWithin.innerText = ` (${fileId})`
 					linkWithin.appendChild(idWithin)
 				}
