@@ -9,17 +9,35 @@
 <script type='text/javascript'>
 	export let folder_id;
     import db from './connection';
-    import { afterUpdate, beforeUpdate, onMount, tick } from 'svelte';
+    import { afterUpdate, beforeUpdate } from 'svelte';
     import natsort from '../../scripts/natsort.min.js';
 	import {api_key, client_id, discovery_docs, scopes} from '../stores';
 	
 	let keyCode;
-	let itemList;
-	let lineSelected = 0;
-	let finalList = [];
 	let folderParent;
+	let itemList
+	let lineSelected = 0;
 	let sorted = 0;
 	let sortedname = 0;
+	let finalList = [];
+	const searchGrid = () => {
+        let input, filter, contentList, flex, listitem, i, txtValue;
+        input = document.getElementById("search_input");
+        filter = input.value.toUpperCase();
+        contentList = document.getElementById("content-list");
+        flex = contentList.getElementsByClassName("not-selected");
+			for (i = 0; i < flex.length; i++) {
+				listitem =flex[i].getElementsByTagName("a")[0];
+					if (listitem) {
+						txtValue = listitem.textContent || listitem.innerText;
+					if (txtValue.toUpperCase().indexOf(filter) > -1) {
+						flex[i].style.display = "";
+					} else {
+						flex[i].style.display = "none";
+					}
+				}       
+			}
+        }
 	const getAllWords = (text) => {
 			var allWordsIncludingDups = text.split(' ');
 			var wordSet = allWordsIncludingDups.reduce(function (prev, current) {
@@ -88,9 +106,9 @@
 		lineSelected = 0;
 		let FOLDER_ID = folder_id[0];
 		let PEOPLE_ID;
+		let QUERY;
 		let REFRESH = false;
 		let IS_SEARCH = 'false';
-		let QUERY;
 		let SHARED = 'false';
 		const authorizeButton = document.getElementById('authorize_button');
 		const signoutButton = document.getElementById('signout_button');
@@ -548,8 +566,8 @@
 
 </script>
 <svelte:window on:keydown={handleKeydown}/>
-<div class="top-header shadow-2xl px-4 md:px-8 py-12 md:py-16 ">
-	<span id="index-header" class="font-bold text-xl md:text-2xl"><span>index of ./<span id="dir-title"></span>/ </span></span><span class="text-lg md:text-xl text-gray-500">({folder_id})</span>
+<div class="top-header shadow-lg px-4 md:px-8 py-12 md:py-16 ">
+	<span id="index-header" class="font-bold text-xl md:text-2xl"><span>index of ./<span id="dir-title"></span>/ </span></span><span class="text-lg md:text-xl file-id">({folder_id})</span>
 	<br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr>
 	<span class="text-sm">quick links: </span>
 	<a href="drive/root">
@@ -564,15 +582,30 @@
 	<br>
 </div>
 <div class="px-4 md:px-8 shadow-inner">
-	<div class="inline-flex space-y-4">
-		<button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
-			Authorize</button>
-		<button id="signout_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
-			Sign Out</button>
-		<button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
-			Refresh</button>
+	<br>
+	<div class="flex items-center">
+		<div class="flex-auto inline-flex">
+			<button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+				Authorize</button>
+			<button id="signout_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+				Sign Out</button>
+			<button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+				Refresh</button>
+		</div>
+		<div class="flex-auto pl-2">
+			<div class="h-4 p-3 bg-white border rounded-full flex items-center relative">
+				<input on:keyup={searchGrid} type="search" name="search" id="search_input" placeholder="Search"
+						class="appearance-none w-full outline-none focus:outline-none active:outline-none"/>
+				<button type="submit" class="ml-1 outline-none focus:outline-none active:outline-none bg-transparent hover:bg-transparent">
+					<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						viewBox="0 0 24 24" class="w-6 h-6">
+					<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+					</svg>
+				</button>
+			</div>
+		</div>
 	</div>
-	<div class="grid grid-cols-6 text-sm sticky">
+	<div class="grid grid-cols-6 text-sm sticky items-center">
 		
 		<div id="sort-name" class="col-span-5 font-bold py-3 animation-pulse">Name</div>
 		<div id="sort-size" class="col-span-1 font-bold file-size mr-8 text-right">Size</div>
