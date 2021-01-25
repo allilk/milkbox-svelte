@@ -9,7 +9,7 @@
 <script type='text/javascript'>
 	export let folder_id;
     import db from './connection';
-    import { afterUpdate, beforeUpdate } from 'svelte';
+    import { afterUpdate, beforeUpdate, onMount } from 'svelte';
     import natsort from '../../scripts/natsort.min.js';
 	import {api_key, client_id, discovery_docs, scopes} from '../stores';
 	
@@ -110,12 +110,20 @@
 		let REFRESH = false;
 		let IS_SEARCH = 'false';
 		let SHARED = 'false';
+		let DISPLAY_FID = false;
+		
 		const authorizeButton = document.getElementById('authorize_button');
 		const signoutButton = document.getElementById('signout_button');
 		const refreshButton = document.getElementById('refresh_button');
 		const nameHeader = document.getElementById('sort-name');
 		const sizeHeader = document.getElementById('sort-size');
 
+		db.settings.where('user').equals(0).toArray().then(function(resp){
+			console.log(resp)
+			if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
+				DISPLAY_FID = true;
+			}
+		});
 		handleClientLoad()
 		const createContent = async (fileName, fileId, fileMimeType, fileSize) => {
 			let mainDiv = document.createElement('div');
@@ -158,15 +166,12 @@
 			};
 			linkWithin.innerText = `${emojiMime} ${linkWithin.innerText}`
 
-			db.settings.where('user').equals(0).toArray().then(function(resp){
-				if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
-					let idWithin = document.createElement('span');
-					idWithin.setAttribute("class", "text-xs file-id");
-					idWithin.innerText = ` (${fileId})`
-					linkWithin.appendChild(idWithin)
-				}
-			})
-
+			if (DISPLAY_FID == true) {
+				let idWithin = document.createElement('span');
+				idWithin.setAttribute("class", "text-xs file-id");
+				idWithin.innerText = ` (${fileId})`
+				linkWithin.appendChild(idWithin)
+			}
 			
 
 			divElement.setAttribute("class", "col-span-5 file-title overflow-x-hidden");
@@ -231,7 +236,6 @@
 			
 			if (IS_SEARCH == "false" && FOLDER_ID != 'shared-with-me'){
 				// Get folders
-				
 				let folderList = await db.files.where({
 					'parents': FOLDER_ID,
 					'peopleid': PEOPLE_ID,
@@ -245,9 +249,6 @@
 					return sorter(a.name, b.name);
 				});
 				masterList.push(folderList);
-
-
-				
 				// Get files
 				let fileList = await db.files.where({
 					'parents': FOLDER_ID,
@@ -322,17 +323,21 @@
 			
 			};
 		const checkForCache = async () => {
+			let cacheId = FOLDER_ID;
+			if (SHARED == 'true'){
+				cacheId = 'root';
+			}
 			if (REFRESH) {
 				await db.files.where({
-					'parents': FOLDER_ID,
+					'parents': cacheId,
 					'peopleid': PEOPLE_ID,
 					'issearch': IS_SEARCH,
-					'shared':SHARED
+					'shared': SHARED
 				}).delete()
 			}
 			let cacheExists = false;
 			let ifCache = await db.files.where({
-				'parents': FOLDER_ID,
+				'parents': cacheId,
 				'peopleid': PEOPLE_ID,
 				'issearch': IS_SEARCH,
 				'shared': SHARED
@@ -345,24 +350,19 @@
 			let fileList = [];
 			let parentFolder = 'root';
 			let nextPageToken;
-			
+			let querySearch;
 			// Get files from API and cache
 			checkForCache().then(async function(res){
-				let querySearch;
-				// fullText contains '{query}' or name contains '{query}'
+				if (typeof QUERY != "undefined"){
+					querySearch = `name contains '${QUERY}'`;
+				} else if (FOLDER_ID == 'shared-with-me'){
+					querySearch = 'sharedWithMe'
+				} else if (FOLDER_ID != 'shared-with-me') {
+					querySearch = `'${FOLDER_ID}' in parents and trashed=false`;
+				};
 				if (res == false || typeof QUERY != "undefined") {
-					
-					if (typeof QUERY != "undefined"){
-						querySearch = `name contains '${QUERY}'`;
-						
-					} else if (FOLDER_ID == 'shared-with-me'){
-						querySearch = 'sharedWithMe'
-						SHARED = 'true';
-					} else if (FOLDER_ID != 'shared-with-me') {
-						querySearch = `'${FOLDER_ID}' in parents and trashed=false`;
-					};
-
 					while (fetchFiles){
+						console.log('getting files from gapi')
 						await gapi.client.drive.files.list({
 							'q':querySearch,
 							'pageSize': 1000,
@@ -392,18 +392,18 @@
 						if (shortenedMime.length < 3) {
 							shortenedMime =  shortenedMime[0]
 						} else { shortenedMime = shortenedMime[2]};
-						await db.files.put({
-							name: fileObj.name,
-							id: fileObj.id,
-							parents: parentFolder,
-							size: fileObj.size,
-							mimetype: shortenedMime,
-							driveid: fileObj.driveId,
-							peopleid: PEOPLE_ID,
-							issearch: IS_SEARCH,
-							shared: SHARED,
-							words: getAllWords(fileObj.name)
-						});
+							await db.files.put({
+								name: fileObj.name,
+								id: fileObj.id,
+								parents: parentFolder,
+								size: fileObj.size,
+								mimetype: shortenedMime,
+								driveid: fileObj.driveId,
+								peopleid: PEOPLE_ID,
+								issearch: IS_SEARCH,
+								shared: SHARED,
+								words: getAllWords(fileObj.name)
+							});
 					};
 				};
 			}).then(async function(){
@@ -548,6 +548,9 @@
 				'requestMask.includeField': 'person.names'
 			}).then(function(resp) {
 				PEOPLE_ID = (resp.result.resourceName).split('people/')[1];
+				if (FOLDER_ID == 'shared-with-me'){
+					SHARED = 'true';
+				}
 				getFiles();
 			});
 			} else {
@@ -563,7 +566,6 @@
 			gapi.auth2.getAuthInstance().signOut();
 			}
 	});
-
 </script>
 <svelte:window on:keydown={handleKeydown}/>
 <div class="top-header shadow-lg px-4 md:px-8 py-12 md:py-16 ">
@@ -593,7 +595,7 @@
 				Refresh</button>
 		</div>
 		<div class="flex-auto pl-2">
-			<div class="h-4 p-3 bg-white border rounded-full flex items-center relative">
+			<div class="h-4 p-3 bg-white border flex items-center relative">
 				<input on:keyup={searchGrid} type="search" name="search" id="search_input" placeholder="Search"
 						class="appearance-none w-full outline-none focus:outline-none active:outline-none"/>
 				<button type="submit" class="ml-1 outline-none focus:outline-none active:outline-none bg-transparent hover:bg-transparent">

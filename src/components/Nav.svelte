@@ -6,7 +6,7 @@
 
 	afterUpdate(async () => {
 		db.settings.where('user').equals(0).toArray().then(function(resp){
-			if (!resp[0].theme){
+			if (!resp[0]){
 				db.settings.put({
 						theme: 'dark-theme',
 						displayfid: 'yes',
