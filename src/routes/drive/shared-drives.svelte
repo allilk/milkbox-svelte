@@ -2,7 +2,9 @@
     import { afterUpdate, beforeUpdate } from 'svelte';
     import db from './connection';
     import {api_key, client_id, discovery_docs, scopes} from '../stores';
-    
+    let keyCode;
+    let lineSelected = 0;
+    let itemList;
 	const setLoading = async () => {
 		try {
 			let loadingIcon = document.getElementById('#loading');
@@ -12,7 +14,38 @@
 		} catch {
 
 		}
+        }
+    const handleKeydown = async (event) => {
+		keyCode = event.keyCode;
+		if (keyCode == 83 || keyCode == 40) {
+			if (lineSelected < itemList.length - 1){
+				if (typeof itemList[lineSelected] != undefined){
+					itemList[lineSelected].classList.remove('drive-select');
+				}
+				lineSelected+=1;
+				let objSelected=itemList[lineSelected];
+				objSelected.classList.add('drive-select');
+				let obj = document.getElementsByClassName("drive-select")[0];
+				obj.scrollIntoView({behavior: "smooth", block: "center"});
+			}
+		} else if(keyCode == 87 || keyCode == 38){
+			if (lineSelected > 0){
+				if (typeof itemList[lineSelected] != undefined){
+					itemList[lineSelected].classList.remove('drive-select');
+				}
+				lineSelected-=1;
+				let objSelected=itemList[lineSelected];
+				objSelected.classList.add('drive-select');
+				let obj = document.getElementsByClassName("drive-select")[0];
+				obj.scrollIntoView({behavior: "smooth", block: "center"});
+			}
+		} else if(keyCode == 13){
+			event.preventDefault();
+			let selObj = document.getElementsByClassName('drive-select')[0];
+			selObj.click()
 		}
+	
+		};
 	beforeUpdate(async () => {
         setLoading();
 	});
@@ -151,47 +184,46 @@
             };
             let totalDrives = document.getElementById('total-drives');
             totalDrives.innerText = `(${driveList.length})`;
+            itemList = document.getElementsByClassName("drive-obj");
         }
         handleClientLoad();
     });
 		
 </script>
-
-
-
-    <div class="top-header shadow-2xl px-8 py-16 sm:py-12 ">
-        <span id="index-header" class="text-2xl">my shared drives <span id="total-drives" class=" text-gray-500"></span></span>
-        <br><hr>
-        quick links: 
-        <a href="drive/root">
-            <button class="font-semibold px-2 py-2 rounded-none shadow">my drive</button>
-        </a>
-        <a href="drive/shared-with-me" >
-            <button class="font-semibold px-2 py-2 rounded-none shadow">shared with me</button>
-        </a>
-        <a href="drive/shared-drives">
-            <button class="font-semibold px-2 py-2 rounded-none shadow">shared drives</button>
-        </a>
-        <br>
+<svelte:window on:keydown={handleKeydown}/>
+<div class="top-header shadow-2xl px-8 py-16 sm:py-12 ">
+    <span id="index-header" class="text-2xl">my shared drives <span id="total-drives" class=" text-gray-500"></span></span>
+    <br><hr>
+    quick links: 
+    <a href="drive/root">
+        <button class="font-semibold px-2 py-2 rounded-none shadow">my drive</button>
+    </a>
+    <a href="drive/shared-with-me" >
+        <button class="font-semibold px-2 py-2 rounded-none shadow">shared with me</button>
+    </a>
+    <a href="drive/shared-drives">
+        <button class="font-semibold px-2 py-2 rounded-none shadow">shared drives</button>
+    </a>
+    <br>
+</div>
+<div class="px-4 md:px-8 shadow-inner whitespace-nowrap overflow-x-hidden">
+    <div class="inline-flex space-y-4">
+        <button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+            Authorize</button>
+        <button id="signout_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+            Sign Out</button>
+        <button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
+            Refresh</button>
     </div>
-    <div class="px-4 md:px-8 shadow-inner whitespace-nowrap overflow-x-hidden">
-        <div class="inline-flex space-y-4">
-            <button id="authorize_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
-                Authorize</button>
-            <button id="signout_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
-                Sign Out</button>
-            <button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
-                Refresh</button>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 text-sm sticky px-4 md:px-8">
-            <div id="#loading" class="col-span-full">
-                <center>
-                    <div class="lds-ripple"><div></div><div></div></div>
-                </center>
-            </div>
-        </div>
-        <br>
-        <div id="content-list" class="grid grid-cols-1 md:grid-cols-2">
-        
+    <div class="grid grid-cols-1 md:grid-cols-2 text-sm sticky px-4 md:px-8">
+        <div id="#loading" class="col-span-full">
+            <center>
+                <div class="lds-ripple"><div></div><div></div></div>
+            </center>
         </div>
     </div>
+    <br>
+    <div id="content-list" class="grid grid-cols-1 md:grid-cols-2">
+    
+    </div>
+</div>

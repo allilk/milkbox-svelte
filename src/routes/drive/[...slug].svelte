@@ -15,7 +15,7 @@
 	
 	let keyCode;
 	let folderParent;
-	let itemList
+	let itemList;
 	let lineSelected = 0;
 	let sorted = 0;
 	let sortedname = 0;

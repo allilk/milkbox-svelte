@@ -29,7 +29,7 @@ button, .drive-obj{
 	background-color: var(--color-2);
 	color: var(--color-3);
 }
-button:hover, .drive-obj:hover{
+button:hover, .drive-obj:hover, .drive-select {
 	background-color: var(--color-1);
 }
 .lds-ripple div {
