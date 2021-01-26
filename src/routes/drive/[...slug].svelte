@@ -12,7 +12,7 @@
     import { afterUpdate, beforeUpdate, onMount } from 'svelte';
     import natsort from '../../scripts/natsort.min.js';
 	import {api_key, client_id, discovery_docs, scopes} from '../stores';
-	
+
 	let keyCode;
 	let folderParent;
 	let itemList;
@@ -20,6 +20,7 @@
 	let sorted = 0;
 	let sortedname = 0;
 	let finalList = [];
+
 	const searchGrid = () => {
         let input, filter, contentList, flex, listitem, i, txtValue;
         input = document.getElementById("search_input");
@@ -133,12 +134,13 @@
 			
 			let sizeElement = document.createElement('div');
 			sizeElement.innerText = formatBytes(fileSize,0);
-			sizeElement.setAttribute("class", "col-span-1 file-size text-right");
+			sizeElement.setAttribute("class", "col-span-1 file-size inline text-right");
+
 
 			let linkWithin = document.createElement('a');
 			linkWithin.innerText = fileName;
 			// linkWithin.setAttribute('class','truncate')
-			let divClasses = `grid grid-cols-6 align-middle space-x-2 shadow-sm not-selected ${fileMimeType} py-3 px-4`;
+			let divClasses = `col-span-6 shadow-sm not-selected grid grid-cols-6 ${fileMimeType} py-3 px-4`;
 			mainDiv.title = fileName;
 			let emojiMime = '❔';
 			if (fileMimeType == 'folder') {
@@ -168,13 +170,13 @@
 
 			if (DISPLAY_FID == true) {
 				let idWithin = document.createElement('span');
-				idWithin.setAttribute("class", "text-xs file-id");
+				idWithin.setAttribute("class", "text-xs file-id overflow-x-hidden");
 				idWithin.innerText = ` (${fileId})`
 				linkWithin.appendChild(idWithin)
 			}
 			
 
-			divElement.setAttribute("class", "col-span-5 file-title truncate");
+			divElement.setAttribute("class", "file-title w-full col-span-5 truncate inline");
 			divElement.appendChild(linkWithin);
 
 			mainDiv.appendChild(divElement)
@@ -344,6 +346,24 @@
 			}).sortBy('name');
 			if (ifCache.length > 0) {cacheExists = true;};
 			return cacheExists;
+			};
+		const toggleGrid = async () => {
+			document.getElementById('show-grid').setAttribute('class','hidden')
+			let contentList = document.getElementById('content-list');
+			for (let i = 0; i < contentList.childNodes.length; i++){
+				let childObj = contentList.childNodes[i];
+				childObj.classList.replace('col-span-6','col-span-3')
+			}
+			document.getElementById('show-list').setAttribute('class','')
+			};
+		const toggleList = async () => {
+			document.getElementById('show-list').setAttribute('class','hidden')
+			let contentList = document.getElementById('content-list');
+			for (let i = 0; i < contentList.childNodes.length; i++){
+				let childObj = contentList.childNodes[i];
+				childObj.classList.replace('col-span-3','col-span-6')
+			}
+			document.getElementById('show-grid').setAttribute('class','')
 			};
 		const getFiles = async () => {
 			let fetchFiles = true;
@@ -534,6 +554,8 @@
 			refreshButton.onclick = refreshContent;
 			nameHeader.onclick = sortName;
 			sizeHeader.onclick = sortSize;
+			document.getElementById('show-grid').onclick = toggleGrid;
+			document.getElementById('show-list').onclick = toggleList;
 			}, function(error) {
 			console.log(JSON.stringify(error, null, 2));
 			});
@@ -571,16 +593,18 @@
 <div class="top-header shadow-lg px-4 md:px-8 py-12 md:py-16 ">
 	<span id="index-header" class="font-bold text-xl md:text-2xl"><span>index of ./<span id="dir-title"></span>/ </span></span><span class="text-lg md:text-xl file-id">({folder_id})</span>
 	<br><hr><span class="text-sm font-bold">total files & folders: <span class="font-normal" id="file-count"></span>  total size (excl. folders): <span class="font-normal" id="total-size"></span></span><hr>
-	<span class="text-sm">quick links: </span>
-	<a href="drive/root">
-		<button class="font-semibold px-2 py-2 rounded-none shadow">my drive</button>
-	</a>
-	<a href="drive/shared-with-me" >
-		<button class="font-semibold px-2 py-2 rounded-none shadow">shared with me</button>
-	</a>
-	<a href="drive/shared-drives">
-		<button class="font-semibold px-2 py-2 rounded-none shadow">shared drives</button>
-	</a>
+	<div class="mt-2">
+		<span class="text-sm">quick links: </span>
+		<a href="drive/root">
+			<button class="font-semibold px-2 py-2 rounded-none shadow">my drive</button>
+		</a>
+		<a href="drive/shared-with-me" >
+			<button class="font-semibold px-2 py-2 rounded-none shadow">shared with me</button>
+		</a>
+		<a href="drive/shared-drives">
+			<button class="font-semibold px-2 py-2 rounded-none shadow">shared drives</button>
+		</a>
+	</div>
 	<br>
 </div>
 <div class="px-4 md:px-8 shadow-inner">
@@ -606,6 +630,10 @@
 				</button>
 			</div>
 		</div>
+		<div class="ml-1 p-1 gridlistview">
+			<img id="show-grid" class="" src="svg/fi-rr-grid.svg" alt="grid" width="20">
+			<img id="show-list" class="hidden" src="svg/fi-rr-list.svg" alt="list" width="20">
+		</div>
 	</div>
 	<div class="grid grid-cols-6 text-sm sticky items-center">
 		
@@ -620,7 +648,7 @@
 		</div>
 	</div>
 	<form>
-		<div id="content-list" class="text-sm">
+		<div id="content-list" class="text-sm grid grid-cols-6">
 	
 		</div>
 	</form>

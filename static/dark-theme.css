@@ -38,3 +38,6 @@ button:hover, .drive-obj:hover, .drive-select {
 [aria-current]::after {
     background-color: var(--color-3);
 }
+.gridlistview{
+	background-color: var(--color-2);
+}
