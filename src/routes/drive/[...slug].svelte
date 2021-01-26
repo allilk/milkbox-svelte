@@ -132,12 +132,12 @@
 
 			
 			let sizeElement = document.createElement('div');
-			sizeElement.innerText = formatBytes(fileSize);
+			sizeElement.innerText = formatBytes(fileSize,0);
 			sizeElement.setAttribute("class", "col-span-1 file-size text-right");
 
 			let linkWithin = document.createElement('a');
 			linkWithin.innerText = fileName;
-
+			// linkWithin.setAttribute('class','truncate')
 			let divClasses = `grid grid-cols-6 align-middle space-x-2 shadow-sm not-selected ${fileMimeType} py-3 px-4`;
 			mainDiv.title = fileName;
 			let emojiMime = '❔';
@@ -174,7 +174,7 @@
 			}
 			
 
-			divElement.setAttribute("class", "col-span-5 file-title overflow-x-hidden");
+			divElement.setAttribute("class", "col-span-5 file-title truncate");
 			divElement.appendChild(linkWithin);
 
 			mainDiv.appendChild(divElement)
@@ -595,10 +595,10 @@
 				Refresh</button>
 		</div>
 		<div class="flex-auto pl-2">
-			<div class="h-4 p-3 bg-white border flex items-center relative">
+			<div class="bg-white border relative px-4">
 				<input on:keyup={searchGrid} type="search" name="search" id="search_input" placeholder="Search"
-						class="appearance-none w-full outline-none focus:outline-none active:outline-none"/>
-				<button type="submit" class="ml-1 outline-none focus:outline-none active:outline-none bg-transparent hover:bg-transparent">
+						class="appearance-none inline-flex w-full outline-none focus:outline-none active:outline-none"/>
+				<button type="submit" class="-ml-3 inline-flex absolute outline-none focus:outline-none active:outline-none bg-transparent hover:bg-transparent">
 					<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 						viewBox="0 0 24 24" class="w-6 h-6">
 					<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
