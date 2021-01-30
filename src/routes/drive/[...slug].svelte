@@ -9,13 +9,12 @@
 <script type='text/javascript'>
 	export let folder_id;
     import db from './connection';
-    import { afterUpdate, beforeUpdate, onMount } from 'svelte';
+    import { afterUpdate, beforeUpdate } from 'svelte';
     import natsort from '../../scripts/natsort.min.js';
 	import {api_key, client_id, discovery_docs, scopes} from '../stores';
+	import {formatBytes, getAllWords, setLoading} from '../functions'
 
-	let keyCode;
-	let folderParent;
-	let itemList;
+	let keyCode, folderParent, itemList;
 	let lineSelected = 0;
 	let sorted = 0;
 	let sortedname = 0;
@@ -39,35 +38,9 @@
 				}       
 			}
         }
-	const getAllWords = (text) => {
-			var allWordsIncludingDups = text.split(' ');
-			var wordSet = allWordsIncludingDups.reduce(function (prev, current) {
-				prev[current] = true;
-				return prev;
-			}, {});
-			return Object.keys(wordSet);
-			};
-    const formatBytes = (bytes, decimals=2) => {
-            if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const dm = decimals < 0 ? 0 : decimals;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        };
-	const setLoading = async () => {
-		try {
-			let loadingIcon = document.getElementById('#loading');
-			loadingIcon.style = "";
-			let Content = document.getElementById("content-list");
-			Content.style = "display: none;";
-		} catch {
 
-		}
-
-		}
 	const handleKeydown = async (event) => {
 		keyCode = event.keyCode;
 		if (keyCode == 83 || keyCode == 40) {

@@ -1,10 +1,12 @@
 <script>
-    import { afterUpdate, beforeUpdate } from 'svelte';
+    import { afterUpdate, beforeUpdate, onMount } from 'svelte';
     import db from './connection';
-    import {api_key, client_id, discovery_docs, scopes} from '../stores';
-    let keyCode;
+    import {setLoading} from '../functions';
+    import initClient from '../init_gapi';
+
+    let keyCode, itemList;
     let lineSelected = 0;
-    let itemList;
+    let client;
     const searchGrid = () => {
         let input, filter, contentList, flex, listitem, i, txtValue;
         input = document.getElementById("search_input");
@@ -22,16 +24,6 @@
 					}
 				}       
 			}
-        }
-	const setLoading = async () => {
-		try {
-			let loadingIcon = document.getElementById('#loading');
-			loadingIcon.style = "";
-			let Content = document.getElementById("content-list");
-			Content.style = "display: none;";
-		} catch {
-
-		}
         }
     const handleKeydown = async (event) => {
 		keyCode = event.keyCode;
@@ -66,78 +58,39 @@
 		};
 	beforeUpdate(async () => {
         setLoading();
-	});
+    });
     afterUpdate(async () => {
-		const authorizeButton = document.getElementById('authorize_button');
-		const signoutButton = document.getElementById('signout_button');
-		const refreshButton = document.getElementById('refresh_button');
-        
-        let PEOPLE_ID;
         let REFRESH = false;
-
+        
+        // let getClient = function() {
+        //     return new Promise(function(resolve, reject) {
+        //         let client = new initClient;
+        //         resolve(client);
+        //     });
+        // };
+        // var getNewGift = function() {
+        // Promise.all([
+        //     getClient()
+        // ]).then(function(result) {
+        //     console.log(result[0].PEOPLE_ID);
+        // });
+        // };
+        // getNewGift();
         async function refreshContent(){
 			REFRESH = true;
 			setLoading().then(async function(res) {
 				listDrives();
 			});
 		}
-        function handleClientLoad() {
-            gapi.load('client:auth2', onLoadCallback);
-            }
-        function onLoadCallback() {
-            gapi.client.init({
-            cookiepolicy: 'single_host_origin',
-            apiKey: $api_key,
-            clientId: $client_id,
-            discoveryDocs: $discovery_docs,
-            scope: $scopes
-            }).then(function () {
-            // console.log(gapi.auth2.GoogleAuth.currentUser.get())
-            gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-                
-            updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-            authorizeButton.onclick = handleAuthClick;
-            signoutButton.onclick = handleSignoutClick;
-            refreshButton.onclick = refreshContent;
-            }, function(error) {
-            console.log(JSON.stringify(error, null, 2));
-            });
-        }
-        function updateSigninStatus(isSignedIn) {
-            if (isSignedIn) {
-            authorizeButton.style.display = 'none';
-            signoutButton.style.display = 'block';
-            refreshButton.style.display = 'block';
-            gapi.client.people.people.get({
-				'resourceName': 'people/me',
-				'requestMask.includeField': 'person.names'
-			}).then(function(resp) {
-                PEOPLE_ID = (resp.result.resourceName).split('people/')[1];
-                listDrives();
-            });
-            
-
-            } else {
-            authorizeButton.style.display = 'block';
-            signoutButton.style.display = 'none';
-            refreshButton.style.display = 'none';
-            }
-        }
-        function handleAuthClick(event) {
-            gapi.auth2.getAuthInstance().signIn();
-        }
-        function handleSignoutClick(event) {
-            gapi.auth2.getAuthInstance().signOut();
-            }
         async function listDrives() {
             async function checkForCache(){
                 if (REFRESH) {
 					await db.drives.where({
-						'peopleid': PEOPLE_ID,
+						'peopleid': client.PEOPLE_ID,
 					}).delete()
 				}
                 let cacheExists = false;
-                let ifCache = await db.drives.where('peopleid').equals(PEOPLE_ID).toArray();
+                let ifCache = await db.drives.where('peopleid').equals(client.PEOPLE_ID).toArray();
                 if (ifCache.length > 0) {cacheExists = true;};
 				return cacheExists;
             };
@@ -163,7 +116,7 @@
                     for (let i = 0; i < driveList.length; i++){
                         let drive = driveList[i];
                         await db.drives.put({
-                            name: drive.name, id: drive.id, peopleid: PEOPLE_ID,
+                            name: drive.name, id: drive.id, peopleid: client.PEOPLE_ID,
                         });
                     }
                 }
@@ -174,7 +127,7 @@
             
         }
         async function loadContent() {
-            let driveList = await db.drives.where('peopleid').equals(PEOPLE_ID).toArray();
+            let driveList = await db.drives.where('peopleid').equals(client.PEOPLE_ID).toArray();
 
             let oldContent = document.getElementById('content-list');
             oldContent.innerHTML = '';
@@ -204,7 +157,6 @@
             totalDrives.innerText = `(${driveList.length})`;
             itemList = document.getElementsByClassName("drive-obj");
         }
-        handleClientLoad();
     });
 		
 </script>

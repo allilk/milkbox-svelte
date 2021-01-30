@@ -9,6 +9,7 @@
     "start": "node __sapper__/build"
   },
   "dependencies": {
+    "async": "^3.2.0",
     "compression": "^1.7.1",
     "dexie": "^3.0.3",
     "dotenv": "^8.2.0",
