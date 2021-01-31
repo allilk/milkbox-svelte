@@ -6,7 +6,8 @@
 
     let keyCode, itemList;
     let lineSelected = 0;
-    let client;
+    // let client;
+
     const searchGrid = () => {
         let input, filter, contentList, flex, listitem, i, txtValue;
         input = document.getElementById("search_input");
@@ -59,23 +60,14 @@
 	beforeUpdate(async () => {
         setLoading();
     });
+    onMount(async () => {
+        let client = new initClient()
+        client.init()
+        console.log(client.PEOPLE_ID)
+    });
     afterUpdate(async () => {
         let REFRESH = false;
-        
-        // let getClient = function() {
-        //     return new Promise(function(resolve, reject) {
-        //         let client = new initClient;
-        //         resolve(client);
-        //     });
-        // };
-        // var getNewGift = function() {
-        // Promise.all([
-        //     getClient()
-        // ]).then(function(result) {
-        //     console.log(result[0].PEOPLE_ID);
-        // });
-        // };
-        // getNewGift();
+
         async function refreshContent(){
 			REFRESH = true;
 			setLoading().then(async function(res) {
