@@ -3,11 +3,13 @@
     import db from './connection';
     import {setLoading} from '../functions';
     import initClient from '../init_gapi';
-
+    import { people_id } from '../stores';
+    import getDrives from './drives';
     let keyCode, itemList;
     let lineSelected = 0;
-    // let client;
-
+    let PEOPLE_ID = 0;
+    let client;
+    
     const searchGrid = () => {
         let input, filter, contentList, flex, listitem, i, txtValue;
         input = document.getElementById("search_input");
@@ -57,99 +59,25 @@
 		}
 	
 		};
-	beforeUpdate(async () => {
-        setLoading();
-    });
+	// beforeUpdate(async () => {
+    //     setLoading();
+    // });
     onMount(async () => {
-        let client = new initClient()
-        client.init()
-        console.log(client.PEOPLE_ID)
+        async function getClient(){client = new initClient()};
+        await getClient().then(function(){
+            let drives = new getDrives(client.PEOPLE_ID);
+            drives.init()
+        })
     });
-    afterUpdate(async () => {
-        let REFRESH = false;
+    let REFRESH = false;
 
-        async function refreshContent(){
-			REFRESH = true;
-			setLoading().then(async function(res) {
-				listDrives();
-			});
-		}
-        async function listDrives() {
-            async function checkForCache(){
-                if (REFRESH) {
-					await db.drives.where({
-						'peopleid': client.PEOPLE_ID,
-					}).delete()
-				}
-                let cacheExists = false;
-                let ifCache = await db.drives.where('peopleid').equals(client.PEOPLE_ID).toArray();
-                if (ifCache.length > 0) {cacheExists = true;};
-				return cacheExists;
-            };
-            let fetchDrives = true;
-            let nextPageToken;
-            let driveList = [];
-            checkForCache().then(async function(res){
-                if (res == false) {
-                    while (fetchDrives) {
-                        await gapi.client.drive.drives.list({
-                            'pageSize': 100,
-                            'pageToken': nextPageToken
-                        }).then(function(response){
-                            driveList.push(response.result.drives)
-                            if (!response.result.nextPageToken){
-                                fetchDrives = false;
-                            } else {
-                                nextPageToken = response.result.nextPageToken;
-                            };
-                        });
-                    };
-                    driveList = [].concat.apply([], driveList);
-                    for (let i = 0; i < driveList.length; i++){
-                        let drive = driveList[i];
-                        await db.drives.put({
-                            name: drive.name, id: drive.id, peopleid: client.PEOPLE_ID,
-                        });
-                    }
-                }
-            }).then(async function (){
-                await loadContent();
-            });
-
-            
-        }
-        async function loadContent() {
-            let driveList = await db.drives.where('peopleid').equals(client.PEOPLE_ID).toArray();
-
-            let oldContent = document.getElementById('content-list');
-            oldContent.innerHTML = '';
-
-            let loadingIcon = document.getElementById('#loading');
-            loadingIcon.style = 'display: none;';
-
-            for (let i = 0; i < driveList.length; i++){
-                let divElement = document.createElement('div');
-                let drive = driveList[i];
-                let newObj = document.createElement("a");
-                let newContent = document.createTextNode(drive.name);
-                let bottomContent = document.createElement('div');
-                bottomContent.innerText = `(${drive.id})`;
-                bottomContent.setAttribute('class','text-xs text-gray-500')
-                bottomContent.id = 'file';
-                newObj.href = `drive/${drive.id}`;
-                newObj.setAttribute("class", "drive-obj whitespace-normal text-center text-lg px-16 py-6 shadow-inner col-span-2 md:col-span-1");
-                
-                divElement.appendChild(newContent);
-                divElement.appendChild(bottomContent)
-                newObj.appendChild(divElement);
-                oldContent.appendChild(newObj);
-                
-            };
-            let totalDrives = document.getElementById('total-drives');
-            totalDrives.innerText = `(${driveList.length})`;
-            itemList = document.getElementsByClassName("drive-obj");
-        }
+async function refreshContent(){
+    REFRESH = true;
+    setLoading().then(async function(res) {
+        listDrives();
     });
+}
+
 		
 </script>
 <svelte:window on:keydown={handleKeydown}/>
@@ -179,7 +107,7 @@
 			<button id="signout_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
 				Sign Out</button>
 			<button id="refresh_button" style="display: none;" class="font-semibold px-2 py-2 rounded-none shadow">
-				Refresh</button>
+                Refresh</button>
 		</div>
 		<div class="flex-auto pl-2">
 			<div class="bg-white border relative px-4">
@@ -202,6 +130,7 @@
         </div>
     </div>
     <br>
+    
     <div id="content-list" class="grid grid-cols-1 md:grid-cols-2">
     
     </div>

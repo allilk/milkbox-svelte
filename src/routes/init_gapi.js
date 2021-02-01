@@ -1,9 +1,15 @@
-import {api_key, client_id, discovery_docs, scopes} from './stores';
+import {api_key, client_id, discovery_docs, scopes, people_id} from './stores';
 
 export default class initClient{
-    init() {
-        gapi.load('client:auth2', this.onLoadCallback.bind(this)); 
+    constructor() {
+        return (async () => {
+            await this.init()
+            return this.PEOPLE_ID;
+        })(); 
     };
+    async init() {
+        gapi.load('client:auth2', this.onLoadCallback.bind(this));
+    }
     async onLoadCallback() {
 		const authorizeButton = document.getElementById('authorize_button');
 		const signoutButton = document.getElementById('signout_button');
@@ -15,12 +21,12 @@ export default class initClient{
             gapi.auth2.getAuthInstance().signOut();
         };
         async function getPeopleId() {
-            let people_id = await gapi.client.people.people.get({
+            let resp = await gapi.client.people.people.get({
                 'resourceName': 'people/me',
                 'requestMask.includeField': 'person.names'
             });
-            let peopleId = ((people_id.result.resourceName).split('people/')[1]);
-            return peopleId;
+            let peopleId = ((resp.result.resourceName).split('people/')[1]);
+            people_id.set(peopleId)
         };
         async function updateSigninStatus(isSignedIn) {
             if (isSignedIn) {
