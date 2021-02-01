@@ -6,4 +6,5 @@ yarn-error.log
 other.svelte
 package-lock.json
 .env
+stores.js
 workspace.code-workspace

@@ -1,12 +1,14 @@
-const getAllWords = (text) => {
-    var allWordsIncludingDups = text.split(' ');
-    var wordSet = allWordsIncludingDups.reduce(function (prev, current) {
+export const getAllWords = (text) => {
+    const allWordsIncludingDups = text.split(' ');
+    const wordSet = allWordsIncludingDups.reduce((prev, current) => {
         prev[current] = true;
         return prev;
     }, {});
+    
     return Object.keys(wordSet);
-    };
-const formatBytes = (bytes, decimals=2) => {
+};
+    
+export const formatBytes = (bytes, decimals=2) => {
     if (bytes === 0) return '0 Bytes';
         const k = 1024;
         const dm = decimals < 0 ? 0 : decimals;
@@ -15,8 +17,9 @@ const formatBytes = (bytes, decimals=2) => {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
 
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    };
-const setLoading = async () => {
+};
+    
+export const setLoading = async () => {
     try {
         let loadingIcon = document.getElementById('#loading');
         loadingIcon.style = "";
@@ -28,4 +31,3 @@ const setLoading = async () => {
 
     };
 
-export {getAllWords, formatBytes, setLoading};
