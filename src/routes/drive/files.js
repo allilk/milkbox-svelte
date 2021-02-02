@@ -3,12 +3,15 @@ import natsort from '../../scripts/natsort.min.js';
 import {formatBytes, getAllWords, setLoading} from '../functions'
 
 export default class getFiles{
-    async init(folder_id, display_fid, is_search, shared){
+    async init(refresh, people_id, folder_id, display_fid = false, is_search='false', shared='false'){
+        this.PEOPLE_ID = people_id;
         this.FOLDER_ID = folder_id;
         this.DISPLAY_FID = display_fid;
         this.IS_SEARCH = is_search;
         this.SHARED = shared;
-        await this.getFiles();
+        this.REFRESH = refresh;
+        this.finalList = [];
+        this.getFiles()
         };
     async createContent (fileName, fileId, fileMimeType, fileSize) {
         let mainDiv = document.createElement('div');
@@ -79,7 +82,7 @@ export default class getFiles{
                         'supportsAllDrives':true,
                         'includeItemsFromAllDrives':true,
                         'fields': "name, id, parents, driveId"
-            }).then(async function(resp){
+            }).then(async (resp) =>{
                 // Check if "driveId" is present and 
                 // the folder id length is less than 30
                 // (to make sure, it is infact, a team drive)
@@ -177,9 +180,9 @@ export default class getFiles{
         let totalSize = 0;
 
         // Create elements for each file
-        getParent().then(function (resp) {
-            folderParent = resp;
-            createContent('..', resp, 'folder', 0).then(function () {
+        this.getParent().then(async (resp) => {
+            this.folderParent = resp;
+            this.createContent('..', resp, 'folder', 0).then(async () => {
                 for (let i = 0; i < masterList.length; i++){
                     let fileObj = masterList[i];
                     let fileSize = 0;
@@ -188,10 +191,10 @@ export default class getFiles{
                         totalSize += parseInt(fileObj.size);
                         fileSize = parseInt(fileObj.size);
                     };
-                    finalList.push(fileObj)
-                    createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
+                    this.finalList.push(fileObj)
+                    this.createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
                 };
-            }).then(function (){
+            }).then(async () => { 
                 // Reflect directory size in header
                 const sizeTotal = document.getElementById("total-size");
                 sizeTotal.innerText = formatBytes(totalSize);
@@ -205,7 +208,7 @@ export default class getFiles{
         if (this.SHARED == 'true'){
             cacheId = 'root';
         }
-        if (REFRESH) {
+        if (this.REFRESH) {
             await db.files.where({
                 'parents': cacheId,
                 'peopleid': this.PEOPLE_ID,
@@ -249,17 +252,16 @@ export default class getFiles{
         let querySearch;
         
         // Get files from API and cache
-        checkForCache().then(async function(res){
-            if (typeof this.QUERY != "undefined"){
-                querySearch = `name contains '${this.QUERY}'`;
-            } else if (this.FOLDER_ID == 'shared-with-me'){
-                querySearch = 'sharedWithMe'
-            } else if (this.FOLDER_ID != 'shared-with-me') {
-                querySearch = `'${this.FOLDER_ID}' in parents and trashed=false`;
-            };
-            if (res == false || typeof this.QUERY != "undefined") {
+        this.checkForCache().then(async (res) =>{
+            if (!res || typeof this.QUERY != "undefined") {
+                if (typeof this.QUERY != "undefined"){
+                    querySearch = `name contains '${this.QUERY}'`;
+                } else if (this.FOLDER_ID == 'shared-with-me'){
+                    querySearch = 'sharedWithMe'
+                } else if (this.FOLDER_ID != 'shared-with-me') {
+                    querySearch = `'${this.FOLDER_ID}' in parents and trashed=false`;
+                };
                 while (fetchFiles){
-                    console.log('getting files from gapi')
                     await gapi.client.drive.files.list({
                         'q':querySearch,
                         'pageSize': 1000,
@@ -303,15 +305,13 @@ export default class getFiles{
                         });
                 };
             };
-        }).then(async function(){
+        }).then(async () => {
             // Remove whatever content that is there now.
             let oldContent = document.getElementById('content-list');
             oldContent.innerHTML = '';
-            finalList = [];
-        }).then(function(){
-            loadContent()		
+        }).then(async () =>{
+            this.loadContent()		
         });
-        
         };
     async sortSize() {
         // // Remove whatever content that is there now.
@@ -319,9 +319,9 @@ export default class getFiles{
         oldContent.innerHTML = '';
         let newList = [];
         setLoading();
-        // console.log(finalList)
-        for (let i = 0; i < finalList.length; i++){
-            let obj = finalList[i]
+        // console.log(this.finalList)
+        for (let i = 0; i < this.finalList.length; i++){
+            let obj = this.finalList[i]
             let newSize = obj.size;
             if (obj.size == undefined) {
                 newSize = '0';
@@ -348,7 +348,7 @@ export default class getFiles{
         }
         
         // console.log(newList)
-        createContent('..', folderParent, 'folder', 0).then(function () {
+        this.createContent('..', this.folderParent, 'folder', 0).then(function () {
             // Remove loading icon
             let loadingIcon = document.getElementById('#loading');
             loadingIcon.style = "display: none;";
@@ -360,7 +360,7 @@ export default class getFiles{
                 if (parseInt(fileObj.size) > 0){
                     fileSize = parseInt(fileObj.size);
                 };
-                createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
+                this.createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
             };
         })
         };	
@@ -369,17 +369,18 @@ export default class getFiles{
         // // Remove whatever content that is there now.
         let oldContent = document.getElementById('content-list');
         oldContent.innerHTML = '';
-        let newList = finalList;
+
+        let newList = this.finalList;
         
-      setLoading();
-      
-        if (sortedname == 1){
-            sortedname = 0;
+        setLoading();
+        
+        if (this.sortedname == 1){
+            this.sortedname = 0;
             newList = newList.sort(function(a, b) {
                 return sorter(a.name, b.name);
             });
         } else {
-            sortedname = 1;
+            this.sortedname = 1;
             sorter = natsort({ insensitive: true, desc: true });
             newList = newList.sort(function(a, b) {
                 return sorter(a.name, b.name);
@@ -387,7 +388,7 @@ export default class getFiles{
         }
         
         // console.log(newList)
-        createContent('..', folderParent, 'folder', 0).then(function () {
+        this.createContent('..', this.folderParent, 'folder', 0).then(function () {
             // Remove loading icon
             let loadingIcon = document.getElementById('#loading');
             loadingIcon.style = "display: none;";
@@ -399,15 +400,8 @@ export default class getFiles{
                 if (parseInt(fileObj.size) > 0){
                     fileSize = parseInt(fileObj.size);
                 };
-                createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
+                this.createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
             };
         })
         };
-    async refreshContent() {
-        await setLoading()
-        REFRESH = true;
-        
-        await getFiles()
-        REFRESH = false;
-        };
-}
+};

@@ -1,12 +1,12 @@
 import db from './connection'
 
 export default class getDrives {
-    constructor(people_id) {
-        this.PEOPLE_ID = people_id;
+    constructor() {
         this.driveList = [];
         this.REFRESH = false;
     };
-    async init() {
+    async init(people_id) {
+        this.PEOPLE_ID = people_id;
         await this.listDrives();
     }
     async listDrives() {
@@ -44,7 +44,7 @@ export default class getDrives {
 
             };
             this.driveList = [].concat.apply([], this.driveList);
-            await Promise.all(this.this.driveList.map((drive) => db.drives.put({
+            await Promise.all(this.driveList.map((drive) => db.drives.put({
                     name: drive.name, id: drive.id, peopleid: this.PEOPLE_ID,
             })));
         }

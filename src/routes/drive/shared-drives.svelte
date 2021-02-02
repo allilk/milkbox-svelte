@@ -1,9 +1,9 @@
 <script>
     import { afterUpdate, beforeUpdate, onMount } from 'svelte';
-    import db from './connection';
-    import {setLoading} from '../functions';
+    import { setLoading } from '../functions';
     import initClient from '../init_gapi';
-    import getDrives from './drives';
+	import getDrives from './drives';
+	
     let keyCode, itemList;
     let lineSelected = 0;
   
@@ -58,15 +58,16 @@
 		}
 	
 		};
-	// beforeUpdate(async () => {
-    //     setLoading();
-    // });
-    onMount(async () => {
-		let client = new initClient();
+	
+	let client = new initClient();
+	let createDrives = new getDrives();
+	beforeUpdate(async () => {
+        setLoading();
+	});
+	afterUpdate(async () => {
 		const people_id = await client.init()
-		let createDrives = new getDrives(people_id);
-		await createDrives.init();
-    });
+		await createDrives.init(people_id);
+	})
 // same issue, the undefined `this`?
 // strange cause this is how classes work, no pun intended
 
