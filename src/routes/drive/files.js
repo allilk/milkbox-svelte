@@ -6,20 +6,21 @@ export default class getFiles {
   /**
    * @param refresh Whether to perform a refresh
    * @param people_id The ID of the user
-   * @param folder_id Th target parent folder ID
-   * @param display_fid
-   * @param is_search Whether this is a serch, use string version of booleans
+   * @param folder_id The target parent folder ID
+   * @param display_fid Whether to display the folder/file ids next to the name
+   * @param is_search Whether this is a search, use string version of booleans
    * @param shared Whether the drive is shared or not, use string version of booleans
    */
-  async init(refresh = false, people_id, folder_id, display_fid = false, is_search = false, shared = 'false') {
+  async init(refresh = false, people_id, folder_id, display_fid = false, is_search = 0, shared = 'false') {
     this.PEOPLE_ID = people_id
     this.FOLDER_ID = folder_id
     this.DISPLAY_FID = display_fid
     this.IS_SEARCH = is_search
     this.SHARED = shared
     this.REFRESH = refresh
+    this.sorted = 0;
     this.finalList = []
-    this.getFiles()
+    await this.getFiles()
   }
 
   /**
@@ -83,7 +84,6 @@ export default class getFiles {
 
     existingContent.appendChild(mainDiv)
   }
-
   /**
    * Gets the file/folder parent
    */
@@ -129,7 +129,6 @@ export default class getFiles {
     dirTitle.innerText = folderName
     return parentId
   }
-  
   /**
    * Loads content or some shit
    */
@@ -141,7 +140,6 @@ export default class getFiles {
     // // Remove whatever content that is there now.
     let oldContent = document.getElementById('content-list')
     oldContent.innerHTML = ''
-    console.log(this.IS_SEARCH)
     if (!this.IS_SEARCH && this.FOLDER_ID != 'shared-with-me') {
       // Get folders
       let folderList = await db.files
@@ -153,18 +151,16 @@ export default class getFiles {
         })
         .and((item) => item.mimetype == 'folder')
         .sortBy('name')
-      
       // Sort using natsort!
       folderList.sort((a, b) => sorter(a.name, b.name))
       masterList.push(folderList)
-      console.log(masterList)
-      
+
       // Get files
       let fileList = await db.files
         .where({
           parents: this.FOLDER_ID,
           peopleid: this.PEOPLE_ID,
-          issearch: `${this.IS_SEARCH}`,
+          issearch: this.IS_SEARCH,
           shared: this.SHARED
         })
         .and( (item) => item.mimetype != 'folder')
@@ -181,12 +177,12 @@ export default class getFiles {
         .where({
           parents: 'root',
           peopleid: this.PEOPLE_ID,
-          issearch: `${this.IS_SEARCH}`,
+          issearch: this.IS_SEARCH,
           shared: this.SHARED
         })
         .toArray()
     } else {
-    //   masterList = await db.files.where('words').startsWithIgnoreCase(this.QUERY).distinct().toArray()
+      masterList = await db.files.where('words').startsWithIgnoreCase(this.QUERY).distinct().toArray()
       let indexHeader = document.getElementById('index-header')
       indexHeader.innerText = 'Search Results'
     }
@@ -209,8 +205,7 @@ export default class getFiles {
 
     this.folderParent = resp
     await this.createContent('..', resp, 'folder', 0)
-    console.log(masterList)
-    
+
     for (const fileObj of masterList) {
       let fileSize = 0
 
@@ -229,7 +224,6 @@ export default class getFiles {
     sizeTotal.innerText = formatBytes(totalSize)
     this.itemList = document.getElementsByClassName('not-selected')
   }
-
   async checkForCache() {
     let cacheId = this.FOLDER_ID
     
@@ -242,7 +236,7 @@ export default class getFiles {
         .where({
           parents: cacheId,
           peopleid: this.PEOPLE_ID,
-          issearch: `${this.IS_SEARCH}`,
+          issearch: this.IS_SEARCH,
           shared: this.SHARED
         })
         .delete()
@@ -252,7 +246,7 @@ export default class getFiles {
       .where({
         parents: cacheId,
         peopleid: this.PEOPLE_ID,
-        issearch: `${this.IS_SEARCH}`,
+        issearch: this.IS_SEARCH,
         shared: this.SHARED
       })
       .sortBy('name')
@@ -282,8 +276,7 @@ export default class getFiles {
 
     
     document.getElementById('show-grid').setAttribute('class', '')
-  }
-  
+  } 
   async getFiles() {
     let fetchFiles = true
     let fileList = []
@@ -296,7 +289,7 @@ export default class getFiles {
      */
     const res = await this.checkForCache()
 
-    if (!res || typeof !this.QUERY) {
+    if (!res || !this.QUERY) {
       if (this.QUERY) {
         querySearch = `name contains '${this.QUERY}'`
       } else if (this.FOLDER_ID == 'shared-with-me') {
@@ -324,17 +317,17 @@ export default class getFiles {
 
       fileList = [].concat.apply([], fileList)
       if (this.QUERY) {
-        this.IS_SEARCH = false
+        this.IS_SEARCH = 1
       }
 
       for (const file of fileList) {
-        if ((this.FOLDER_ID != 'root' && this.FOLDER_ID != 'shared-with-me') || !this.QUERY) {
+        if (this.FOLDER_ID != 'root' && this.FOLDER_ID != 'shared-with-me' || this.QUERY) {
           parentFolder = file.parents.toString()
         }
 
         const splitMimeTypes = file.mimeType.split('.')
         const shortenedMime = splitMimeTypes.length < 3 ? splitMimeTypes[0] : splitMimeTypes[2]
-
+        
         await db.files.put({
             name: file.name,
             id: file.id,
@@ -343,7 +336,7 @@ export default class getFiles {
             mimetype: shortenedMime,
             driveid: file.driveId,
             peopleid: this.PEOPLE_ID,
-            issearch: `${this.IS_SEARCH}`,
+            issearch: this.IS_SEARCH,
             shared: this.SHARED,
             words: getAllWords(file.name)
           });
@@ -354,9 +347,9 @@ export default class getFiles {
     let oldContent = document.getElementById('content-list')
     oldContent.innerHTML = ''
 
-    this.loadContent()
+    await this.loadContent()
+    return this.finalList;
   }
-
   /**
    * Sorts results based on the file size, if applicable
    */
@@ -377,18 +370,15 @@ export default class getFiles {
         mimetype: obj.mimetype,
         size: parseInt(newSize)
       }
-      // console.log(newobj)
       return newobj
     })
-    if (sorted == 1) {
-      sorted = 0
+    if (this.sorted == 1) {
+      this.sorted = 0
       newList = newList.sort((a, b) => a.size - b.size)
     } else {
-      sorted = 1
+      this.sorted = 1
       newList = newList.sort((a, b) => b.size - a.size)
     }
-
-    // console.log(newList)
     await this.createContent('..', this.folderParent, 'folder', 0)
 
     // Remove loading icon
@@ -419,15 +409,14 @@ export default class getFiles {
 
     setLoading()
 
-    if (this.sortedname == 1) {
-      this.sortedname = 0
+    if (this.sorted == 1) {
+      this.sorted = 0
       newList = newList.sort((a, b) => sorter(a.name, b.name))
     } else {
-      this.sortedname = 1
+      this.sorted = 1
       sorter = natsort({ insensitive: true, desc: true })
       newList = newList.sort((a, b) => sorter(a.name, b.name))
     }
-    // how do i convert the other files with prettier, you can just open them and press F1 then format
 
     // console.log(newList)
     await this.createContent('..', this.folderParent, 'folder', 0)

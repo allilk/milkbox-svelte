@@ -101,7 +101,6 @@
 		const refreshButton = document.getElementById('refresh_button');
 		refreshButton.onclick = refreshContent;
 
-		// here
 		document.getElementById('show-grid').onclick = createFiles.toggleGrid;
 		document.getElementById('show-list').onclick = createFiles.toggleList;
 
