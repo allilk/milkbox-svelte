@@ -1,12 +1,15 @@
-import sirv from 'sirv';
+import * as sapper from '@sapper/server'
+import compression from 'compression'
+import helmet from 'helmet'
+import sirv from 'sirv'
+
 const express = require('express');
-import compression from 'compression';
-import * as sapper from '@sapper/server';
 const crypto = require('crypto');
 
 const { PORT, NODE_ENV } = process.env;
 const dev = NODE_ENV === 'development';
 const nonce = crypto.randomBytes(16).toString('hex');
+
 
 express()
 	.use(
@@ -18,7 +21,6 @@ express()
 		if (err) console.log('error', err);
 	});
 	
-import helmet from 'helmet';
 
 express().use(helmet({
 	contentSecurityPolicy: {

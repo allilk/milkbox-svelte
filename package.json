@@ -16,6 +16,7 @@
     "express": "^4.17.1",
     "helmet": "^4.3.1",
     "polka": "next",
+    "prettier": "^2.2.1",
     "sirv": "^1.0.0"
   },
   "devDependencies": {
