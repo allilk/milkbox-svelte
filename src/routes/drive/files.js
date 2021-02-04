@@ -404,7 +404,6 @@ export default class getFiles {
     // // Remove whatever content that is there now.
     let oldContent = document.getElementById('content-list')
     oldContent.innerHTML = ''
-
     let newList = this.finalList
 
     setLoading()
@@ -418,7 +417,6 @@ export default class getFiles {
       newList = newList.sort((a, b) => sorter(a.name, b.name))
     }
 
-    // console.log(newList)
     await this.createContent('..', this.folderParent, 'folder', 0)
 
     // Remove loading icon
@@ -432,7 +430,7 @@ export default class getFiles {
       if (parseInt(fileObj.size) > 0) {
         fileSize = parseInt(fileObj.size)
       }
-      this.createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
+      await this.createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
     }
   }
 }
