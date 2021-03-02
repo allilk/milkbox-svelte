@@ -66,7 +66,7 @@
 	});
 	afterUpdate(async () => {
 		const people_id = await client.init()
-		await createDrives.init(people_id);
+		itemList = await createDrives.init(people_id);
 	})
 // same issue, the undefined `this`?
 // strange cause this is how classes work, no pun intended

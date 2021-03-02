@@ -21,6 +21,8 @@ export default class getFiles {
     this.sorted = 0;
     this.finalList = []
     await this.getFiles()
+    let itemList = document.getElementsByClassName("not-selected");
+    return itemList;
   }
 
   /**
@@ -39,6 +41,7 @@ export default class getFiles {
     sizeElement.innerText = formatBytes(fileSize, 0)
     sizeElement.setAttribute('class', 'col-span-1 file-size inline text-right')
 
+    let linkParent = document.createElement('a')
     let linkWithin = document.createElement('a')
     linkWithin.innerText = fileName
     let divClasses = `col-span-6 shadow-sm not-selected grid grid-cols-6 ${fileMimeType} py-3 px-4`
@@ -47,7 +50,7 @@ export default class getFiles {
     if (fileMimeType == 'folder') {
       linkWithin.innerText += `/`
       emojiMime = '📂'
-      linkWithin.href = `drive/${fileId}`
+      linkParent.href = `drive/${fileId}`
     } else {
       divClasses += ' file'
       if (fileMimeType.includes('video')) {
@@ -81,8 +84,11 @@ export default class getFiles {
     mainDiv.appendChild(divElement)
     mainDiv.appendChild(sizeElement)
     mainDiv.setAttribute('class', divClasses)
+    
+    linkParent.setAttribute('class', 'contents')
+    linkParent.appendChild(mainDiv)
 
-    existingContent.appendChild(mainDiv)
+    existingContent.appendChild(linkParent)
   }
   /**
    * Gets the file/folder parent
@@ -260,7 +266,8 @@ export default class getFiles {
     let contentList = document.getElementById('content-list')
 
     for(const childObj of contentList.childNodes) {
-    childObj.classList.replace('col-span-6', 'col-span-3')      
+      let reObj = childObj.childNodes[0]
+      reObj.classList.replace('col-span-6', 'col-span-3')      
     }
 
     
@@ -271,7 +278,8 @@ export default class getFiles {
     let contentList = document.getElementById('content-list')
 
     for (const childObj of contentList.childNodes) {
-            childObj.classList.replace('col-span-3', 'col-span-6')
+      let reObj = childObj.childNodes[0]
+      reObj.classList.replace('col-span-3', 'col-span-6')
     }
 
     

@@ -9,6 +9,8 @@ export default class getDrives {
   async init(people_id) {
     this.PEOPLE_ID = people_id
     await this.listDrives()
+    let itemList = document.getElementsByClassName("drive-obj");
+    return itemList
   }
   
     async listDrives() {

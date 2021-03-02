@@ -60,7 +60,7 @@ export default class initClient{
             signoutButton.onclick = handleSignoutClick;
         }
          catch (err) {    
-            console.log(JSON.stringify(error, null, 2));
+            console.log(JSON.stringify(err, null, 2));
         }
           
         this.PEOPLE_ID = await getPeopleId();

@@ -19,10 +19,17 @@
 	let client = new initClient();
 	const createFiles = new getFiles();
 	const initHeaders = async () => {
-			const nameHeader = document.getElementById('sort-name');
-			const sizeHeader = document.getElementById('sort-size');
-			nameHeader.onclick = function(){createFiles.sortName()};
-			sizeHeader.onclick = function(){createFiles.sortSize()};
+		// Sort by name header
+		document.getElementById('sort-name').onclick = function(){createFiles.sortName()};
+		// Sort by size header
+		document.getElementById('sort-size').onclick = function(){createFiles.sortSize()};
+		// Toggle grid/list
+		document.getElementById('show-grid').onclick = createFiles.toggleGrid;
+		document.getElementById('show-list').onclick = createFiles.toggleList;
+		}
+	const refreshContent = async () => {
+		setLoading();
+		await createFiles.init(true, people_id, folder_id[0], DISPLAY_FID);
 		}
 	const searchGrid = () => {
         let input, filter, contentList, flex, listitem, i, txtValue;
@@ -90,19 +97,14 @@
 		});
 		
 		const people_id = await client.init()
-		await createFiles.init(false, people_id, folder_id[0], DISPLAY_FID);
+		itemList = await createFiles.init(false, people_id, folder_id[0], DISPLAY_FID);
 
 		await initHeaders();
-		const refreshContent = async () => {
-			setLoading();
-			await createFiles.init(true, people_id, folder_id[0], DISPLAY_FID);
-		}
 		
 		const refreshButton = document.getElementById('refresh_button');
 		refreshButton.onclick = refreshContent;
 
-		document.getElementById('show-grid').onclick = createFiles.toggleGrid;
-		document.getElementById('show-list').onclick = createFiles.toggleList;
+		
 	});
 </script>
 <svelte:window on:keydown={handleKeydown}/>
