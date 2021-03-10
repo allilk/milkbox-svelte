@@ -17,7 +17,14 @@
 	let lineSelected = 0;
 	let DISPLAY_FID = false;
 	let client = new initClient();
+	let PEOPLE_ID;
 	const createFiles = new getFiles();
+	const searchFiles = async () => {
+		console.log('Running search')
+		setLoading()
+		let query = document.getElementById("search_input");
+		itemList = await createFiles.init(false, PEOPLE_ID, 'null', DISPLAY_FID, 1, 'false', query.value);
+	}
 	const initHeaders = async () => {
 		// Sort by name header
 		document.getElementById('sort-name').onclick = function(){createFiles.sortName()};
@@ -29,11 +36,15 @@
 		}
 	const refreshContent = async () => {
 		setLoading();
-		await createFiles.init(true, people_id, folder_id[0], DISPLAY_FID);
+		await createFiles.init(true, PEOPLE_ID, folder_id[0], DISPLAY_FID);
 		}
 	const searchGrid = () => {
         let input, filter, contentList, flex, listitem, i, txtValue;
         input = document.getElementById("search_input");
+		if (typeof itemList[lineSelected] != undefined){
+				itemList[lineSelected].classList.remove('selected');
+			}
+		lineSelected = 0;
         filter = input.value.toUpperCase();
         contentList = document.getElementById("content-list");
         flex = contentList.getElementsByClassName("not-selected");
@@ -49,9 +60,6 @@
 				}       
 			}
         }
-
-
-
 	const handleKeydown = async (event) => {
 		keyCode = event.keyCode;
 		if (keyCode == 83 || keyCode == 40) {
@@ -77,10 +85,12 @@
 				obj.scrollIntoView({behavior: "smooth", block: "center"});
 			}
 		} else if(keyCode == 13){
-			event.preventDefault();
-			let selObj = document.getElementsByClassName('selected')[0];
-			let linkObj = selObj.getElementsByTagName('a')[0]
-			linkObj.click()
+			try {
+				event.preventDefault();
+				let selObj = document.getElementsByClassName('selected')[0];
+				let linkObj = selObj.getElementsByTagName('a')[0]
+				linkObj.click()
+			} catch {}
 		}
 	
 		};
@@ -97,6 +107,7 @@
 		});
 		
 		const people_id = await client.init()
+		PEOPLE_ID = people_id;
 		itemList = await createFiles.init(false, people_id, folder_id[0], DISPLAY_FID);
 
 		await initHeaders();
@@ -139,8 +150,8 @@
 		<div class="flex-auto pl-2">
 			<div class="relative px-4 bg-white border">
 				<input on:keyup={searchGrid} type="search" name="search" id="search_input" placeholder="Search"
-						class="inline-flex w-full outline-none appearance-none focus:outline-none active:outline-none"/>
-				<button type="submit" class="absolute inline-flex -ml-3 bg-transparent outline-none focus:outline-none active:outline-none hover:bg-transparent">
+					class="inline-flex w-full outline-none appearance-none focus:outline-none active:outline-none"/>
+				<button on:click={searchFiles} type="submit" class="absolute inline-flex -ml-3 bg-transparent outline-none focus:outline-none active:outline-none hover:bg-transparent">
 					<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 						viewBox="0 0 24 24" class="w-6 h-6">
 					<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>

@@ -11,13 +11,14 @@ export default class getFiles {
    * @param is_search Whether this is a search, use string version of booleans
    * @param shared Whether the drive is shared or not, use string version of booleans
    */
-  async init(refresh = false, people_id, folder_id, display_fid = false, is_search = 0, shared = 'false') {
+  async init(refresh = false, people_id, folder_id='null', display_fid = false, is_search = 0, shared = 'false', query='') {
     this.PEOPLE_ID = people_id
     this.FOLDER_ID = folder_id
     this.DISPLAY_FID = display_fid
-    this.IS_SEARCH = is_search
+    this.IS_SEARCH = is_search.toString()
     this.SHARED = shared
     this.REFRESH = refresh
+    this.QUERY = query;
     this.sorted = 0;
     this.finalList = []
     await this.getFiles()
@@ -29,10 +30,10 @@ export default class getFiles {
    * Some description of what this method does
    * @param fileName
    * @param fileId
-   * @param fileMimeType
+   * @param filemimeType
    * @param fileSize
    */
-  async createContent(fileName, fileId, fileMimeType, fileSize) {
+  async createContent(fileName, fileId, filemimeType, fileSize) {
     let mainDiv = document.createElement('div')
     let existingContent = document.getElementById('content-list')
     let divElement = document.createElement('div')
@@ -42,28 +43,28 @@ export default class getFiles {
     sizeElement.setAttribute('class', 'col-span-1 file-size inline text-right')
 
     let linkParent = document.createElement('a')
-    let linkWithin = document.createElement('a')
+    let linkWithin = document.createElement('span')
     linkWithin.innerText = fileName
-    let divClasses = `col-span-6 shadow-sm not-selected grid grid-cols-6 ${fileMimeType} py-3 px-4`
+    let divClasses = `col-span-6 shadow-sm not-selected grid grid-cols-6 ${filemimeType} py-3 px-4`
     mainDiv.title = fileName
     let emojiMime = '❔'
-    if (fileMimeType == 'folder') {
+    if (filemimeType.includes('folder')) {
       linkWithin.innerText += `/`
       emojiMime = '📂'
       linkParent.href = `drive/${fileId}`
     } else {
       divClasses += ' file'
-      if (fileMimeType.includes('video')) {
+      if (filemimeType.includes('video')) {
         emojiMime = '📺'
-      } else if (fileMimeType.includes('audio')) {
+      } else if (filemimeType.includes('audio')) {
         emojiMime = '🎵'
-      } else if (fileMimeType.includes('image/')) {
+      } else if (filemimeType.includes('image/')) {
         emojiMime = '🖼️'
-      } else if (fileMimeType.includes('/x-iso') || fileMimeType.includes('cd-image')) {
+      } else if (filemimeType.includes('/x-iso') || filemimeType.includes('cd-image')) {
         emojiMime = '💿'
-      } else if (fileMimeType.includes('/zip') || fileMimeType.includes('rar') || fileMimeType.includes('compressed')) {
+      } else if (filemimeType.includes('/zip') || filemimeType.includes('rar') || filemimeType.includes('compressed')) {
         emojiMime = '🗄️'
-      } else if (fileMimeType.includes('text')) {
+      } else if (filemimeType.includes('text')) {
         emojiMime = '📃'
       } else {
         emojiMime = '❔'
@@ -146,7 +147,7 @@ export default class getFiles {
     // // Remove whatever content that is there now.
     let oldContent = document.getElementById('content-list')
     oldContent.innerHTML = ''
-    if (!this.IS_SEARCH && this.FOLDER_ID != 'shared-with-me') {
+    if (this.IS_SEARCH == 0 && this.FOLDER_ID != 'shared-with-me') {
       // Get folders
       let folderList = await db.files
         .where({
@@ -155,7 +156,7 @@ export default class getFiles {
           issearch: this.IS_SEARCH,
           shared: this.SHARED
         })
-        .and((item) => item.mimetype == 'folder')
+        .and((item) => item.mimeType == 'folder')
         .sortBy('name')
       // Sort using natsort!
       folderList.sort((a, b) => sorter(a.name, b.name))
@@ -169,7 +170,7 @@ export default class getFiles {
           issearch: this.IS_SEARCH,
           shared: this.SHARED
         })
-        .and( (item) => item.mimetype != 'folder')
+        .and( (item) => item.mimeType != 'folder')
         .sortBy('name')
 
       // Sort using natsort!
@@ -188,7 +189,8 @@ export default class getFiles {
         })
         .toArray()
     } else {
-      masterList = await db.files.where('words').startsWithIgnoreCase(this.QUERY).distinct().toArray()
+      // masterList = await db.files.where('words').startsWithIgnoreCase(this.QUERY).distinct().toArray()
+      masterList = this.fileList;
       let indexHeader = document.getElementById('index-header')
       indexHeader.innerText = 'Search Results'
     }
@@ -207,10 +209,12 @@ export default class getFiles {
     // Declare cumulative size variable
     let totalSize = 0
     // Create elements for each file
-    const resp = await this.getParent()
+    if (this.IS_SEARCH == 0){
+      const resp = await this.getParent()
 
-    this.folderParent = resp
-    await this.createContent('..', resp, 'folder', 0)
+      this.folderParent = resp
+      await this.createContent('..', resp, 'folder', 0)  
+    }
 
     for (const fileObj of masterList) {
       let fileSize = 0
@@ -222,7 +226,7 @@ export default class getFiles {
       }
       
       this.finalList.push(fileObj)
-      this.createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
+      this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize)
     }
 
     // Reflect directory size in header
@@ -233,7 +237,7 @@ export default class getFiles {
   async checkForCache() {
     let cacheId = this.FOLDER_ID
     
-    if (this.SHARED == 'true') {
+    if (this.SHARED == 'true' || this.IS_SEARCH) {
       cacheId = 'root'
     }
 
@@ -287,24 +291,27 @@ export default class getFiles {
   } 
   async getFiles() {
     let fetchFiles = true
-    let fileList = []
+    this.fileList = []
     let parentFolder = 'root'
     let nextPageToken
-    let querySearch
+    let querySearch;
 
     /**
      * Get files from API and cache
      */
-    const res = await this.checkForCache()
-
-    if (!res || !this.QUERY) {
-      if (this.QUERY) {
-        querySearch = `name contains '${this.QUERY}'`
-      } else if (this.FOLDER_ID == 'shared-with-me') {
+    let res;
+    if (this.IS_SEARCH == 0){
+      res = await this.checkForCache()
+    }
+    if (!res) {
+      if (this.FOLDER_ID == 'shared-with-me' && this.IS_SEARCH == 0) {
         querySearch = 'sharedWithMe'
-      } else if (this.FOLDER_ID != 'shared-with-me') {
+      } else if (this.FOLDER_ID != 'shared-with-me' && this.IS_SEARCH == 0) {
         querySearch = `'${this.FOLDER_ID}' in parents and trashed=false`
+      } else if (this.IS_SEARCH == 1){
+        querySearch = `name contains '${this.QUERY}'`
       }
+      
       while (fetchFiles) {
         const resp = await gapi.client.drive.files.list({
           q: querySearch,
@@ -315,7 +322,7 @@ export default class getFiles {
           fields: 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId)',
           pageToken: nextPageToken
         })
-        fileList.push(resp.result.files)
+        this.fileList.push(resp.result.files)
         if (!resp.result.nextPageToken) {
           fetchFiles = false
         } else {
@@ -323,25 +330,24 @@ export default class getFiles {
         }
       }
 
-      fileList = [].concat.apply([], fileList)
+      this.fileList = [].concat.apply([], this.fileList)
       if (this.QUERY) {
         this.IS_SEARCH = 1
       }
 
-      for (const file of fileList) {
+      for (const file of this.fileList) {
         if (this.FOLDER_ID != 'root' && this.FOLDER_ID != 'shared-with-me' || this.QUERY) {
           parentFolder = file.parents.toString()
         }
 
-        const splitMimeTypes = file.mimeType.split('.')
-        const shortenedMime = splitMimeTypes.length < 3 ? splitMimeTypes[0] : splitMimeTypes[2]
-        
+        const splitmimeTypes = file.mimeType.split('.')
+        const shortenedMime = splitmimeTypes.length < 3 ? splitmimeTypes[0] : splitmimeTypes[2]
         await db.files.put({
             name: file.name,
             id: file.id,
             parents: parentFolder,
             size: file.size,
-            mimetype: shortenedMime,
+            mimeType: shortenedMime,
             driveid: file.driveId,
             peopleid: this.PEOPLE_ID,
             issearch: this.IS_SEARCH,
@@ -350,7 +356,6 @@ export default class getFiles {
           });
       }
     }
-
     // Remove whatever content that is there now.
     let oldContent = document.getElementById('content-list')
     oldContent.innerHTML = ''
@@ -375,7 +380,7 @@ export default class getFiles {
       let newobj = {
         name: obj.name,
         id: obj.id,
-        mimetype: obj.mimetype,
+        mimeType: obj.mimeType,
         size: parseInt(newSize)
       }
       return newobj
@@ -400,7 +405,7 @@ export default class getFiles {
       if (parseInt(fileObj.size) > 0) {
         fileSize = parseInt(fileObj.size)
       }
-      this.createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
+      this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize)
     })
   }
 
@@ -438,7 +443,7 @@ export default class getFiles {
       if (parseInt(fileObj.size) > 0) {
         fileSize = parseInt(fileObj.size)
       }
-      await this.createContent(fileObj.name, fileObj.id, fileObj.mimetype, fileSize)
+      await this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize)
     }
   }
 }
