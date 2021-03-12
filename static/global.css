@@ -74,3 +74,13 @@ animation-delay: -0.5s;
 .file-id {
 	color: silver;
 }
+#context-menu {
+	position: absolute;
+	height: 80px;
+	width: 160px;
+	background: #01012e;
+	font-size: 1rem;
+	display: none;
+	text-align: center;  
+	color: white
+}

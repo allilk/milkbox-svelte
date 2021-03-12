@@ -45,10 +45,14 @@ export default class getFiles {
     let linkParent = document.createElement('a')
     let linkWithin = document.createElement('span')
     linkWithin.innerText = fileName
-    let divClasses = `col-span-6 shadow-sm not-selected grid grid-cols-6 ${filemimeType} py-3 px-4`
     mainDiv.title = fileName
     let emojiMime = '❔'
+
+    let divClasses = `col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 px-4`
     if (filemimeType.includes('folder')) {
+      if (filemimeType.includes('application/vnd.google-apps.')){
+        filemimeType = filemimeType.split('apps.')[1]
+      }
       linkWithin.innerText += `/`
       emojiMime = '📂'
       linkParent.href = `drive/${fileId}`
@@ -70,6 +74,7 @@ export default class getFiles {
         emojiMime = '❔'
       }
     }
+    divClasses += ` ${filemimeType}`
     linkWithin.innerText = `${emojiMime} ${linkWithin.innerText}`
 
     if (this.DISPLAY_FID == true) {
@@ -82,8 +87,10 @@ export default class getFiles {
     divElement.setAttribute('class', 'file-title w-full col-span-5 truncate inline')
     divElement.appendChild(linkWithin)
 
+
     mainDiv.appendChild(divElement)
     mainDiv.appendChild(sizeElement)
+    mainDiv.id = fileId
     mainDiv.setAttribute('class', divClasses)
     
     linkParent.setAttribute('class', 'contents')
@@ -191,7 +198,7 @@ export default class getFiles {
     } else {
       // masterList = await db.files.where('words').startsWithIgnoreCase(this.QUERY).distinct().toArray()
       masterList = this.fileList;
-      let indexHeader = document.getElementById('index-header')
+      let indexHeader = document.getElementById('dir-title')
       indexHeader.innerText = 'Search Results'
     }
 
@@ -309,7 +316,7 @@ export default class getFiles {
       } else if (this.FOLDER_ID != 'shared-with-me' && this.IS_SEARCH == 0) {
         querySearch = `'${this.FOLDER_ID}' in parents and trashed=false`
       } else if (this.IS_SEARCH == 1){
-        querySearch = `name contains '${this.QUERY}'`
+        querySearch = `name contains '${this.QUERY}' and trashed=false`
       }
       
       while (fetchFiles) {
@@ -392,8 +399,9 @@ export default class getFiles {
       this.sorted = 1
       newList = newList.sort((a, b) => b.size - a.size)
     }
-    await this.createContent('..', this.folderParent, 'folder', 0)
-
+    if (!window.location.href.includes('#search')){
+      await this.createContent('..', this.folderParent, 'folder', 0)
+    }
     // Remove loading icon
     let loadingIcon = document.getElementById('#loading')
     loadingIcon.style = 'display: none;'
@@ -430,7 +438,9 @@ export default class getFiles {
       newList = newList.sort((a, b) => sorter(a.name, b.name))
     }
 
-    await this.createContent('..', this.folderParent, 'folder', 0)
+    if (!window.location.href.includes('#search')){
+      await this.createContent('..', this.folderParent, 'folder', 0)
+    }
 
     // Remove loading icon
     let loadingIcon = document.getElementById('#loading')
@@ -447,3 +457,4 @@ export default class getFiles {
     }
   }
 }
+
