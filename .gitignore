@@ -1,0 +1,10 @@
+.DS_Store
+/node_modules/
+/src/node_modules/@sapper/
+yarn-error.log
+/__sapper__/
+other.svelte
+package-lock.json
+.env
+stores.js
+workspace.code-workspace

@@ -1,0 +1,46 @@
+:root{
+    --color-1: #ffe3d8;
+    --color-2: #bbbbbb;
+    --color-3: #03506f;
+    --color-4: #0a043c;
+}
+hr {
+	border: 1px solid var(--color-1);
+}
+body {
+    color:var(--color-4);
+	background-color: var(--color-1);
+}
+.top-header {
+	background-color: var(--color-2);
+	color: var(--color-4);
+}
+#file-count, #total-size, .folder{
+	color: var(--color-3);
+}
+.not-selected:hover, .selected {
+	color:var(--color-1);
+	background-color: var(--color-3);
+}
+.file-size{
+	color: var(--color-4);
+}
+button, .drive-obj{
+	background-color: var(--color-2);
+	color: var(--color-3);
+}
+button:hover, .drive-obj:hover, .drive-select {
+	background-color: var(--color-1);
+}
+.lds-ripple div {
+    border: 4px solid var(--color-3);
+    }
+[aria-current]::after {
+    background-color: var(--color-3);
+}
+.file_id{
+	color: darkslategray;
+}
+.gridlistview{
+	background-color: var(--color-2);
+}

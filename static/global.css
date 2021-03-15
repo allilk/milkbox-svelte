@@ -1,0 +1,86 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300&display=swap');
+:root{
+	scroll-behavior: smooth;
+}
+
+html, body {
+	margin:0;
+	padding:0;
+	}
+body {
+	font-family: 'Fira Code', monospace;
+	font-size: 20px;
+	line-height: 1.5;
+}
+option, select {
+	color:black;
+}
+a {
+	text-decoration: none;
+}
+.not-selected{
+	transition: 0.2s;
+	white-space: nowrap;
+}
+button{
+	font-size: 12px;
+	transition: background-color .2s;
+}
+
+code {
+	font-size: calc(1em - 2px);
+	color: #555;
+	padding: 0.2em 0.4em;
+	border-radius: 2px;
+}
+
+@media (min-width: 400px) {
+	body {
+		font-size: 16px;
+	}
+}
+.lds-ripple {
+	display: inline-block;
+	position: relative;
+	width: 80px;
+	height: 80px;
+  }
+.lds-ripple div {
+	position: absolute;
+	opacity: 1;
+	border-radius: 50%;
+	animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+.lds-ripple div:nth-child(2) {
+animation-delay: -0.5s;
+}
+@keyframes lds-ripple {
+0% {
+	top: 36px;
+	left: 36px;
+	width: 0;
+	height: 0;
+	opacity: 1;
+}
+100% {
+	top: 0px;
+	left: 0px;
+	width: 72px;
+	height: 72px;
+	opacity: 0;
+}
+}
+.file-id {
+	color: silver;
+}
+#context-menu {
+	position: absolute;
+	height: 80px;
+	width: 160px;
+	background: #01012e;
+	font-size: 1rem;
+	display: none;
+	text-align: center;  
+	color: white
+}
