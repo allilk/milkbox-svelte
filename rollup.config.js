@@ -27,10 +27,7 @@ export default {
 		output: config.client.output(),
 		plugins: [
 			replace({ 
-<<<<<<< HEAD
 				'preventAssignment': true,
-=======
->>>>>>> 5672d7dd0f67e7d1e51df707d621a85a26982c26
 				'process.browser': true,
 				'process.env.NODE_ENV': JSON.stringify(mode),
 				FOO: 'bar',      
@@ -88,10 +85,7 @@ export default {
 		output: config.server.output(),
 		plugins: [
 			replace({
-<<<<<<< HEAD
 				'preventAssignment': true,
-=======
->>>>>>> 5672d7dd0f67e7d1e51df707d621a85a26982c26
 				'process.browser': false,
 				'process.env.NODE_ENV': JSON.stringify(mode)
 			}),
@@ -125,10 +119,7 @@ export default {
 		plugins: [
 			resolve(),
 			replace({
-<<<<<<< HEAD
 				'preventAssignment': true,
-=======
->>>>>>> 5672d7dd0f67e7d1e51df707d621a85a26982c26
 				'process.browser': true,
 				'process.env.NODE_ENV': JSON.stringify(mode)
 			}),
