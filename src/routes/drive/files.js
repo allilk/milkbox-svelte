@@ -21,7 +21,6 @@ export default class getFiles {
     this.QUERY = query;
     this.sorted = 0;
     this.finalList = []
-    console.log(is_search)
     await this.getFiles()
     let itemList = document.getElementsByClassName("not-selected");
     return itemList;

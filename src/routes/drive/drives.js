@@ -1,13 +1,11 @@
 import db from './connection'
 
 export default class getDrives {
-  constructor() {
-    this.driveList = []
-  }
 
   async init(people_id, refresh = false) {
     this.PEOPLE_ID = people_id
     this.REFRESH = refresh
+    this.driveList = []
     await this.listDrives()
     let itemList = document.getElementsByClassName('drive-obj')
     return itemList
