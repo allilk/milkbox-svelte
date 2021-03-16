@@ -21,6 +21,18 @@
   let PEOPLE_ID
   const createFiles = new getFiles()
   const Operate = new fileOperations()
+  const searchGrid = async () => {
+    let searchInput = document.getElementById('search_input').value.toUpperCase()
+    Array.prototype.forEach.call(itemList, (listItem) => {
+      if (listItem) {
+        if (listItem.innerText.toUpperCase().indexOf(searchInput) > -1) {
+          listItem.style.display = ''
+        } else {
+          listItem.style.display = 'none'
+        }
+      }
+    })
+  }
   const addListeners = async () => {
     for (let i = 0; i < itemList.length; i++) {
       let listItem = itemList[i]
@@ -68,28 +80,6 @@
   const refreshContent = async () => {
     setLoading()
     itemList = await createFiles.init(true, PEOPLE_ID, folder_id[0], DISPLAY_FID)
-  }
-  const searchGrid = () => {
-    let input, filter, contentList, flex, listitem, i, txtValue
-    input = document.getElementById('search_input')
-    if (typeof itemList[lineSelected] != undefined) {
-      itemList[lineSelected].classList.remove('selected')
-    }
-    lineSelected = 0
-    filter = input.value.toUpperCase()
-    contentList = document.getElementById('content-list')
-    flex = contentList.getElementsByTagName('a')
-    for (i = 0; i < flex.length; i++) {
-      listitem = flex[i].getElementsByTagName('span')[0]
-      if (listitem) {
-        txtValue = listitem.textContent || listitem.innerText
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-          flex[i].style.display = ''
-        } else {
-          flex[i].style.display = 'none'
-        }
-      }
-    }
   }
   const handleKeydown = async (event) => {
     keyCode = event.keyCode

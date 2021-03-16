@@ -10,25 +10,19 @@
 
   const refreshContent = async () => {
     setLoading()
-	itemList = await createDrives.init(PEOPLE_ID, true)
+    itemList = await createDrives.init(PEOPLE_ID, true)
   }
-  const searchGrid = () => {
-    let input, filter, contentList, flex, listitem, i, txtValue
-    input = document.getElementById('search_input')
-    filter = input.value.toUpperCase()
-    contentList = document.getElementById('content-list')
-    flex = contentList.getElementsByClassName('drive-obj')
-    for (i = 0; i < flex.length; i++) {
-      listitem = flex[i].getElementsByTagName('div')[0]
-      if (listitem) {
-        txtValue = listitem.textContent || listitem.innerText
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-          flex[i].style.display = ''
+  const searchGrid = async () => {
+    let searchInput = document.getElementById('search_input').value.toUpperCase()
+    Array.prototype.forEach.call(itemList, (listItem) => {
+      if (listItem) {
+        if (listItem.innerText.toUpperCase().indexOf(searchInput) > -1) {
+          listItem.style.display = ''
         } else {
-          flex[i].style.display = 'none'
+          listItem.style.display = 'none'
         }
       }
-    }
+    })
   }
   const handleKeydown = async (event) => {
     // Im not going to nitpick but you can reduce the nestedness of the code
@@ -70,21 +64,12 @@
   })
   afterUpdate(async () => {
     const people_id = await client.init()
-	PEOPLE_ID = people_id
+    PEOPLE_ID = people_id
     itemList = await createDrives.init(PEOPLE_ID)
 
-	const refreshButton = document.getElementById('refresh_button')
+    const refreshButton = document.getElementById('refresh_button')
     refreshButton.onclick = refreshContent
   })
-  // same issue, the undefined `this`?
-  // strange cause this is how classes work, no pun intended
-
-  // async function refreshContent(){
-  //     REFRESH = true;
-  //     setLoading().then(async function(res) {
-  //         listDrives();
-  //     });
-  // }
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
