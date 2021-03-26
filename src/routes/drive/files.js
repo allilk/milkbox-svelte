@@ -33,7 +33,7 @@ export default class getFiles {
    * @param filemimeType
    * @param fileSize
    */
-  async createContent(fileName, fileId, filemimeType, fileSize) {
+  async createContent(fileName, fileId, filemimeType, fileSize, webView) {
     let mainDiv = document.createElement('div')
     let existingContent = document.getElementById('content-list')
     let divElement = document.createElement('div')
@@ -46,6 +46,7 @@ export default class getFiles {
     let linkWithin = document.createElement('span')
     linkWithin.innerText = fileName
     mainDiv.title = fileName
+    mainDiv.setAttribute('webview', webView)
     let emojiMime = '❔'
 
     let divClasses = `col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 px-4`
@@ -220,7 +221,7 @@ export default class getFiles {
       const resp = await this.getParent()
 
       this.folderParent = resp
-      await this.createContent('..', resp, 'folder', 0)  
+      await this.createContent('..', resp, 'folder', 0, '/')  
     }
 
     for (const fileObj of masterList) {
@@ -233,7 +234,7 @@ export default class getFiles {
       }
       
       this.finalList.push(fileObj)
-      this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize)
+      this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize, fileObj.webview)
     }
 
     // Reflect directory size in header
@@ -324,7 +325,7 @@ export default class getFiles {
           supportsAllDrives: true,
           includeItemsFromAllDrives: true,
           corpora: 'allDrives',
-          fields: 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId)',
+          fields: 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId, webViewLink)',
           pageToken: nextPageToken
         })
         this.fileList.push(resp.result.files)
@@ -357,6 +358,7 @@ export default class getFiles {
             peopleid: this.PEOPLE_ID,
             issearch: this.IS_SEARCH,
             shared: this.SHARED,
+            webview: file.webViewLink,
             words: getAllWords(file.name)
           });
       }
@@ -398,7 +400,7 @@ export default class getFiles {
       newList = newList.sort((a, b) => b.size - a.size)
     }
     if (!window.location.href.includes('#search')){
-      await this.createContent('..', this.folderParent, 'folder', 0)
+      await this.createContent('..', this.folderParent, 'folder', 0, '/')
     }
     // Remove loading icon
     let loadingIcon = document.getElementById('#loading')
@@ -411,7 +413,7 @@ export default class getFiles {
       if (parseInt(fileObj.size) > 0) {
         fileSize = parseInt(fileObj.size)
       }
-      this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize)
+      this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize, fileObj.webview)
     })
   }
 
@@ -437,7 +439,7 @@ export default class getFiles {
     }
 
     if (!window.location.href.includes('#search')){
-      await this.createContent('..', this.folderParent, 'folder', 0)
+      await this.createContent('..', this.folderParent, 'folder', 0, '/')
     }
 
     // Remove loading icon
@@ -451,7 +453,7 @@ export default class getFiles {
       if (parseInt(fileObj.size) > 0) {
         fileSize = parseInt(fileObj.size)
       }
-      await this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize)
+      await this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize, '/')
     }
   }
 }
