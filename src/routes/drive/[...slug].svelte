@@ -44,12 +44,12 @@
         let goToParent = contextMenu.childNodes[0]
         goToParent.onclick = async function () {
           let parentF = await Operate.returnParent(listItem.id)
-		    window.location.href = `drive/${parentF}`
+          window.location.href = `drive/${parentF}`
         }
-        
+
         let goToWebView = contextMenu.childNodes[2]
         goToWebView.onclick = async function () {
-         window.open(listItem.getAttribute('webview'))
+          window.open(listItem.getAttribute('webview'))
         }
         if (contextMenu.style.display === 'none') {
           contextMenu.style.left = `${ev.pageX}px`
@@ -119,7 +119,6 @@
       } catch {}
     }
   }
-
   beforeUpdate(async () => {
     setLoading()
   })
@@ -153,6 +152,7 @@
 <div id="context-menu" style="display: none;">
   <button id="go-to-parent" class="py-2 px-6"> Go to parent </button>
   <button id="go-to-webview" class="py-2 px-6"> Open in Google </button>
+  <button id="download-file" class="py-2 px-6"> Download </button>
 </div>
 
 <div class="px-4 py-12 shadow-lg top-header md:px-8 md:py-16 ">

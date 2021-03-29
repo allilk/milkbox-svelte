@@ -43,19 +43,23 @@
 <svelte:head>
     <title>milkbox</title>
 </svelte:head>
-<form>
-    <label for="theme">Theme:</label>
-    <select name="theme" id="#themes">
-        <option value="dark-theme">Dark Theme</option>
-        <option value="dark-gold-theme">Dark Gold Theme</option>
-        <option value="darker-dark-theme">Darker Dark Theme</option>
-        <option value="light-theme">Light Theme</option>
-        <option value="silver-theme">Silver Theme</option>
-    </select>
-    <br>
-    <label for="display-Fid">Display Folder ID (next to file name):</label>
-    <select name="display-Fid" id="#display-fid">
-        <option value="yes">Yes</option>
-        <option value="no">No</option>
-    </select>
-</form>
+<div class="mx-8 leading-loose">
+    <form>
+        <label for="theme"><b>Theme:</b></label>
+        <select name="theme" id="#themes">
+            <option value="dark-theme">Dark Theme</option>
+            <option value="dark-gold-theme">Dark Gold Theme</option>
+            <option value="darker-dark-theme">Darker Dark Theme</option>
+            <option value="light-theme">Light Theme</option>
+            <option value="silver-theme">Silver Theme</option>
+        </select>
+    </form>
+    <hr>
+    <form>
+        <label for="display-Fid"><b>Display Folder/File IDs:</b></label>
+        <select name="display-Fid" id="#display-fid">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+    </form>
+</div>
