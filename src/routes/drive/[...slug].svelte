@@ -9,7 +9,7 @@
 <script type="text/javascript">
   export let folder_id
   import db from './connection'
-  import { afterUpdate, beforeUpdate } from 'svelte'
+  import { afterUpdate, beforeUpdate, onMount } from 'svelte'
   import { setLoading } from '../functions'
   import getFiles from './files'
   import fileOperations from './operations'
@@ -119,10 +119,45 @@
       } catch {}
     }
   }
-  beforeUpdate(async () => {
-    setLoading()
-  })
-  afterUpdate(async () => {
+  // beforeUpdate(async () => {
+  //   setLoading()
+  // })
+  // afterUpdate(async () => {
+  //   db.settings
+  //     .where('user')
+  //     .equals(0)
+  //     .toArray()
+  //     .then(function (resp) {
+  //       if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
+  //         DISPLAY_FID = true
+  //       }
+  //     })
+
+  //   const people_id = await client.init()
+  //   PEOPLE_ID = people_id
+  //   itemList = await createFiles.init(false, people_id, folder_id[0], DISPLAY_FID)
+  //   addListeners()
+  //   await initHeaders()
+
+  //   const refreshButton = document.getElementById('refresh_button')
+  //   refreshButton.onclick = refreshContent
+  //   const searchBox = document.getElementById('search_input')
+  //   searchBox.onkeyup = searchGrid
+  // })
+  import { goto, stores } from '@sapper/app'
+  import Render from '../../components/Render.svelte'
+
+  let original_path
+  const { page } = stores()
+  $: if (original_path && $page.path != original_path) reload_page()
+
+  async function reload_page() {
+    const hash = window.location.hash
+    await goto('/', { replaceState: true })
+    goto($page.path + hash, { replaceState: true })
+  }
+  let promise = []
+  const getObjects = async () => {
     db.settings
       .where('user')
       .equals(0)
@@ -135,18 +170,22 @@
 
     const people_id = await client.init()
     PEOPLE_ID = people_id
-    itemList = await createFiles.init(false, people_id, folder_id[0], DISPLAY_FID)
-    addListeners()
-    await initHeaders()
+    promise = await createFiles.init(false, people_id, folder_id[0], DISPLAY_FID)
+    return promise
+    // addListeners()
+    // await initHeaders()
 
-    const refreshButton = document.getElementById('refresh_button')
-    refreshButton.onclick = refreshContent
-    const searchBox = document.getElementById('search_input')
-    searchBox.onkeyup = searchGrid
+    // const refreshButton = document.getElementById('refresh_button')
+    // refreshButton.onclick = refreshContent
+    // const searchBox = document.getElementById('search_input')
+    // searchBox.onkeyup = searchGrid
+  }
+  onMount(async () => {
+    original_path = $page.path
   })
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<!-- <svelte:window on:keydown={handleKeydown} /> -->
 
 <!-- Hidden context menu -->
 <div id="context-menu" style="display: none;">
@@ -197,7 +236,7 @@
           placeholder="Search"
           class="inline-flex w-full outline-none appearance-none focus:outline-none active:outline-none"
         />
-        <button
+        <!-- <button
           on:click={searchFiles}
           type="submit"
           class="absolute inline-flex -ml-3 bg-transparent outline-none focus:outline-none active:outline-none hover:bg-transparent"
@@ -213,7 +252,7 @@
           >
             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-        </button>
+        </button> -->
       </div>
     </div>
     <div class="p-1 ml-1 gridlistview">
@@ -225,16 +264,18 @@
     <div id="sort-name" class="col-span-5 py-3 font-bold animation-pulse">Name</div>
     <div id="sort-size" class="col-span-1 mr-8 font-bold text-right file-size">Size</div>
 
-    <div id="#loading" class="col-span-full">
-      <center>
-        <div class="lds-ripple">
-          <div />
-          <div />
-        </div>
-      </center>
-    </div>
+
   </div>
-  <form>
-    <div id="content-list" class="grid grid-cols-6 text-sm" />
-  </form>
+  {#if promise > 0}
+    <div id="#loading" class="col-span-full">
+        <center>
+          <div class="lds-ripple">
+            <div />
+            <div />
+          </div>
+        </center>
+      </div>
+    {/if}
+  <Render promise={getObjects()}></Render>
+
 </div>
