@@ -16,7 +16,7 @@ export default class getFiles {
     this.FOLDER_ID = folder_id
     this.DISPLAY_FID = display_fid
     this.IS_SEARCH = is_search.toString()
-    this.SHARED = shared
+    this.SHARED = folder_id === 'shared-with-me' ? 'true' : 'false'
     this.REFRESH = refresh
     this.QUERY = query
     this.sorted = 0

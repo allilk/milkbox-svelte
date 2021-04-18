@@ -17,7 +17,6 @@
   let keyCode, itemList
   let lineSelected = 0
   let DISPLAY_FID = false
-  let client = new initClient()
   let PEOPLE_ID
   const createFiles = new getFiles()
   const Operate = new fileOperations()
@@ -61,14 +60,14 @@
       })
     }
   }
-  const searchFiles = async () => {
-    console.log('Running search')
-    setLoading()
-    let query = document.getElementById('search_input')
-    itemList = await createFiles.init(false, PEOPLE_ID, 'null', DISPLAY_FID, 1, 'false', query.value)
-    addListeners()
-    window.location.hash = '#search'
-  }
+  // const searchFiles = async () => {
+  //   console.log('Running search')
+  //   setLoading()
+  //   let query = document.getElementById('search_input')
+  //   itemList = await createFiles.init(false, PEOPLE_ID, 'null', DISPLAY_FID, 1, 'false', query.value)
+  //   addListeners()
+  //   window.location.hash = '#search'
+  // }
   const initHeaders = async () => {
     // Sort by name header
     document.getElementById('sort-name').onclick = function () {
@@ -82,10 +81,9 @@
     document.getElementById('show-grid').onclick = createFiles.toggleGrid
     document.getElementById('show-list').onclick = createFiles.toggleList
   }
-  const refreshContent = async () => {
-    setLoading()
-    itemList = await createFiles.init(true, PEOPLE_ID, folder_id[0], DISPLAY_FID)
-  }
+  // const refreshContent = async () => {
+  //   itemList = await createFiles.init(true, PEOPLE_ID, folder_id[0], DISPLAY_FID)
+  // }
   const handleKeydown = async (event) => {
     keyCode = event.keyCode
     if (keyCode == 83 || keyCode == 40) {
@@ -157,21 +155,16 @@
     goto($page.path + hash, { replaceState: true })
   }
   let promise = []
+  let client;
   const getObjects = async () => {
-    db.settings
-      .where('user')
-      .equals(0)
-      .toArray()
-      .then(function (resp) {
-        if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
-          DISPLAY_FID = true
-        }
-      })
-
-    const people_id = await client.init()
-    PEOPLE_ID = people_id
-    promise = await createFiles.init(false, people_id, folder_id[0], DISPLAY_FID)
+    if (!PEOPLE_ID) {
+      client = new initClient()
+      const people_id = await client.init()
+      PEOPLE_ID = people_id
+    }
+    promise = await createFiles.init(false, PEOPLE_ID, folder_id[0], DISPLAY_FID)
     return promise
+
     // addListeners()
     // await initHeaders()
 
@@ -182,6 +175,15 @@
   }
   onMount(async () => {
     original_path = $page.path
+    // db.settings
+    //   .where('user')
+    //   .equals(0)
+    //   .toArray()
+    //   .then(function (resp) {
+    //     if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
+    //       DISPLAY_FID = true
+    //     }
+    //   })
   })
 </script>
 
@@ -225,7 +227,9 @@
     <div class="inline-flex flex-auto">
       <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
       <button id="signout_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
-      <button id="refresh_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Refresh</button>
+      <button id="refresh_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow">
+        Refresh</button
+      >
     </div>
     <div class="flex-auto pl-2">
       <div class="relative px-4 bg-white border">
@@ -263,19 +267,6 @@
   <div class="sticky grid items-center grid-cols-6 text-sm">
     <div id="sort-name" class="col-span-5 py-3 font-bold animation-pulse">Name</div>
     <div id="sort-size" class="col-span-1 mr-8 font-bold text-right file-size">Size</div>
-
-
   </div>
-  {#if promise > 0}
-    <div id="#loading" class="col-span-full">
-        <center>
-          <div class="lds-ripple">
-            <div />
-            <div />
-          </div>
-        </center>
-      </div>
-    {/if}
-  <Render promise={getObjects()}></Render>
-
+  <Render promise={getObjects()} />
 </div>
