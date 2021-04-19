@@ -8,29 +8,29 @@
 
 <script type="text/javascript">
   export let folder_id
-  import db from './connection'
+  export let promise = []
   import { afterUpdate, beforeUpdate, onMount } from 'svelte'
-  import { setLoading } from '../functions'
   import getFiles from './files'
   import fileOperations from './operations'
-  import initClient from '../init_gapi'
   let keyCode, itemList
   let lineSelected = 0
-  let DISPLAY_FID = false
   let PEOPLE_ID
   const createFiles = new getFiles()
   const Operate = new fileOperations()
   const searchGrid = async () => {
     let searchInput = document.getElementById('search_input').value.toUpperCase()
-    Array.prototype.forEach.call(itemList, (listItem) => {
-      if (listItem) {
-        if (listItem.innerText.toUpperCase().indexOf(searchInput) > -1) {
-          listItem.style.display = ''
-        } else {
-          listItem.style.display = 'none'
+
+    try {
+      Array.prototype.forEach.call(itemList, (listItem) => {
+        if (listItem !== undefined) {
+          if (listItem.innerText.toUpperCase().indexOf(searchInput) > -1) {
+            listItem.style.display = ''
+          } else {
+            listItem.style.display = 'none'
+          }
         }
-      }
-    })
+      })
+    } catch {}
   }
   const addListeners = async () => {
     for (let i = 0; i < itemList.length; i++) {
@@ -81,9 +81,10 @@
     document.getElementById('show-grid').onclick = createFiles.toggleGrid
     document.getElementById('show-list').onclick = createFiles.toggleList
   }
-  // const refreshContent = async () => {
-  //   itemList = await createFiles.init(true, PEOPLE_ID, folder_id[0], DISPLAY_FID)
-  // }
+  const refreshContent = async () => {
+    promise = []
+    await getObjects(true)
+  }
   const handleKeydown = async (event) => {
     keyCode = event.keyCode
     if (keyCode == 83 || keyCode == 40) {
@@ -117,33 +118,9 @@
       } catch {}
     }
   }
-  // beforeUpdate(async () => {
-  //   setLoading()
-  // })
-  // afterUpdate(async () => {
-  //   db.settings
-  //     .where('user')
-  //     .equals(0)
-  //     .toArray()
-  //     .then(function (resp) {
-  //       if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
-  //         DISPLAY_FID = true
-  //       }
-  //     })
-
-  //   const people_id = await client.init()
-  //   PEOPLE_ID = people_id
-  //   itemList = await createFiles.init(false, people_id, folder_id[0], DISPLAY_FID)
-  //   addListeners()
-  //   await initHeaders()
-
-  //   const refreshButton = document.getElementById('refresh_button')
-  //   refreshButton.onclick = refreshContent
-  //   const searchBox = document.getElementById('search_input')
-  //   searchBox.onkeyup = searchGrid
-  // })
   import { goto, stores } from '@sapper/app'
   import Render from '../../components/Render.svelte'
+  import GAPIClient from '../../components/GAPIClient.svelte'
 
   let original_path
   const { page } = stores()
@@ -154,40 +131,40 @@
     await goto('/', { replaceState: true })
     goto($page.path + hash, { replaceState: true })
   }
-  let promise = []
-  let client;
-  const getObjects = async () => {
-    if (!PEOPLE_ID) {
-      client = new initClient()
-      const people_id = await client.init()
-      PEOPLE_ID = people_id
-    }
-    promise = await createFiles.init(false, PEOPLE_ID, folder_id[0], DISPLAY_FID)
-    return promise
 
-    // addListeners()
-    // await initHeaders()
+  async function getObjects(refresh = false) {
+    try {
+      if (!PEOPLE_ID) {
+        PEOPLE_ID = localStorage.getItem('PEOPLE_ID')
+      }
+      gapi.load('client:auth2', async function () {
+        await gapi.client.init({
+          cookiepolicy: 'single_host_origin',
+          apiKey: api_key,
+          clientId: client_id,
+          discoveryDocs: discovery_docs,
+          scope: scopes
+        })
+        promise = await createFiles.init(refresh, PEOPLE_ID, folder_id[0])
+      })
+    } catch {}
+    itemList = document.getElementById('content-list').childNodes
+    addListeners()
+    await initHeaders()
 
-    // const refreshButton = document.getElementById('refresh_button')
-    // refreshButton.onclick = refreshContent
-    // const searchBox = document.getElementById('search_input')
-    // searchBox.onkeyup = searchGrid
+    const refreshButton = document.getElementById('refresh_button')
+    refreshButton.onclick = refreshContent
+    const searchBox = document.getElementById('search_input')
+    searchBox.onkeyup = searchGrid
   }
   onMount(async () => {
     original_path = $page.path
-    // db.settings
-    //   .where('user')
-    //   .equals(0)
-    //   .toArray()
-    //   .then(function (resp) {
-    //     if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
-    //       DISPLAY_FID = true
-    //     }
-    //   })
+
+    await getObjects()
   })
 </script>
 
-<!-- <svelte:window on:keydown={handleKeydown} /> -->
+<svelte:window on:keydown={handleKeydown} />
 
 <!-- Hidden context menu -->
 <div id="context-menu" style="display: none;">
@@ -224,13 +201,7 @@
 <div class="px-4 shadow-inner md:px-8">
   <br />
   <div class="flex items-center">
-    <div class="inline-flex flex-auto">
-      <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
-      <button id="signout_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
-      <button id="refresh_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow">
-        Refresh</button
-      >
-    </div>
+    <GAPIClient />
     <div class="flex-auto pl-2">
       <div class="relative px-4 bg-white border">
         <input
@@ -268,5 +239,11 @@
     <div id="sort-name" class="col-span-5 py-3 font-bold animation-pulse">Name</div>
     <div id="sort-size" class="col-span-1 mr-8 font-bold text-right file-size">Size</div>
   </div>
-  <Render promise={getObjects()} />
+  {#await promise}
+    awaiting..
+  {:then val}
+    <Render promise={val} />
+  {:catch error}
+    {error.message}
+  {/await}
 </div>

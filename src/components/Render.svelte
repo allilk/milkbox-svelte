@@ -1,49 +1,46 @@
 <script>
+  import Folder from './Folder.svelte'
+  import File from './File.svelte'
   export let promise
+  let display_folder_id = false
+  import db from '../routes/drive/connection'
+  import { onMount } from 'svelte'
 
-  const ifIncludes = (mimetype) => {
-    let emojiMime = '❔'
-    if (mimetype.includes('video')) {
-      emojiMime = '📺'
-    } else if (mimetype.includes('audio')) {
-      emojiMime = '🎵'
-    } else if (mimetype.includes('image/')) {
-      emojiMime = '🖼️'
-    } else if (mimetype.includes('/x-iso') || mimetype.includes('cd-image')) {
-      emojiMime = '💿'
-    } else if (mimetype.includes('/zip') || mimetype.includes('rar') || mimetype.includes('compressed')) {
-      emojiMime = '🗄️'
-    } else if (mimetype.includes('text')) {
-      emojiMime = '📃'
-    } else if (mimetype.includes('folder')) {
-      emojiMime = '📂'
-    }
-    return emojiMime
-  }
+  onMount(() => {
+    // Whether or not to display folder/file ids
+    db.settings
+      .where('user')
+      .equals(0)
+      .toArray()
+      .then(function (resp) {
+        if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
+          display_folder_id = true
+        }
+      })
+  })
 </script>
 
 <div id="content-list" class="grid grid-cols-6 text-sm">
   {#await promise}
-    <div id="#loading" class="col-span-full">
-      <center>
-        <div class="lds-ripple">
-          <div />
-          <div />
-        </div>
-      </center>
-    </div>
+    <div />
   {:then promisee}
     {#each promisee as item}
-      <a class="contents" href="drive/{item.id}">
-        <div id={item.id} class="col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 px-4 {item.mimetype}" title={item.name}>
-          <div class="file-title w-full col-span-5 truncate inline">
-            {ifIncludes(item.mimetype)}
-            {item.name}{#if item.mimetype == 'folder'}/{/if}
-          </div>
-          <div class="col-span-1 file-size inline text-right">{item.size}</div>
-        </div>
-      </a>
+      {#if item.mimetype == 'folder'}
+        <Folder display_folder_id={display_folder_id} {...item} />
+      {:else}
+        <File  display_folder_id={display_folder_id} {...item} />
+      {/if}
     {/each}
+    {#if promisee == 0}
+      <div id="#loading" class="col-span-full">
+        <center>
+          <div class="lds-ripple">
+            <div />
+            <div />
+          </div>
+        </center>
+      </div>
+    {/if}
   {:catch error}
     <p>{error}</p>
   {/await}

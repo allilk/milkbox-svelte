@@ -22,6 +22,7 @@ export default class getFiles {
     this.sorted = 0
     this.finalList = []
     this.theList = []
+
     await this.getFiles()
     // console.log(this.theList)
     return this.theList
@@ -56,22 +57,22 @@ export default class getFiles {
     //   emojiMime = '📂'
     //   linkParent.href = `drive/${fileId}`
     // } else {
-      // divClasses += ' file'
-      // if (filemimeType.includes('video')) {
-      //   emojiMime = '📺'
-      // } else if (filemimeType.includes('audio')) {
-      //   emojiMime = '🎵'
-      // } else if (filemimeType.includes('image/')) {
-      //   emojiMime = '🖼️'
-      // } else if (filemimeType.includes('/x-iso') || filemimeType.includes('cd-image')) {
-      //   emojiMime = '💿'
-      // } else if (filemimeType.includes('/zip') || filemimeType.includes('rar') || filemimeType.includes('compressed')) {
-      //   emojiMime = '🗄️'
-      // } else if (filemimeType.includes('text')) {
-      //   emojiMime = '📃'
-      // } else {
-      //   emojiMime = '❔'
-      // }
+    // divClasses += ' file'
+    // if (filemimeType.includes('video')) {
+    //   emojiMime = '📺'
+    // } else if (filemimeType.includes('audio')) {
+    //   emojiMime = '🎵'
+    // } else if (filemimeType.includes('image/')) {
+    //   emojiMime = '🖼️'
+    // } else if (filemimeType.includes('/x-iso') || filemimeType.includes('cd-image')) {
+    //   emojiMime = '💿'
+    // } else if (filemimeType.includes('/zip') || filemimeType.includes('rar') || filemimeType.includes('compressed')) {
+    //   emojiMime = '🗄️'
+    // } else if (filemimeType.includes('text')) {
+    //   emojiMime = '📃'
+    // } else {
+    //   emojiMime = '❔'
+    // }
     // }
     // divClasses += ` ${filemimeType}`
     // linkWithin.innerText = `${emojiMime} ${linkWithin.innerText}`
@@ -221,8 +222,9 @@ export default class getFiles {
           id: resp,
           size: formatBytes(0),
           mimetype: 'folder',
-          webview: '/',
-        }]
+          webview: '/'
+        }
+      ]
     }
 
     for (const fileObj of masterList) {
@@ -242,7 +244,7 @@ export default class getFiles {
           id: fileObj.id,
           size: formatBytes(fileSize),
           mimetype: fileObj.mimeType,
-          webview: fileObj.webview,
+          webview: fileObj.webview
         }
       ]
       // this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize, fileObj.webview)
@@ -288,10 +290,12 @@ export default class getFiles {
     document.getElementById('show-grid').setAttribute('class', 'hidden')
     let contentList = document.getElementById('content-list')
 
-    for (const childObj of contentList.childNodes) {
-      let reObj = childObj.childNodes[0]
-      reObj.classList.replace('col-span-6', 'col-span-3')
-    }
+    try {
+      for (const childObj of contentList.childNodes) {
+        let reObj = childObj.childNodes[0]
+        reObj.classList.replace('col-span-6', 'col-span-3')
+      }
+    } catch {}
 
     document.getElementById('show-list').setAttribute('class', '')
   }
@@ -299,11 +303,12 @@ export default class getFiles {
     document.getElementById('show-list').setAttribute('class', 'hidden')
     let contentList = document.getElementById('content-list')
 
-    for (const childObj of contentList.childNodes) {
-      let reObj = childObj.childNodes[0]
-      reObj.classList.replace('col-span-3', 'col-span-6')
-    }
-
+    try {
+      for (const childObj of contentList.childNodes) {
+        let reObj = childObj.childNodes[0]
+        reObj.classList.replace('col-span-3', 'col-span-6')
+      }
+    } catch {}
     document.getElementById('show-grid').setAttribute('class', '')
   }
   async getFiles() {
@@ -353,7 +358,7 @@ export default class getFiles {
         if ((this.FOLDER_ID != 'root' && this.FOLDER_ID != 'shared-with-me') || this.QUERY) {
           parentFolder = file.parents.toString()
         }
-        
+
         const splitmimeTypes = file.mimeType.split('.')
         const shortenedMime = splitmimeTypes.length < 3 ? splitmimeTypes[0] : splitmimeTypes[2]
         await db.files.put({
@@ -369,7 +374,6 @@ export default class getFiles {
           webview: file.webViewLink,
           words: getAllWords(file.name)
         })
-        
       }
     }
     // // Remove whatever content that is there now.
@@ -436,8 +440,6 @@ export default class getFiles {
     oldContent.innerHTML = ''
     let newList = this.finalList
 
-    setLoading()
-
     if (this.sorted == 1) {
       this.sorted = 0
       newList = newList.sort((a, b) => sorter(a.name, b.name))
@@ -448,21 +450,22 @@ export default class getFiles {
     }
 
     if (!window.location.href.includes('#search')) {
-      await this.createContent('..', this.folderParent, 'folder', 0, '/')
+      return newList
     }
-
-    // Remove loading icon
-    // let loadingIcon = document.getElementById('#loading')
-    // loadingIcon.style = 'display: none;'
-    // oldContent.style = ''
-
-    for (const fileObj of newList) {
-      let fileSize = 0
-      // Add to total directory size
-      if (parseInt(fileObj.size) > 0) {
-        fileSize = parseInt(fileObj.size)
-      }
-      await this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize, '/')
-    }
+    // this.theList = []
+    // for (const fileObj of newList) {
+    //   let fileSize = 0
+    //   // Add to total directory size
+    //   if (parseInt(fileObj.size) > 0) {
+    //     fileSize = parseInt(fileObj.size)
+    //   }
+    //   this.theList = [...this.theList, {
+    //     name: fileObj.name,
+    //     id: fileObj.id,
+    //     mimetype: fileObj.mimeType,
+    //     size: fileSize,
+    //     webview: fileObj.webview
+    //   }]
+    // }
   }
 }
