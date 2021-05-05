@@ -26,7 +26,7 @@
   }
 
 </script>
-
+<div style="display: none;">{webview}</div>
 <span class="contents">
   <div {id} class="col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 px-4 {mimetype}" title={name}>
     <div class="file-title w-full col-span-5 truncate inline">
