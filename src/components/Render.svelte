@@ -2,12 +2,16 @@
   import Folder from './Folder.svelte'
   import File from './File.svelte'
   export let promise
+  let PEOPLE_ID
   let display_folder_id = false
   import db from '../routes/drive/connection'
   import { onMount } from 'svelte'
-
+  import getFiles from '../routes/drive/files'
+  const createFiles = new getFiles()
   onMount(() => {
-    // Whether or not to display folder/file ids
+    if (!PEOPLE_ID) {
+        PEOPLE_ID = localStorage.getItem('PEOPLE_ID')
+      }
     db.settings
       .where('user')
       .equals(0)
@@ -18,6 +22,12 @@
         }
       })
   })
+
+  // call func: {getFiles(id)}
+  const getTheFiles = async (refresh, folderId) => {
+    promise = []
+    promise = await createFiles.init(refresh, PEOPLE_ID, folderId)
+  }
 </script>
 
 <div id="content-list" class="grid grid-cols-6 text-sm">
@@ -26,9 +36,11 @@
   {:then promisee}
     {#each promisee as item}
       {#if item.mimetype == 'folder'}
-        <Folder display_folder_id={display_folder_id} {...item} />
+        <span class="contents" on:click={getTheFiles(false, item.id)}>
+          <Folder {display_folder_id} {...item} />
+        </span>
       {:else}
-        <File  display_folder_id={display_folder_id} {...item} />
+        <File {display_folder_id} {...item} />
       {/if}
     {/each}
     {#if promisee == 0}

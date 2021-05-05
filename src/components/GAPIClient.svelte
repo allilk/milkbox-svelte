@@ -71,10 +71,10 @@
 </script>
 
 <div class="inline-flex flex-auto">
-  <div>
-    Signed in as <b>{USER_NAME}</b> (<span id="#PID">{PEOPLE_ID}</span>) 
-  </div>
-  <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
-  <button id="signout_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
-  <button id="refresh_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Refresh</button>
+    <div>
+      Signed in as <b>{USER_NAME}</b> (<span id="#PID">{PEOPLE_ID}</span>) 
+    </div> 
+    <button id="signout_button" style="display: none;"  class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
+    <button id="refresh_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Refresh</button>
+    <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
 </div>

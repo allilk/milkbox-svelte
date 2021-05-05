@@ -122,15 +122,15 @@
   import Render from '../../components/Render.svelte'
   import GAPIClient from '../../components/GAPIClient.svelte'
 
-  let original_path
-  const { page } = stores()
-  $: if (original_path && $page.path != original_path) reload_page()
+  // let original_path
+  // const { page } = stores()
+  // $: if (original_path && $page.path != original_path) reload_page()
 
-  async function reload_page() {
-    const hash = window.location.hash
-    await goto('/', { replaceState: true })
-    goto($page.path + hash, { replaceState: true })
-  }
+  // async function reload_page() {
+  //   const hash = window.location.hash
+  //   await goto('/', { replaceState: true })
+  //   goto($page.path + hash, { replaceState: true })
+  // }
 
   async function getObjects(refresh = false) {
     try {
@@ -158,7 +158,7 @@
     searchBox.onkeyup = searchGrid
   }
   onMount(async () => {
-    original_path = $page.path
+    // original_path = $page.path
 
     await getObjects()
   })
