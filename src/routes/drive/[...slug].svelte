@@ -162,10 +162,12 @@
   <button id="download-file" class="py-2 px-6"> Download </button>
 </div>
 
-<div class="px-4 py-12 shadow-lg top-header md:px-8 md:py-16 ">
-  <span id="index-header" class="text-xl font-bold md:text-2xl"><span>index of ./<span id="dir-title" />/ </span></span><span
-    class="text-lg md:text-xl file-id">({folder_id})</span
-  >
+<div class="px-4 py-12 shadow-lg top-header md:px-8">
+  <div class="-mb-4">
+    <span id="index-header" class="text-xl font-bold md:text-2xl"><span>index of ./<span id="dir-title" />/ </span></span><span
+      class="text-lg md:text-xl file-id">({folder_id})</span
+    >
+  </div>
   <br />
   <hr />
   <span class="text-sm font-bold"

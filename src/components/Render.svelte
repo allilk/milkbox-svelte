@@ -7,7 +7,7 @@
   import natsort from '../scripts/natsort.min'
   import { goto } from '@sapper/app'
 
-  export let folder_id
+  // export let folder_id
   export let promise
   export let sortedName = 0
   export let sortedSize = 0
