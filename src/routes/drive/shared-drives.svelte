@@ -71,7 +71,9 @@
     refreshButton.onclick = refreshContent
   })
 </script>
-
+<svelte:head>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+</svelte:head>
 <svelte:window on:keydown={handleKeydown} />
 <div class="px-8 py-16 shadow-lg top-header sm:py-12 ">
   <span id="index-header" class="text-2xl">my shared drives <span id="total-drives" class="text-gray-500 " /></span>

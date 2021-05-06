@@ -5,11 +5,12 @@
   import { onMount } from 'svelte'
   import getFiles from '../routes/drive/files'
   import natsort from '../scripts/natsort.min'
+  import { goto } from '@sapper/app'
 
   export let promise
   export let sortedName = 0
   export let sortedSize = 0
-  
+
   let PEOPLE_ID, keyCode
   let itemList = []
   let lineSelected = 0
@@ -18,8 +19,8 @@
 
   onMount(async () => {
     if (!PEOPLE_ID) {
-        PEOPLE_ID = localStorage.getItem('PEOPLE_ID')
-      }
+      PEOPLE_ID = localStorage.getItem('PEOPLE_ID')
+    }
     db.settings
       .where('user')
       .equals(0)
@@ -31,9 +32,12 @@
       })
   })
   const getTheFiles = async (refresh, folderId) => {
-    promise = []
-    promise = await createFiles.init(refresh, PEOPLE_ID, folderId)
-    
+    if (folderId == 'shared-drives') {
+      goto('/drive/shared-drives')
+    } else {
+      promise = []
+      promise = await createFiles.init(refresh, PEOPLE_ID, folderId)
+    }
   }
   const handleKeydown = async (event) => {
     console.log(itemList)
@@ -78,7 +82,7 @@
       sortedName = 0
       newList = newList.sort((a, b) => sorter(a.name, b.name))
     } else {
-      sortedName= 1
+      sortedName = 1
       sorter = natsort({ insensitive: true, desc: true })
       newList = newList.sort((a, b) => sorter(a.name, b.name))
     }
@@ -100,6 +104,7 @@
     promise = newList
   }
 </script>
+
 <svelte:window on:keydown={handleKeydown} />
 <div class="sticky grid items-center grid-cols-6 text-sm">
   <div id="sort-name" on:click={sortByName(sortedName)} class="col-span-5 py-3 font-bold animation-pulse">Name</div>
