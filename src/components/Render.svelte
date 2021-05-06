@@ -40,11 +40,13 @@
       goto('/drive/shared-drives')
     } else {
       promise = []
-      promise = await createFiles.init(refresh, PEOPLE_ID, folder_id)
       window.history.replaceState({}, '','/drive/'+folder_id);
       folderId.set(folder_id)
-      itemList = document.getElementsByClassName('not-selected')
       lineSelected = 0
+
+      promise = await createFiles.init(refresh, PEOPLE_ID, folder_id)
+      
+      itemList = document.getElementsByClassName('not-selected')
     }
   }
   const handleKeydown = async (event) => {

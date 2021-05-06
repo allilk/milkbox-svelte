@@ -81,6 +81,17 @@
     promise = []
     promise = await createFiles.init(true, PEOPLE_ID, $folderId)
   }
+  const goToFolder = async (folder) => {
+    promise = []
+
+    window.history.replaceState({}, '','/drive/'+folder);
+    folderId.set(folder)
+
+    promise = await createFiles.init(false, PEOPLE_ID, folder)
+    
+    itemList = document.getElementsByClassName('not-selected')
+
+  }
   import Render from '../../components/Render.svelte'
 
   const initiate = async () => {
@@ -130,12 +141,8 @@
   <hr />
   <div class="mt-2">
     <span class="text-sm">quick links: </span>
-    <a href="drive/root">
-      <button class="px-2 py-2 font-semibold rounded-none shadow">my drive</button>
-    </a>
-    <a href="drive/shared-with-me">
-      <button class="px-2 py-2 font-semibold rounded-none shadow">shared with me</button>
-    </a>
+    <button on:click={function(){goToFolder('root')}} class="px-2 py-2 font-semibold rounded-none shadow">my drive</button>
+    <button on:click={function(){goToFolder('shared-with-me')}} class="px-2 py-2 font-semibold rounded-none shadow">shared with me</button>
     <a href="drive/shared-drives">
       <button class="px-2 py-2 font-semibold rounded-none shadow">shared drives</button>
     </a>
