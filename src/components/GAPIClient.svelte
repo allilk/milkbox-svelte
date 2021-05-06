@@ -1,5 +1,4 @@
 
-<svelte:head>
   <script src="https://apis.google.com/js/platform.js?onload=onLoadCallback" async defer></script>
   <script>
     async function Initialize() {
@@ -60,7 +59,7 @@
       })
     }
   </script>
-</svelte:head>
+
 <script>
   export let PEOPLE_ID = null;
   export let USER_NAME = null;

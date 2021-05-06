@@ -271,7 +271,6 @@ export default class getFiles {
       }
 
       while (fetchFiles) {
-        console.log(gapi.client.drive)
         const resp = await gapi.client.drive.files.list({
           q: querySearch,
           pageSize: 1000,

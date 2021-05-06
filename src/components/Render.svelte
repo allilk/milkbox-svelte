@@ -7,15 +7,16 @@
   import natsort from '../scripts/natsort.min'
   import { goto } from '@sapper/app'
 
+  export let folder_id
   export let promise
   export let sortedName = 0
   export let sortedSize = 0
 
   let PEOPLE_ID, keyCode
-  let itemList = []
   let lineSelected = 0
   let display_folder_id = false
   const createFiles = new getFiles()
+  let itemList = []
 
   onMount(async () => {
     if (!PEOPLE_ID) {
@@ -30,6 +31,8 @@
           display_folder_id = true
         }
       })
+    // promise = await createFiles.init(false, PEOPLE_ID, folder_id)
+    
   })
   const getTheFiles = async (refresh, folderId) => {
     if (folderId == 'shared-drives') {
@@ -37,10 +40,11 @@
     } else {
       promise = []
       promise = await createFiles.init(refresh, PEOPLE_ID, folderId)
+      window.history.replaceState({}, '','/drive/'+folderId);
+      itemList = document.getElementsByClassName('not-selected')
     }
   }
   const handleKeydown = async (event) => {
-    console.log(itemList)
     keyCode = event.keyCode
     if (keyCode == 83 || keyCode == 40) {
       if (lineSelected < itemList.length - 1) {
@@ -105,7 +109,7 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<!-- <svelte:window on:keydown={handleKeydown} /> -->
 <div class="sticky grid items-center grid-cols-6 text-sm">
   <div id="sort-name" on:click={sortByName(sortedName)} class="col-span-5 py-3 font-bold animation-pulse">Name</div>
   <div id="sort-size" on:click={sortBySize(sortedSize)} class="col-span-1 mr-8 font-bold text-right file-size">Size</div>
@@ -116,11 +120,13 @@
   {:then promisee}
     {#each promisee as item}
       {#if item.mimetype == 'folder'}
-        <span class="contents" on:click={getTheFiles(false, item.id)}>
+        <span class="contents cursor-pointer" on:click={getTheFiles(false, item.id)}>
           <Folder {display_folder_id} {...item} />
         </span>
       {:else}
-        <File {display_folder_id} {...item} />
+        <span class="contents">
+          <File {display_folder_id} {...item} />
+        </span>
       {/if}
     {/each}
     {#if promisee == 0}

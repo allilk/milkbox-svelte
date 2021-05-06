@@ -15,8 +15,9 @@
   import initClient from '../init_gapi'
   let keyCode, itemList
   let lineSelected = 0
+  // export let isAuth
   export let PEOPLE_ID
-  export let USER_NAME
+  let USER_NAME
   let client = new initClient()
   const createFiles = new getFiles()
   const Operate = new fileOperations()
@@ -72,21 +73,13 @@
   //   window.location.hash = '#search'
   // }
   const initHeaders = async () => {
-    // Sort by name header
-    // document.getElementById('sort-name').onclick = function () {
-    //   createFiles.sortName()
-    // }
-    // Sort by size header
-    // document.getElementById('sort-size').onclick = function () {
-    //   createFiles.sortSize()
-    // }
     // Toggle grid/list
     document.getElementById('show-grid').onclick = createFiles.toggleGrid
     document.getElementById('show-list').onclick = createFiles.toggleList
   }
-  const refreshContent = async () => {
+  const refreshTheContent = async () => {
     promise = []
-    await getObjects(true)
+    promise = await createFiles.init(true, PEOPLE_ID, folder_id[0])
   }
   const handleKeydown = async (event) => {
     keyCode = event.keyCode
@@ -156,6 +149,7 @@
     promise = await createFiles.init(false, PEOPLE_ID, folder_id[0])
   })
 </script>
+
 <svelte:head>
   <script src="https://apis.google.com/js/platform.js" async defer></script>
 </svelte:head>
@@ -198,11 +192,13 @@
   <div class="flex items-center">
     <!-- <GAPIClient /> -->
     <div class="inline-flex flex-auto">
-      <div>
+      <div class="mr-2">
         Signed in as <b>{USER_NAME}</b> (<span id="#PID">{PEOPLE_ID}</span>)
       </div>
       <button id="signout_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
-      <button id="refresh_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Refresh</button>
+      <button id="refresh_button" on:click={refreshTheContent} style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow">
+        Refresh</button
+      >
       <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
     </div>
     <div class="flex-auto pl-2">
@@ -241,7 +237,7 @@
   {#await promise}
     awaiting..
   {:then val}
-    <Render promise={val} />
+    <Render {folder_id} promise={val} />
   {:catch error}
     {error.message}
   {/await}
