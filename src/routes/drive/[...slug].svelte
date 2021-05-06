@@ -9,12 +9,15 @@
 <script type="text/javascript">
   export let folder_id
   export let promise = []
-  import { afterUpdate, beforeUpdate, onMount } from 'svelte'
+  import { onMount } from 'svelte'
   import getFiles from './files'
   import fileOperations from './operations'
+  import initClient from '../init_gapi'
   let keyCode, itemList
   let lineSelected = 0
-  let PEOPLE_ID
+  export let PEOPLE_ID
+  export let USER_NAME
+  let client = new initClient()
   const createFiles = new getFiles()
   const Operate = new fileOperations()
   const searchGrid = async () => {
@@ -70,13 +73,13 @@
   // }
   const initHeaders = async () => {
     // Sort by name header
-    document.getElementById('sort-name').onclick = function () {
-      createFiles.sortName()
-    }
+    // document.getElementById('sort-name').onclick = function () {
+    //   createFiles.sortName()
+    // }
     // Sort by size header
-    document.getElementById('sort-size').onclick = function () {
-      createFiles.sortSize()
-    }
+    // document.getElementById('sort-size').onclick = function () {
+    //   createFiles.sortSize()
+    // }
     // Toggle grid/list
     document.getElementById('show-grid').onclick = createFiles.toggleGrid
     document.getElementById('show-list').onclick = createFiles.toggleList
@@ -118,9 +121,8 @@
       } catch {}
     }
   }
-  import { goto, stores } from '@sapper/app'
+
   import Render from '../../components/Render.svelte'
-  import GAPIClient from '../../components/GAPIClient.svelte'
 
   // let original_path
   // const { page } = stores()
@@ -132,39 +134,32 @@
   //   goto($page.path + hash, { replaceState: true })
   // }
 
-  async function getObjects(refresh = false) {
-    try {
-      if (!PEOPLE_ID) {
-        PEOPLE_ID = localStorage.getItem('PEOPLE_ID')
-      }
-      gapi.load('client:auth2', async function () {
-        await gapi.client.init({
-          cookiepolicy: 'single_host_origin',
-          apiKey: api_key,
-          clientId: client_id,
-          discoveryDocs: discovery_docs,
-          scope: scopes
-        })
-        promise = await createFiles.init(refresh, PEOPLE_ID, folder_id[0])
-      })
-    } catch {}
-    itemList = document.getElementById('content-list').childNodes
-    addListeners()
-    await initHeaders()
+  const initiate = async () => {
+    const people_id = await client.init()
+    PEOPLE_ID = people_id
+    localStorage.setItem('PEOPLE_ID', PEOPLE_ID)
+    USER_NAME = localStorage.getItem('USER_NAME')
+    // itemList = document.getElementById('content-list').childNodes
+    // addListeners()
+    // await initHeaders()
+    // const refreshButton = document.getElementById('refresh_button')
+    // refreshButton.onclick = refreshContent
+    // const searchBox = document.getElementById('search_input')
+    // searchBox.onkeyup = searchGrid
+  }
 
-    const refreshButton = document.getElementById('refresh_button')
-    refreshButton.onclick = refreshContent
-    const searchBox = document.getElementById('search_input')
-    searchBox.onkeyup = searchGrid
+  if (typeof window !== 'undefined') {
+    PEOPLE_ID = localStorage.getItem('PEOPLE_ID')
   }
   onMount(async () => {
-    // original_path = $page.path
-
-    await getObjects()
+    await initiate()
+    promise = await createFiles.init(false, PEOPLE_ID, folder_id[0])
   })
 </script>
-
-<svelte:window on:keydown={handleKeydown} />
+<svelte:head>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+</svelte:head>
+<!-- <svelte:window on:keydown={handleKeydown} /> -->
 
 <!-- Hidden context menu -->
 <div id="context-menu" style="display: none;">
@@ -201,7 +196,15 @@
 <div class="px-4 shadow-inner md:px-8">
   <br />
   <div class="flex items-center">
-    <GAPIClient />
+    <!-- <GAPIClient /> -->
+    <div class="inline-flex flex-auto">
+      <div>
+        Signed in as <b>{USER_NAME}</b> (<span id="#PID">{PEOPLE_ID}</span>)
+      </div>
+      <button id="signout_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
+      <button id="refresh_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Refresh</button>
+      <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
+    </div>
     <div class="flex-auto pl-2">
       <div class="relative px-4 bg-white border">
         <input
@@ -234,10 +237,6 @@
       <img id="show-grid" class="" src="svg/fi-rr-grid.svg" alt="grid" width="20" />
       <img id="show-list" class="hidden" src="svg/fi-rr-list.svg" alt="list" width="20" />
     </div>
-  </div>
-  <div class="sticky grid items-center grid-cols-6 text-sm">
-    <div id="sort-name" class="col-span-5 py-3 font-bold animation-pulse">Name</div>
-    <div id="sort-size" class="col-span-1 mr-8 font-bold text-right file-size">Size</div>
   </div>
   {#await promise}
     awaiting..

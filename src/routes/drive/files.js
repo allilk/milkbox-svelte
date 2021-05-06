@@ -29,70 +29,6 @@ export default class getFiles {
   }
 
   /**
-   * Some description of what this method does
-   * @param fileName
-   * @param fileId
-   * @param filemimeType
-   * @param fileSize
-   */
-  async createContent(fileName, fileId, filemimeType, fileSize, webView) {
-    // let mainDiv = document.createElement('div')
-    // let existingContent = document.getElementById('content-list')
-    // let divElement = document.createElement('div')
-    // let sizeElement = document.createElement('div')
-    // sizeElement.innerText = formatBytes(fileSize, 0)
-    // sizeElement.setAttribute('class', 'col-span-1 file-size inline text-right')
-    // let linkParent = document.createElement('a')
-    // let linkWithin = document.createElement('span')
-    // linkWithin.innerText = fileName
-    // mainDiv.title = fileName
-    // mainDiv.setAttribute('webview', webView)
-    // let emojiMime = '❔'
-    // let divClasses = `col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 px-4`
-    // if (filemimeType.includes('folder')) {
-    //   if (filemimeType.includes('application/vnd.google-apps.')) {
-    //     filemimeType = filemimeType.split('apps.')[1]
-    //   }
-    //   linkWithin.innerText += `/`
-    //   emojiMime = '📂'
-    //   linkParent.href = `drive/${fileId}`
-    // } else {
-    // divClasses += ' file'
-    // if (filemimeType.includes('video')) {
-    //   emojiMime = '📺'
-    // } else if (filemimeType.includes('audio')) {
-    //   emojiMime = '🎵'
-    // } else if (filemimeType.includes('image/')) {
-    //   emojiMime = '🖼️'
-    // } else if (filemimeType.includes('/x-iso') || filemimeType.includes('cd-image')) {
-    //   emojiMime = '💿'
-    // } else if (filemimeType.includes('/zip') || filemimeType.includes('rar') || filemimeType.includes('compressed')) {
-    //   emojiMime = '🗄️'
-    // } else if (filemimeType.includes('text')) {
-    //   emojiMime = '📃'
-    // } else {
-    //   emojiMime = '❔'
-    // }
-    // }
-    // divClasses += ` ${filemimeType}`
-    // linkWithin.innerText = `${emojiMime} ${linkWithin.innerText}`
-    // if (this.DISPLAY_FID == true) {
-    //   let idWithin = document.createElement('span')
-    //   idWithin.setAttribute('class', 'text-xs file-id overflow-x-hidden')
-    //   idWithin.innerText = ` (${fileId})`
-    //   linkWithin.appendChild(idWithin)
-    // }
-    // divElement.setAttribute('class', 'file-title w-full col-span-5 truncate inline')
-    // divElement.appendChild(linkWithin)
-    // mainDiv.appendChild(divElement)
-    // mainDiv.appendChild(sizeElement)
-    // mainDiv.id = fileId
-    // mainDiv.setAttribute('class', divClasses)
-    // linkParent.setAttribute('class', 'contents')
-    // linkParent.appendChild(mainDiv)
-    // existingContent.appendChild(linkParent)
-  }
-  /**
    * Gets the file/folder parent
    */
   async getParent() {
@@ -220,6 +156,7 @@ export default class getFiles {
         {
           name: '..',
           id: resp,
+          raw_size: 0,
           size: formatBytes(0),
           mimetype: 'folder',
           webview: '/'
@@ -242,6 +179,7 @@ export default class getFiles {
         {
           name: fileObj.name,
           id: fileObj.id,
+          raw_size: fileSize,
           size: formatBytes(fileSize),
           mimetype: fileObj.mimeType,
           webview: fileObj.webview
@@ -333,6 +271,7 @@ export default class getFiles {
       }
 
       while (fetchFiles) {
+        console.log(gapi.client.drive)
         const resp = await gapi.client.drive.files.list({
           q: querySearch,
           pageSize: 1000,
@@ -376,96 +315,7 @@ export default class getFiles {
         })
       }
     }
-    // // Remove whatever content that is there now.
-    // let oldContent = document.getElementById('content-list')
-    // oldContent.innerHTML = ''
-
     await this.loadContent()
     return this.theList
-  }
-  /**
-   * Sorts results based on the file size, if applicable
-   */
-  async sortSize() {
-    let oldContent = document.getElementById('content-list')
-    oldContent.innerHTML = ''
-    setLoading()
-
-    let newList = this.finalList.map((obj) => {
-      let newSize = obj.size
-      if (obj.size == undefined) {
-        newSize = '0'
-      }
-
-      let newobj = {
-        name: obj.name,
-        id: obj.id,
-        mimeType: obj.mimeType,
-        size: parseInt(newSize)
-      }
-      return newobj
-    })
-    if (this.sorted == 1) {
-      this.sorted = 0
-      newList = newList.sort((a, b) => a.size - b.size)
-    } else {
-      this.sorted = 1
-      newList = newList.sort((a, b) => b.size - a.size)
-    }
-    if (!window.location.href.includes('#search')) {
-      await this.createContent('..', this.folderParent, 'folder', 0, '/')
-    }
-    // Remove loading icon
-    // let loadingIcon = document.getElementById('#loading')
-    // loadingIcon.style = 'display: none;'
-    // oldContent.style = ''
-
-    newList.forEach((fileObj) => {
-      let fileSize = 0
-      // Add to total directory size
-      if (parseInt(fileObj.size) > 0) {
-        fileSize = parseInt(fileObj.size)
-      }
-      this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize, fileObj.webview)
-    })
-  }
-
-  /**
-   * Sorts results based on the name
-   */
-  async sortName() {
-    let sorter = natsort({ insensitive: true })
-    // // Remove whatever content that is there now.
-    let oldContent = document.getElementById('content-list')
-    oldContent.innerHTML = ''
-    let newList = this.finalList
-
-    if (this.sorted == 1) {
-      this.sorted = 0
-      newList = newList.sort((a, b) => sorter(a.name, b.name))
-    } else {
-      this.sorted = 1
-      sorter = natsort({ insensitive: true, desc: true })
-      newList = newList.sort((a, b) => sorter(a.name, b.name))
-    }
-
-    if (!window.location.href.includes('#search')) {
-      return newList
-    }
-    // this.theList = []
-    // for (const fileObj of newList) {
-    //   let fileSize = 0
-    //   // Add to total directory size
-    //   if (parseInt(fileObj.size) > 0) {
-    //     fileSize = parseInt(fileObj.size)
-    //   }
-    //   this.theList = [...this.theList, {
-    //     name: fileObj.name,
-    //     id: fileObj.id,
-    //     mimetype: fileObj.mimeType,
-    //     size: fileSize,
-    //     webview: fileObj.webview
-    //   }]
-    // }
   }
 }

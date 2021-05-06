@@ -4,7 +4,7 @@
   export let name
   export let size
   export let webview
-
+  export let raw_size
   export let display_folder_id
 
   const ifIncludes = (mimetype) => {
@@ -36,6 +36,6 @@
         <span class="text-xs file-id overflow-x-hidden">({id})</span>
       {/if}
     </div>
-    <div class="col-span-1 file-size inline text-right">{size}</div>
+    <div class="col-span-1 file-size inline text-right" raw="{raw_size}">{size}</div>
   </div>
 </span>
