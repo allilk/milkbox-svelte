@@ -25,6 +25,7 @@ export default class getFiles {
 
     await this.getFiles()
     // console.log(this.theList)
+    
     return this.theList
   }
 
@@ -132,11 +133,6 @@ export default class getFiles {
       indexHeader.innerText = 'Search Results'
     }
 
-    // // Remove loading icon
-    // let loadingIcon = document.getElementById('#loading')
-    // loadingIcon.style = 'display: none;'
-    // let oContent = document.getElementById('content-list')
-    // oContent.style = ''
 
     // Display file count in header
     const fileCount = document.getElementById('file-count')
@@ -174,6 +170,7 @@ export default class getFiles {
       }
 
       this.finalList.push(fileObj)
+      
       this.theList = [
         ...this.theList,
         {
@@ -226,12 +223,11 @@ export default class getFiles {
   }
   async toggleGrid() {
     document.getElementById('show-grid').setAttribute('class', 'hidden')
-    let contentList = document.getElementById('content-list')
+    let contentList = document.getElementsByClassName('not-selected')
 
     try {
-      for (const childObj of contentList.childNodes) {
-        let reObj = childObj.childNodes[0]
-        reObj.classList.replace('col-span-6', 'col-span-3')
+      for (const childObj of contentList) {
+        childObj.classList.replace('col-span-6', 'col-span-3')
       }
     } catch {}
 
@@ -239,12 +235,11 @@ export default class getFiles {
   }
   async toggleList() {
     document.getElementById('show-list').setAttribute('class', 'hidden')
-    let contentList = document.getElementById('content-list')
+    let contentList = document.getElementsByClassName('not-selected')
 
     try {
-      for (const childObj of contentList.childNodes) {
-        let reObj = childObj.childNodes[0]
-        reObj.classList.replace('col-span-3', 'col-span-6')
+      for (const childObj of contentList) {
+        childObj.classList.replace('col-span-3', 'col-span-6')
       }
     } catch {}
     document.getElementById('show-grid').setAttribute('class', '')
@@ -281,6 +276,7 @@ export default class getFiles {
           pageToken: nextPageToken
         })
         this.fileList.push(resp.result.files)
+        
         if (!resp.result.nextPageToken) {
           fetchFiles = false
         } else {

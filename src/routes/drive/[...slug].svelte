@@ -72,14 +72,12 @@
   //   addListeners()
   //   window.location.hash = '#search'
   // }
-  const initHeaders = async () => {
-    // Toggle grid/list
-    document.getElementById('show-grid').onclick = createFiles.toggleGrid
-    document.getElementById('show-list').onclick = createFiles.toggleList
-  }
-  const refreshTheContent = async () => {
+  const refreshTheContent = async (folder) => {
+    if (Array.isArray(folder)) {
+      folder = folder[0]
+    }
     promise = []
-    promise = await createFiles.init(true, PEOPLE_ID, $folderId)
+    promise = await createFiles.init(true, PEOPLE_ID, folder)
   }
   const goToFolder = async (folder) => {
     promise = []
@@ -100,10 +98,6 @@
     localStorage.setItem('PEOPLE_ID', PEOPLE_ID)
     USER_NAME = localStorage.getItem('USER_NAME')
     // addListeners()
-    // await initHeaders()
-    // const refreshButton = document.getElementById('refresh_button')
-    // const searchBox = document.getElementById('search_input')
-    // searchBox.onkeyup = searchGrid
   }
 
   if (typeof window !== 'undefined') {
@@ -116,8 +110,6 @@
     folderId.set(folder_id)
   })
 </script>
-
-<!-- <svelte:window on:keydown={handleKeydown} /> -->
 
 <!-- Hidden context menu -->
 <div id="context-menu" style="display: none;">
@@ -150,15 +142,16 @@
   <br />
 </div>
 <div class="px-4 shadow-inner md:px-8">
-  <br />
+  <br /><br>
+  <div class="mr-2">
+    Signed in as <b>{USER_NAME}</b> (<span id="#PID">{PEOPLE_ID}</span>)
+  </div><br>
   <div class="flex items-center">
     <!-- <GAPIClient /> -->
+    
     <div class="inline-flex flex-auto">
-      <div class="mr-2">
-        Signed in as <b>{USER_NAME}</b> (<span id="#PID">{PEOPLE_ID}</span>)
-      </div>
       <button id="signout_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
-      <button id="refresh_button" on:click={refreshTheContent} style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow">
+      <button id="refresh_button" on:click={function(){refreshTheContent($folderId)}} style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow">
         Refresh</button
       >
       <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
@@ -191,15 +184,15 @@
         </button> -->
       </div>
     </div>
-    <div class="p-1 ml-1 gridlistview">
-      <img id="show-grid" class="" src="svg/fi-rr-grid.svg" alt="grid" width="20" />
-      <img id="show-list" class="hidden" src="svg/fi-rr-list.svg" alt="list" width="20" />
+    <div class="p-2 ml-1 gridlistview">
+      <img on:click={createFiles.toggleGrid} id="show-grid" class="" src="svg/fi-rr-grid.svg" alt="grid" width="20" />
+      <img on:click={createFiles.toggleList} id="show-list" class="hidden" src="svg/fi-rr-list.svg" alt="list" width="20" />
     </div>
   </div>
   {#await promise}
     awaiting..
   {:then val}
-    <Render {itemList} {folder_id} promise={val} />
+    <Render {itemList} promise={val} />
   {:catch error}
     {error.message}
   {/await}
