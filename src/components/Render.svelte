@@ -6,17 +6,18 @@
   import getFiles from '../routes/drive/files'
   import natsort from '../scripts/natsort.min'
   import { goto } from '@sapper/app'
+  import { folderId } from '../routes/stores'
 
   // export let folder_id
   export let promise
   export let sortedName = 0
   export let sortedSize = 0
+  export let itemList
 
   let PEOPLE_ID, keyCode
   let lineSelected = 0
   let display_folder_id = false
   const createFiles = new getFiles()
-  let itemList = []
 
   onMount(async () => {
     if (!PEOPLE_ID) {
@@ -34,14 +35,16 @@
     // promise = await createFiles.init(false, PEOPLE_ID, folder_id)
     
   })
-  const getTheFiles = async (refresh, folderId) => {
-    if (folderId == 'shared-drives') {
+  const getTheFiles = async (refresh, folder_id) => {
+    if (folder_id == 'shared-drives') {
       goto('/drive/shared-drives')
     } else {
       promise = []
-      promise = await createFiles.init(refresh, PEOPLE_ID, folderId)
-      window.history.replaceState({}, '','/drive/'+folderId);
+      promise = await createFiles.init(refresh, PEOPLE_ID, folder_id)
+      window.history.replaceState({}, '','/drive/'+folder_id);
+      folderId.set(folder_id)
       itemList = document.getElementsByClassName('not-selected')
+      lineSelected = 0
     }
   }
   const handleKeydown = async (event) => {
@@ -109,7 +112,7 @@
   }
 </script>
 
-<!-- <svelte:window on:keydown={handleKeydown} /> -->
+<svelte:window on:keydown={handleKeydown} />
 <div class="sticky grid items-center grid-cols-6 text-sm">
   <div id="sort-name" on:click={sortByName(sortedName)} class="col-span-5 py-3 font-bold animation-pulse">Name</div>
   <div id="sort-size" on:click={sortBySize(sortedSize)} class="col-span-1 mr-8 font-bold text-right file-size">Size</div>

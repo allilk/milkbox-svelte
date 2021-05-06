@@ -9,13 +9,13 @@
 <script type="text/javascript">
   export let folder_id
   export let promise = []
+  export let itemList = []
   import { onMount } from 'svelte'
   import getFiles from './files'
   import fileOperations from './operations'
   import initClient from '../init_gapi'
-  let keyCode, itemList
-  let lineSelected = 0
-  // export let isAuth
+  import { folderId } from '../stores'
+
   export let PEOPLE_ID
   let USER_NAME
   let client = new initClient()
@@ -23,7 +23,7 @@
   const Operate = new fileOperations()
   const searchGrid = async () => {
     let searchInput = document.getElementById('search_input').value.toUpperCase()
-
+    itemList = document.getElementsByClassName('not-selected')
     try {
       Array.prototype.forEach.call(itemList, (listItem) => {
         if (listItem !== undefined) {
@@ -79,64 +79,18 @@
   }
   const refreshTheContent = async () => {
     promise = []
-    promise = await createFiles.init(true, PEOPLE_ID, folder_id[0])
+    promise = await createFiles.init(true, PEOPLE_ID, $folderId)
   }
-  const handleKeydown = async (event) => {
-    keyCode = event.keyCode
-    if (keyCode == 83 || keyCode == 40) {
-      if (lineSelected < itemList.length - 1) {
-        if (typeof itemList[lineSelected] != undefined) {
-          itemList[lineSelected].classList.remove('selected')
-        }
-        lineSelected += 1
-        let objSelected = itemList[lineSelected]
-        objSelected.classList.add('selected')
-        let obj = document.getElementsByClassName('selected')[0]
-        obj.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    } else if (keyCode == 87 || keyCode == 38) {
-      if (lineSelected > 0) {
-        if (typeof itemList[lineSelected] != undefined) {
-          itemList[lineSelected].classList.remove('selected')
-        }
-        lineSelected -= 1
-        let objSelected = itemList[lineSelected]
-        objSelected.classList.add('selected')
-        let obj = document.getElementsByClassName('selected')[0]
-        obj.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    } else if (keyCode == 13) {
-      try {
-        event.preventDefault()
-        let selObj = document.getElementsByClassName('selected')[0]
-        let linkObj = selObj.getElementsByTagName('a')[0]
-        linkObj.click()
-      } catch {}
-    }
-  }
-
   import Render from '../../components/Render.svelte'
-
-  // let original_path
-  // const { page } = stores()
-  // $: if (original_path && $page.path != original_path) reload_page()
-
-  // async function reload_page() {
-  //   const hash = window.location.hash
-  //   await goto('/', { replaceState: true })
-  //   goto($page.path + hash, { replaceState: true })
-  // }
 
   const initiate = async () => {
     const people_id = await client.init()
     PEOPLE_ID = people_id
     localStorage.setItem('PEOPLE_ID', PEOPLE_ID)
     USER_NAME = localStorage.getItem('USER_NAME')
-    // itemList = document.getElementById('content-list').childNodes
     // addListeners()
     // await initHeaders()
     // const refreshButton = document.getElementById('refresh_button')
-    // refreshButton.onclick = refreshContent
     // const searchBox = document.getElementById('search_input')
     // searchBox.onkeyup = searchGrid
   }
@@ -147,12 +101,11 @@
   onMount(async () => {
     await initiate()
     promise = await createFiles.init(false, PEOPLE_ID, folder_id[0])
+    itemList = document.getElementsByClassName('not-selected')
+    folderId.set(folder_id)
   })
 </script>
 
-<svelte:head>
-  <script src="https://apis.google.com/js/platform.js" async defer></script>
-</svelte:head>
 <!-- <svelte:window on:keydown={handleKeydown} /> -->
 
 <!-- Hidden context menu -->
@@ -165,7 +118,7 @@
 <div class="px-4 py-12 shadow-lg top-header md:px-8">
   <div class="-mb-4">
     <span id="index-header" class="text-xl font-bold md:text-2xl"><span>index of ./<span id="dir-title" />/ </span></span><span
-      class="text-lg md:text-xl file-id">({folder_id})</span
+      class="text-lg md:text-xl file-id">({$folderId})</span
     >
   </div>
   <br />
@@ -205,7 +158,7 @@
     </div>
     <div class="flex-auto pl-2">
       <div class="relative px-4 bg-white border">
-        <input
+        <input on:keyup={searchGrid}
           type="search"
           name="search"
           id="search_input"
@@ -239,7 +192,7 @@
   {#await promise}
     awaiting..
   {:then val}
-    <Render {folder_id} promise={val} />
+    <Render {itemList} {folder_id} promise={val} />
   {:catch error}
     {error.message}
   {/await}
