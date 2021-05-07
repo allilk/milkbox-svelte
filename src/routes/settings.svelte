@@ -16,6 +16,12 @@
                 displayfid: ev.target.value
             });
         })
+        let largerPreviews = document.getElementById('#larger-previews');
+        largerPreviews.addEventListener('change', async (ev) => {
+            db.settings.update(0, {
+                largerpreviews: ev.target.value
+            });
+        })
         async function setDefault(){
             db.settings.where('user').equals(0).toArray().then(async function(res){
                 let USR = res[0];
@@ -31,6 +37,12 @@
                 for (let i = 0; i < displayOList.length; i++) {
                     if (USR.displayfid == displayOList[i].value){
                         displayOList[i].setAttribute('selected', true);
+                    }
+                }
+                let largerPreviews = document.getElementById('#larger-previews').getElementsByTagName('option');
+                for (let i = 0; i < largerPreviews.length; i++) {
+                    if (USR.largerpreviews == largerPreviews[i].value){
+                        largerPreviews[i].setAttribute('selected', true);
                     }
                 }
             })
@@ -58,6 +70,14 @@
     <form>
         <label for="display-Fid"><b>Display Folder/File IDs:</b></label>
         <select name="display-Fid" id="#display-fid">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+    </form>
+    <hr>
+    <form>
+        <label for="larger-previews"><b>Display Larger Previews:</b></label>
+        <select name="larger-previews" id="#larger-previews">
             <option value="yes">Yes</option>
             <option value="no">No</option>
         </select>

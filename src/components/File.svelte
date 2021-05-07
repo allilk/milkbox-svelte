@@ -5,8 +5,19 @@
   export let size
   export let webview
   export let raw_size
-  export let display_folder_id
   export let thumbnail
+
+  export let larger_previews
+  export let display_folder_id
+  // &sz
+  if (larger_previews && thumbnail) {
+    thumbnail = thumbnail.replace('=s220', '')
+  }
+  if (thumbnail) {
+    if (thumbnail.endsWith('&sz') || thumbnail.endsWith('&sz=s220')) {
+      thumbnail = ''
+    }
+  }
 
   const ifIncludes = (mimetype) => {
     let emojiMime = '❔'
@@ -29,7 +40,7 @@
     try {
       let theImage = document.getElementById(`img-${folder}`)
       theImage.classList.remove('hidden')
-      theImage.style = "left: 80px"
+      theImage.style = 'left: 80px'
     } catch (err) {
       console.log(err)
     }
@@ -46,11 +57,11 @@
 
 <div style="display: none;">{webview}</div>
 
-<div {id} class="col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 px-4 {mimetype}" >
+<div {id} class="col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 px-4 {mimetype}">
   <div class="file-title w-full col-span-5 truncate inline">
     {#if thumbnail}
       <div id="img-{id}" class="hidden absolute">
-        <img src={thumbnail} alt="Preview" />
+        <img src={thumbnail} alt="" />
       </div>
       <span on:mouseenter={showThumbnail(id)} on:mouseleave={hideThumbnail(id)}>
         {ifIncludes(mimetype)}
@@ -58,7 +69,7 @@
     {:else}
       {ifIncludes(mimetype)}
     {/if}
-    <span title="{name}">
+    <span title={name}>
       {name}
     </span>
     {#if display_folder_id}

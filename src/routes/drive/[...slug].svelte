@@ -82,13 +82,12 @@
   const goToFolder = async (folder) => {
     promise = []
 
-    window.history.replaceState({}, '','/drive/'+folder);
+    window.history.replaceState({}, '', '/drive/' + folder)
     folderId.set(folder)
 
     promise = await createFiles.init(false, PEOPLE_ID, folder)
-    
-    itemList = document.getElementsByClassName('not-selected')
 
+    itemList = document.getElementsByClassName('not-selected')
   }
   import Render from '../../components/Render.svelte'
 
@@ -105,9 +104,12 @@
   }
   onMount(async () => {
     await initiate()
-    promise = await createFiles.init(false, PEOPLE_ID, folder_id[0])
-    itemList = document.getElementsByClassName('not-selected')
-    folderId.set(folder_id)
+    try {
+      promise = await createFiles.init(false, PEOPLE_ID, folder_id[0])
+      itemList = document.getElementsByClassName('not-selected')
+      folderId.set(folder_id)
+    } catch (err) {
+    }
   })
 </script>
 
@@ -133,8 +135,18 @@
   <hr />
   <div class="mt-2">
     <span class="text-sm">quick links: </span>
-    <button on:click={function(){goToFolder('root')}} class="px-2 py-2 font-semibold rounded-none shadow">my drive</button>
-    <button on:click={function(){goToFolder('shared-with-me')}} class="px-2 py-2 font-semibold rounded-none shadow">shared with me</button>
+    <button
+      on:click={function () {
+        goToFolder('root')
+      }}
+      class="px-2 py-2 font-semibold rounded-none shadow">my drive</button
+    >
+    <button
+      on:click={function () {
+        goToFolder('shared-with-me')
+      }}
+      class="px-2 py-2 font-semibold rounded-none shadow">shared with me</button
+    >
     <a href="drive/shared-drives">
       <button class="px-2 py-2 font-semibold rounded-none shadow">shared drives</button>
     </a>
@@ -142,23 +154,32 @@
   <br />
 </div>
 <div class="px-4 shadow-inner md:px-8">
-  <br /><br>
+  <br /><br />
   <div class="mr-2">
     Signed in as <b>{USER_NAME}</b> (<span id="#PID">{PEOPLE_ID}</span>)
-  </div><br>
+  </div>
+  <br />
   <div class="flex items-center">
     <!-- <GAPIClient /> -->
-    
+
     <div class="inline-flex flex-auto">
       <button id="signout_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
-      <button id="refresh_button" on:click={function(){refreshTheContent($folderId)}} style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow">
+      <button
+        id="refresh_button"
+        on:click={function () {
+          refreshTheContent($folderId)
+        }}
+        style="display: none;"
+        class="px-2 py-2 font-semibold rounded-none shadow"
+      >
         Refresh</button
       >
       <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
     </div>
     <div class="flex-auto pl-2">
       <div class="relative px-4 bg-white border">
-        <input on:keyup={searchGrid}
+        <input
+          on:keyup={searchGrid}
           type="search"
           name="search"
           id="search_input"

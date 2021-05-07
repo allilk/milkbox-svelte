@@ -17,6 +17,7 @@
   let PEOPLE_ID, keyCode
   let lineSelected = 0
   let display_folder_id = false
+  let larger_previews = false
   const createFiles = new getFiles()
 
   onMount(async () => {
@@ -30,6 +31,9 @@
       .then(function (resp) {
         if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
           display_folder_id = true
+        }
+        if (resp[0].largerpreviews == 'yes') {
+          larger_previews = true
         }
       })
     // promise = await createFiles.init(false, PEOPLE_ID, folder_id)
@@ -130,7 +134,7 @@
         </span>
       {:else}
         <span class="contents">
-          <File {display_folder_id} {...item} />
+          <File {display_folder_id} {larger_previews} {...item} />
         </span>
       {/if}
     {/each}
