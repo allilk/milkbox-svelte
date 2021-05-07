@@ -3,7 +3,8 @@
   import { setLoading } from '../functions'
   import initClient from '../init_gapi'
   import getDrives from './drives'
-
+  import RenderDrives from '../../components/RenderDrives.svelte'
+  export let promise
   let keyCode, itemList
   let lineSelected = 0
   let PEOPLE_ID
@@ -59,22 +60,21 @@
 
   let client = new initClient()
   let createDrives = new getDrives()
-  beforeUpdate(async () => {
-    setLoading()
-  })
-  afterUpdate(async () => {
+
+  onMount(async () => {
     const people_id = await client.init()
     PEOPLE_ID = people_id
-    itemList = await createDrives.init(PEOPLE_ID)
-
-    const refreshButton = document.getElementById('refresh_button')
-    refreshButton.onclick = refreshContent
+    promise = await createDrives.init(PEOPLE_ID)
+    console.log(promise)
+    // try {
+    //   itemList = await createDrives.init(PEOPLE_ID)
+    // } catch {}
+    // const refreshButton = document.getElementById('refresh_button')
+    // refreshButton.onclick = refreshContent
   })
 </script>
-<svelte:head>
-  <script src="https://apis.google.com/js/platform.js" async defer></script>
-</svelte:head>
-<svelte:window on:keydown={handleKeydown} />
+
+<!-- <svelte:window on:keydown={handleKeydown} /> -->
 <div class="px-8 py-16 shadow-lg top-header sm:py-12 ">
   <span id="index-header" class="text-2xl">my shared drives <span id="total-drives" class="text-gray-500 " /></span>
   <br />
@@ -130,7 +130,7 @@
       </div>
     </div>
   </div>
-  <div class="sticky grid grid-cols-1 px-4 text-sm md:grid-cols-2 md:px-8">
+  <!-- <div class="sticky grid grid-cols-1 px-4 text-sm md:grid-cols-2 md:px-8">
     <div id="#loading" class="col-span-full">
       <center>
         <div class="lds-ripple">
@@ -138,9 +138,17 @@
           <div />
         </div>
       </center>
-    </div>
-  </div>
-  <br />
+    </div> -->
+  <!-- </div> -->
+  
+  <!-- <br />
 
-  <div id="content-list" class="grid grid-cols-1 md:grid-cols-2" />
+  <div id="content-list" class="grid grid-cols-1 md:grid-cols-2" /> -->
+  {#await promise}
+    awaiting...
+  {:then val} 
+  <RenderDrives promise={val}/>
+  {:catch error}
+    {error.message}
+  {/await}
 </div>
