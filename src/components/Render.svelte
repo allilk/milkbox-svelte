@@ -78,12 +78,12 @@
         obj.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
     } else if (keyCode == 13) {
-      try {
-        event.preventDefault()
-        let selObj = document.getElementsByClassName('selected')[0]
-        let linkObj = selObj.getElementsByTagName('a')[0]
-        // linkObj.click()
-      } catch {}
+      // try {
+      //   event.preventDefault()
+      //   let selObj = document.getElementsByClassName('selected')[0]
+      //   // let linkObj = selObj.getElementsByTagName('a')[0]
+      //   // linkObj.click()
+      // } catch {}
     }
   }
   const sortByName = (sorted) => {

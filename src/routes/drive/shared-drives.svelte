@@ -1,5 +1,5 @@
 <script>
-  import { afterUpdate, beforeUpdate, onMount } from 'svelte'
+  import { onMount } from 'svelte'
   import { setLoading } from '../functions'
   import initClient from '../init_gapi'
   import getDrives from './drives'
@@ -65,7 +65,6 @@
     const people_id = await client.init()
     PEOPLE_ID = people_id
     promise = await createDrives.init(PEOPLE_ID)
-    console.log(promise)
     // try {
     //   itemList = await createDrives.init(PEOPLE_ID)
     // } catch {}

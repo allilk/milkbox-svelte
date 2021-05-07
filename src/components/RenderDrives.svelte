@@ -1,5 +1,6 @@
 <script>
   import Drive from './Drive.svelte'
+  import { goto } from '@sapper/app'
 
   export let promise = []
   export let show_hidden = true
@@ -37,6 +38,9 @@
       }
     }
   }
+  const goToFolder = async (folder) => {
+    goto(`/drive/${folder}`)
+  }
 </script>
 
 <div class="inline-flex">
@@ -54,7 +58,9 @@
     <div />
   {:then promisee}
     {#each promisee as item}
+    <span class="contents cursor-pointer" on:click={goToFolder(item.id)}>
       <Drive {...item} />
+    </span>
     {/each}
     {#if promisee == 0}
       <div id="#loading" class="col-span-full">
