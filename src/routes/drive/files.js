@@ -155,6 +155,7 @@ export default class getFiles {
           raw_size: 0,
           size: formatBytes(0),
           mimetype: 'folder',
+          thumbnail: '',
           webview: '/'
         }
       ]
@@ -179,6 +180,7 @@ export default class getFiles {
           raw_size: fileSize,
           size: formatBytes(fileSize),
           mimetype: fileObj.mimeType,
+          thumbnail: fileObj.thumbnail,
           webview: fileObj.webview
         }
       ]
@@ -272,7 +274,7 @@ export default class getFiles {
           supportsAllDrives: true,
           includeItemsFromAllDrives: true,
           corpora: 'allDrives',
-          fields: 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId, webViewLink)',
+          fields: 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId, webViewLink, thumbnailLink)',
           pageToken: nextPageToken
         })
         this.fileList.push(resp.result.files)
@@ -305,6 +307,7 @@ export default class getFiles {
           peopleid: this.PEOPLE_ID,
           issearch: this.IS_SEARCH,
           shared: this.SHARED,
+          thumbnail: file.thumbnailLink || '',
           webview: file.webViewLink,
           words: getAllWords(file.name)
         })

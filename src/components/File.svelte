@@ -6,6 +6,7 @@
   export let webview
   export let raw_size
   export let display_folder_id
+  export let thumbnail
 
   const ifIncludes = (mimetype) => {
     let emojiMime = '❔'
@@ -24,17 +25,45 @@
     }
     return emojiMime
   }
-
+  const showThumbnail = (folder) => {
+    try {
+      let theImage = document.getElementById(`img-${folder}`)
+      theImage.classList.remove('hidden')
+      theImage.style = "left: 80px"
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  const hideThumbnail = (folder) => {
+    try {
+      let theImage = document.getElementById(`img-${folder}`)
+      theImage.classList.add('hidden')
+    } catch (err) {
+      console.log(err)
+    }
+  }
 </script>
+
 <div style="display: none;">{webview}</div>
 
-  <div {id} class="col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 px-4 {mimetype}" title={name}>
-    <div class="file-title w-full col-span-5 truncate inline">
+<div {id} class="col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 px-4 {mimetype}" >
+  <div class="file-title w-full col-span-5 truncate inline">
+    {#if thumbnail}
+      <div id="img-{id}" class="hidden absolute">
+        <img src={thumbnail} alt="Preview" />
+      </div>
+      <span on:mouseenter={showThumbnail(id)} on:mouseleave={hideThumbnail(id)}>
+        {ifIncludes(mimetype)}
+      </span>
+    {:else}
       {ifIncludes(mimetype)}
-      {name} 
-      {#if display_folder_id}
-        <span class="text-xs file-id overflow-x-hidden hover:text-black">({id})</span>
-      {/if}
-    </div>
-    <div class="col-span-1 file-size inline text-right" raw="{raw_size}">{size}</div>
+    {/if}
+    <span title="{name}">
+      {name}
+    </span>
+    {#if display_folder_id}
+      <span class="text-xs file-id overflow-x-hidden hover:text-black">({id})</span>
+    {/if}
   </div>
+  <div class="col-span-1 file-size inline text-right" raw={raw_size}>{size}</div>
+</div>
