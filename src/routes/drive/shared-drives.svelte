@@ -10,8 +10,8 @@
   let PEOPLE_ID
 
   const refreshContent = async () => {
-    setLoading()
-    itemList = await createDrives.init(PEOPLE_ID, true)
+    promise = []
+    promise = await createDrives.init(PEOPLE_ID, true)
   }
   const searchGrid = async () => {
     let searchInput = document.getElementById('search_input').value.toUpperCase()
@@ -65,11 +65,6 @@
     const people_id = await client.init()
     PEOPLE_ID = people_id
     promise = await createDrives.init(PEOPLE_ID)
-    // try {
-    //   itemList = await createDrives.init(PEOPLE_ID)
-    // } catch {}
-    // const refreshButton = document.getElementById('refresh_button')
-    // refreshButton.onclick = refreshContent
   })
 </script>
 
@@ -98,7 +93,7 @@
     <div class="inline-flex flex-auto">
       <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
       <button id="signout_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
-      <button id="refresh_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Refresh</button>
+      <button id="refresh_button" on:click={refreshContent} style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Refresh</button>
     </div>
     <div class="flex-auto pl-2">
       <div class="relative px-4 bg-white border">
@@ -129,20 +124,6 @@
       </div>
     </div>
   </div>
-  <!-- <div class="sticky grid grid-cols-1 px-4 text-sm md:grid-cols-2 md:px-8">
-    <div id="#loading" class="col-span-full">
-      <center>
-        <div class="lds-ripple">
-          <div />
-          <div />
-        </div>
-      </center>
-    </div> -->
-  <!-- </div> -->
-  
-  <!-- <br />
-
-  <div id="content-list" class="grid grid-cols-1 md:grid-cols-2" /> -->
   {#await promise}
     awaiting...
   {:then val} 
