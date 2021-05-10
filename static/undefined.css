@@ -41,3 +41,7 @@ button:hover{
 [aria-current]::after {
     background-color: var(--color-3);
 }
+.header {
+	border-color: var(--color-4);
+    color: var(--color-3);
+}

@@ -41,3 +41,7 @@ button:hover, .drive-obj:hover, .drive-select {
 .gridlistview{
 	background-color: var(--color-2);
 }
+.header {
+	border-color: var(--color-4);
+    color: var(--color-3);
+}
