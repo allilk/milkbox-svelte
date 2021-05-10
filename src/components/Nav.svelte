@@ -71,6 +71,5 @@
 	<ul class="px-4 py-3">
 		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">home</a></li>
 		<li><a aria-current="{segment === 'drive' ? 'page' : undefined}" href="drive/root">drive</a></li>
-		<li><a aria-current="{segment === 'settings' ? 'page' : undefined}" href="settings">settings</a></li>
 	</ul>
 </nav>

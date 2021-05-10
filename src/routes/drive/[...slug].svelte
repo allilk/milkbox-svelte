@@ -15,8 +15,10 @@
   import fileOperations from './operations'
   import initClient from '../init_gapi'
   import { folderId } from '../stores'
+  import { goto } from '@sapper/app'
 
   export let PEOPLE_ID
+  let PROFILE_PIC
   let USER_NAME
   let client = new initClient()
   const createFiles = new getFiles()
@@ -96,6 +98,8 @@
     PEOPLE_ID = people_id
     localStorage.setItem('PEOPLE_ID', PEOPLE_ID)
     USER_NAME = localStorage.getItem('USER_NAME')
+    PROFILE_PIC = localStorage.getItem('PROFILE_PIC')
+
     // addListeners()
   }
 
@@ -154,16 +158,17 @@
   <br />
 </div>
 <div class="px-4 shadow-inner md:px-8">
-  <br /><br />
-  <div class="mr-2">
-    Signed in as <b>{USER_NAME}</b> (<span id="#PID">{PEOPLE_ID}</span>)
-  </div>
-  <br />
+  <br>
   <div class="flex items-center">
-    <!-- <GAPIClient /> -->
+    <div class="absolute right-0 top-0 pt-4 pr-4 inline-flex space-x-4">
+      <img src="{PROFILE_PIC}" class="h-8 w-8 hover:scale-110 transform transition cursor-pointer" alt="" title="Signed in as {USER_NAME} ({PEOPLE_ID})"/>
+      <img on:click={function(){goto('/settings')}} id="settings" class="h-8 w-8 hover:scale-110 transform transition cursor-pointer mx-3" src="svg/settings.svg" alt="settings"  />
+      <button id="signout_button" style="display: none;" class="px-2 ml-3 font-semibold rounded-none shadow"> Sign Out</button>
+      <button id="authorize_button" style="display: none;" class="px-2 mx-3 font-semibold rounded-none shadow"> Sign In</button>
+    </div>
+
 
     <div class="inline-flex flex-auto">
-      <button id="signout_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
       <button
         id="refresh_button"
         on:click={function () {
@@ -174,7 +179,6 @@
       >
         Refresh</button
       >
-      <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
     </div>
     <div class="flex-auto pl-2">
       <div class="relative px-4 bg-white border">

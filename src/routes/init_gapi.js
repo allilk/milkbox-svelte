@@ -81,8 +81,10 @@ export default class initClient {
     async function getPeopleId() {
       let resp = await gapi.client.people.people.get({
         resourceName: 'people/me',
-        'requestMask.includeField': 'person.names'
+        'requestMask.includeField': 'person.names,person.photos'
       })
+      let profilePic = resp.result.photos[0].url
+      localStorage.setItem('PROFILE_PIC', profilePic)
       localStorage.setItem('USER_NAME', resp.result.names[0].displayName)
       let peopleId = resp.result.resourceName.split('people/')[1]
       return peopleId
