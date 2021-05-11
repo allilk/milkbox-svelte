@@ -43,12 +43,12 @@
   }
 </script>
 
-<div class="inline-flex">
-  <div class="flex-auto my-2 p-2">
+<div class="inline-flex -ml-2 flex-wrap ">
+  <div class="flex-auto p-2 -mb-3 md:-mb-0">
     Show Hidden Drives
     <input type="checkbox" on:change={showHidden} bind:checked={show_hidden} />
   </div>
-  <div class="flex-auto my-2 p-2">
+  <div class="flex-auto p-2">
     Show Unhidden Drives
     <input type="checkbox" on:change={showUnhidden} bind:checked={show_unhidden} />
   </div>
