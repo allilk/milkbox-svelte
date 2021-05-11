@@ -6,7 +6,7 @@
   export let webview
   export let raw_size
   export let thumbnail
-  export let display_folder_id
+  export let displayFolderId
 </script>
 
 <div style="display: none;">{webview} {thumbnail}</div>
@@ -15,7 +15,7 @@
     <span title={name}>
       📂 {name}/
     </span>
-    {#if display_folder_id}
+    {#if displayFolderId == true}
       <span class="text-xs file-id overflow-x-hidden hover:text-black">({id})</span>
     {/if}
   </div>

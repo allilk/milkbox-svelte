@@ -7,10 +7,10 @@
   export let raw_size
   export let thumbnail
 
-  export let larger_previews
-  export let display_folder_id
+  export let displayLargerPreview
+  export let displayFileId
   // &sz
-  if (larger_previews && thumbnail) {
+  if (displayLargerPreview && thumbnail) {
     thumbnail = thumbnail.replace('=s220', '')
   }
   if (thumbnail) {
@@ -72,7 +72,7 @@
     <span title={name}>
       {name}
     </span>
-    {#if display_folder_id}
+    {#if displayFileId == true}
       <span class="text-xs file-id overflow-x-hidden hover:text-black">({id})</span>
     {/if}
   </div>

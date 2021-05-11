@@ -16,26 +16,27 @@
 
   let PEOPLE_ID, keyCode
   let lineSelected = 0
-  let display_folder_id = false
-  let larger_previews = false
+
+  let displayFolderId = false
+  let displayFileId = false
+  let displayLargerPreview = false
+  let cacheImages = false
+
   const createFiles = new getFiles()
 
+  const getDefaults = async () => {
+    const res = await db.settings.where('user').equals(0).toArray()
+    let userDefaults = res[0]
+    displayFolderId = userDefaults.displayfolderid
+    displayFileId = userDefaults.displayfileid
+    displayLargerPreview = userDefaults.largerpreviews
+    cacheImages = userDefaults.cacheimages
+  }
   onMount(async () => {
     if (!PEOPLE_ID) {
       PEOPLE_ID = localStorage.getItem('PEOPLE_ID')
     }
-    db.settings
-      .where('user')
-      .equals(0)
-      .toArray()
-      .then(function (resp) {
-        if (!resp[0].displayfid || resp[0].displayfid == 'yes') {
-          display_folder_id = true
-        }
-        if (resp[0].largerpreviews == 'yes') {
-          larger_previews = true
-        }
-      })
+    getDefaults()
     // promise = await createFiles.init(false, PEOPLE_ID, folder_id)
     
   })
@@ -130,11 +131,11 @@
     {#each promisee as item}
       {#if item.mimetype == 'folder'}
         <span class="contents cursor-pointer" on:click={getTheFiles(false, item.id)}>
-          <Folder {display_folder_id} {...item} />
+          <Folder {displayFolderId} {...item} />
         </span>
       {:else}
         <span class="contents">
-          <File {display_folder_id} {larger_previews} {...item} />
+          <File {displayFileId} {displayLargerPreview} {...item} />
         </span>
       {/if}
     {/each}
