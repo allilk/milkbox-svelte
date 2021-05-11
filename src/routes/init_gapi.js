@@ -51,7 +51,7 @@
 //     this.PEOPLE_ID = await getPeopleId()
 //   }
 // }
-import { api_key, client_id, discovery_docs, scopes } from './stores'
+import { api_key, client_id, discovery_docs, scopes, isAuthenticated } from './stores'
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -76,6 +76,8 @@ export default class initClient {
       gapi.auth2.getAuthInstance().signOut()
       localStorage.setItem('USER_NAME', '')
       localStorage.setItem('PEOPLE_ID', '')
+      localStorage.setItem('PROFILE_PIC', '')
+      isAuthenticated.set(false)
     }
 
     async function getPeopleId() {
@@ -92,6 +94,7 @@ export default class initClient {
 
     async function updateSigninStatus(isSignedIn) {
       if (isSignedIn) {
+        isAuthenticated.set(true)
         authorizeButton.style.display = 'none'
         signoutButton.style.display = 'block'
         refreshButton.style.display = 'block'

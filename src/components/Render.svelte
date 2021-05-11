@@ -38,19 +38,18 @@
     }
     getDefaults()
     // promise = await createFiles.init(false, PEOPLE_ID, folder_id)
-    
   })
   const getTheFiles = async (refresh, folder_id) => {
     if (folder_id == 'shared-drives') {
       goto('/drive/shared-drives')
     } else {
       promise = []
-      window.history.replaceState({}, '','/drive/'+folder_id);
+      window.history.replaceState({}, '', '/drive/' + folder_id)
       folderId.set(folder_id)
       lineSelected = 0
 
       promise = await createFiles.init(refresh, PEOPLE_ID, folder_id)
-      
+
       itemList = document.getElementsByClassName('not-selected')
     }
   }

@@ -9,3 +9,4 @@ export const discovery_docs =
 export const scopes = 
 'https://www.googleapis.com/auth/drive.readonly profile';
 export const folderId = writable('root')
+export const isAuthenticated = writable(false);

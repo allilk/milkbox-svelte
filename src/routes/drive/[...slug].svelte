@@ -14,12 +14,12 @@
   import getFiles from './files'
   import fileOperations from './operations'
   import initClient from '../init_gapi'
-  import { folderId } from '../stores'
-  import { goto } from '@sapper/app'
+  import { folderId, isAuthenticated } from '../stores'
+
+  import Header from '../../components/Header.svelte'
 
   export let PEOPLE_ID
-  let PROFILE_PIC
-  let USER_NAME
+
   let client = new initClient()
   const createFiles = new getFiles()
   const Operate = new fileOperations()
@@ -97,10 +97,7 @@
     const people_id = await client.init()
     PEOPLE_ID = people_id
     localStorage.setItem('PEOPLE_ID', PEOPLE_ID)
-    USER_NAME = localStorage.getItem('USER_NAME')
-    PROFILE_PIC = localStorage.getItem('PROFILE_PIC')
-
-    // addListeners()
+    
   }
 
   if (typeof window !== 'undefined') {
@@ -108,11 +105,17 @@
   }
   onMount(async () => {
     await initiate()
-    try {
+  })
+  isAuthenticated.subscribe(async (value) => {
+    if (value) {
+      promise = []
+      window.history.replaceState({}, '', '/drive/' + folder_id[0])
+      folderId.set(folder_id[0])
+
       promise = await createFiles.init(false, PEOPLE_ID, folder_id[0])
       itemList = document.getElementsByClassName('not-selected')
-      folderId.set(folder_id)
-    } catch (err) {
+    } else {
+      promise = []
     }
   })
 </script>
@@ -123,6 +126,8 @@
   <button id="go-to-webview" class="py-2 px-6"> Open in Google </button>
   <button id="download-file" class="py-2 px-6"> Download </button>
 </div>
+
+<Header {PEOPLE_ID} />
 
 <div class="px-4 py-12 shadow-lg top-header md:px-8">
   <div class="-mb-4">
@@ -158,16 +163,8 @@
   <br />
 </div>
 <div class="px-4 shadow-inner md:px-8">
-  <br>
+  <br />
   <div class="flex items-center">
-    <div class="absolute right-0 top-0 pt-4 pr-4 inline-flex space-x-4">
-      <img src="{PROFILE_PIC}" class="h-8 w-8 hover:scale-110 transform transition cursor-pointer" alt="" title="Signed in as {USER_NAME} ({PEOPLE_ID})"/>
-      <img on:click={function(){goto('/settings')}} id="settings" class="h-8 w-8 hover:scale-110 transform transition cursor-pointer mx-3" src="svg/settings.svg" alt="settings"  />
-      <button id="signout_button" style="display: none;" class="px-2 ml-3 font-semibold rounded-none shadow"> Sign Out</button>
-      <button id="authorize_button" style="display: none;" class="px-2 mx-3 font-semibold rounded-none shadow"> Sign In</button>
-    </div>
-
-
     <div class="inline-flex flex-auto">
       <button
         id="refresh_button"
