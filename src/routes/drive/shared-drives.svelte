@@ -8,16 +8,15 @@
   let keyCode, itemList
   let lineSelected = 0
   let PEOPLE_ID
-
+  let searchBoxText
   const refreshContent = async () => {
     promise = []
     promise = await createDrives.init(PEOPLE_ID, true)
   }
   const searchGrid = async () => {
-    let searchInput = document.getElementById('search_input').value.toUpperCase()
     Array.prototype.forEach.call(itemList, (listItem) => {
       if (listItem) {
-        if (listItem.innerText.toUpperCase().indexOf(searchInput) > -1) {
+        if (listItem.innerText.toUpperCase().indexOf(searchBoxText.toUpperCase()) > -1) {
           listItem.style.display = ''
         } else {
           listItem.style.display = 'none'
@@ -65,6 +64,8 @@
     const people_id = await client.init()
     PEOPLE_ID = people_id
     promise = await createDrives.init(PEOPLE_ID)
+    itemList = document.getElementsByClassName('drive-obj')
+
   })
 </script>
 
@@ -93,11 +94,14 @@
     <div class="inline-flex flex-auto">
       <button id="authorize_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Authorize</button>
       <button id="signout_button" style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Sign Out</button>
-      <button id="refresh_button" on:click={refreshContent} style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow"> Refresh</button>
+      <button id="refresh_button" on:click={refreshContent} style="display: none;" class="px-2 py-2 font-semibold rounded-none shadow">
+        Refresh</button
+      >
     </div>
     <div class="flex-auto pl-2">
       <div class="relative px-4 bg-white border">
         <input
+          bind:value={searchBoxText}
           on:keyup={searchGrid}
           type="search"
           name="search"
@@ -126,8 +130,8 @@
   </div>
   {#await promise}
     awaiting...
-  {:then val} 
-  <RenderDrives promise={val}/>
+  {:then val}
+    <RenderDrives promise={val} />
   {:catch error}
     {error.message}
   {/await}

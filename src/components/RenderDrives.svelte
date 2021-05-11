@@ -8,7 +8,7 @@
 
   const showUnhidden = async () => {
     let itemList = document.getElementsByClassName('drive-obj')
-    if (!show_hidden) {
+    if (!show_unhidden) {
       for (const driveObj of itemList) {
         if (driveObj.getAttribute('is_hidden') == 'false') {
           driveObj.classList.remove('hidden')
