@@ -95,12 +95,12 @@ export default class initClient {
     async function updateSigninStatus(isSignedIn) {
       if (isSignedIn) {
         isAuthenticated.set(true)
-        authorizeButton.style.display = 'none'
-        signoutButton.style.display = 'block'
+        // authorizeButton.style.display = 'none'
+        // signoutButton.style.display = 'block'
         refreshButton.style.display = 'block'
       } else {
-        authorizeButton.style.display = 'block'
-        signoutButton.style.display = 'none'
+        // authorizeButton.style.display = 'block'
+        // signoutButton.style.display = 'none'
         refreshButton.style.display = 'none'
       }
     }
