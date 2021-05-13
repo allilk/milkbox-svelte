@@ -2,15 +2,12 @@
   import { onMount, afterUpdate } from 'svelte'
   import db from './drive/connection'
   import Switch from '../components/Switch.svelte'
-  import Header from '../components/Header.svelte';
-
 
   let themeSelector = 'dark-theme'
   let displayFolderId = false
   let displayFileId = false
   let displayLargerPreview = false
   let cacheImages = false
-  let PEOPLE_ID
 
   const updateValues = () => {
     // Update theme
@@ -43,8 +40,6 @@
     getDefaults()
   })
 </script>
-
-<Header {PEOPLE_ID}/>
 
 <svelte:head>
   <title>milkbox</title>

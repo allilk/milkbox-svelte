@@ -7,8 +7,7 @@
 
   let selectedTheme = 'dark-theme'
 
-  export let PEOPLE_ID
-  let PROFILE_PIC, USER_NAME
+  let PROFILE_PIC, USER_NAME, PEOPLE_ID
   let hideMe = 'hidden'
   let hideMe2 = 'hidden'
   let client = new initClient()
@@ -22,7 +21,6 @@
     const people_id = await client.init()
     PEOPLE_ID = people_id
     localStorage.setItem('PEOPLE_ID', PEOPLE_ID)
-    
   }
   onMount(async () => {
     isAuthenticated.subscribe(async (value) => {
@@ -55,15 +53,9 @@
         title="Signed in as {USER_NAME} ({PEOPLE_ID})"
       />
     {/if}
-    <img
-      on:click={function () {
-        goto('/settings')
-      }}
-      id="settings"
-      class="h-8 w-8 hover:scale-110 transform transition cursor-pointer mx-3"
-      src="svg/settings.svg"
-      alt="settings"
-    />
+    <a href="/settings" rel=prefetch>
+      <img id="settings" class="h-8 w-8 hover:scale-110 transform transition mx-3" src="svg/settings.svg" alt="settings" /></a
+    >
     <div class="contents {hideMe}">
       <button id="signout_button" class="px-2 ml-3 font-semibold rounded-none shadow"> Sign Out</button>
     </div>

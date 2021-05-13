@@ -16,28 +16,14 @@
   import initClient from '../init_gapi'
   import { folderId, isAuthenticated } from '../stores'
 
-  import Header from '../../components/Header.svelte'
+  import Render from '../../components/Render.svelte'
 
   export let PEOPLE_ID
 
   let client = new initClient()
   const createFiles = new getFiles()
   const Operate = new fileOperations()
-  const searchGrid = async () => {
-    let searchInput = document.getElementById('search_input').value.toUpperCase()
-    itemList = document.getElementsByClassName('not-selected')
-    try {
-      Array.prototype.forEach.call(itemList, (listItem) => {
-        if (listItem !== undefined) {
-          if (listItem.innerText.toUpperCase().indexOf(searchInput) > -1) {
-            listItem.style.display = ''
-          } else {
-            listItem.style.display = 'none'
-          }
-        }
-      })
-    } catch {}
-  }
+
   const addListeners = async () => {
     for (let i = 0; i < itemList.length; i++) {
       let listItem = itemList[i]
@@ -66,6 +52,21 @@
       })
     }
   }
+  const searchGrid = async () => {
+    let searchInput = document.getElementById('search_input').value.toUpperCase()
+    itemList = document.getElementsByClassName('not-selected')
+    try {
+      Array.prototype.forEach.call(itemList, (listItem) => {
+        if (listItem !== undefined) {
+          if (listItem.innerText.toUpperCase().indexOf(searchInput) > -1) {
+            listItem.style.display = ''
+          } else {
+            listItem.style.display = 'none'
+          }
+        }
+      })
+    } catch {}
+  }
   // const searchFiles = async () => {
   //   console.log('Running search')
   //   setLoading()
@@ -91,15 +92,11 @@
 
     itemList = document.getElementsByClassName('not-selected')
   }
-  import Render from '../../components/Render.svelte'
-
   const initiate = async () => {
     const people_id = await client.init()
     PEOPLE_ID = people_id
     localStorage.setItem('PEOPLE_ID', PEOPLE_ID)
-    
   }
-
   if (typeof window !== 'undefined') {
     PEOPLE_ID = localStorage.getItem('PEOPLE_ID')
   }
@@ -120,14 +117,13 @@
   })
 </script>
 
+
 <!-- Hidden context menu -->
 <div id="context-menu" style="display: none;">
   <button id="go-to-parent" class="py-2 px-6"> Go to parent </button>
   <button id="go-to-webview" class="py-2 px-6"> Open in Google </button>
   <button id="download-file" class="py-2 px-6"> Download </button>
 </div>
-
-<Header {PEOPLE_ID} />
 
 <div class="px-4 py-12 shadow-lg top-header md:px-8">
   <div class="-mb-4">

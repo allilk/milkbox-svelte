@@ -64,9 +64,7 @@
 		display: block;
 	}
 </style>
-<svelte:head>
-	<link id='current-theme' rel="stylesheet" href="{selected_theme}.css">
-</svelte:head>
+
 <nav>
 	<ul class="px-4 py-3">
 		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">home</a></li>

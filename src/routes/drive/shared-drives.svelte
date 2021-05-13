@@ -3,9 +3,9 @@
   import initClient from '../init_gapi'
   import getDrives from './drives'
   import RenderDrives from '../../components/RenderDrives.svelte'
-  import Header from '../../components/Header.svelte'
   
   export let promise
+  export let totalDrives = 0
   let keyCode, itemList
   let lineSelected = 0
   let PEOPLE_ID
@@ -66,13 +66,13 @@
     PEOPLE_ID = people_id
     promise = await createDrives.init(PEOPLE_ID)
     itemList = document.getElementsByClassName('drive-obj')
+    totalDrives = promise.length
   })
 </script>
 
-<Header {PEOPLE_ID} />
 <!-- <svelte:window on:keydown={handleKeydown} /> -->
 <div class="px-8 py-16 shadow-lg top-header sm:py-12 ">
-  <span id="index-header" class="text-2xl">my shared drives <span id="total-drives" class="text-gray-500 " /></span>
+  <span id="index-header" class="text-2xl">my shared drives <span id="total-drives" class="text-gray-500 " />({totalDrives})</span>
   <br />
   <hr />
   <div class="mt-2">
