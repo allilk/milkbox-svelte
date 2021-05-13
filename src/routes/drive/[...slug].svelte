@@ -203,8 +203,8 @@
       </div>
     </div>
     <div class="p-2 ml-1 gridlistview">
-      <img on:click={createFiles.toggleGrid} id="show-grid" class="" src="svg/fi-rr-grid.svg" alt="grid" width="20" />
-      <img on:click={createFiles.toggleList} id="show-list" class="hidden" src="svg/fi-rr-list.svg" alt="list" width="20" />
+      <img on:click={createFiles.toggleGrid} id="show-grid" class="svg-tag" src="svg/fi-rr-grid.svg" alt="grid" width="20" />
+      <img on:click={createFiles.toggleList} id="show-list" class="svg-tag hidden" src="svg/fi-rr-list.svg" alt="list" width="20" />
     </div>
   </div>
   {#await promise}

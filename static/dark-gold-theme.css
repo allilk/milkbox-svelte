@@ -45,3 +45,6 @@ button:hover, .drive-obj:hover, .drive-select {
 	border-color: var(--color-4);
     color: var(--color-3);
 }
+.svg-tag {
+	filter: invert(100%)
+}

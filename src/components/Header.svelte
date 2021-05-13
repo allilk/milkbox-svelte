@@ -48,13 +48,18 @@
     {#if PEOPLE_ID}
       <img
         src={PROFILE_PIC}
-        class="h-8 w-8 hover:scale-110 transform transition cursor-pointer"
+        class="rounded-fullh-8 w-8 hover:scale-110 transform transition cursor-pointer"
         alt=""
         title="Signed in as {USER_NAME} ({PEOPLE_ID})"
       />
     {/if}
-    <a href="/settings" rel=prefetch>
-      <img id="settings" class="h-8 w-8 hover:scale-110 transform transition mx-3" src="svg/settings.svg" alt="settings" /></a
+    <a href="/settings" rel="prefetch">
+      <img
+        id="settings"
+        class="svg-tag h-8 w-8 hover:scale-110 transform transition mx-3"
+        src="svg/settings.svg"
+        alt="settings"
+      /></a
     >
     <div class="contents {hideMe}">
       <button id="signout_button" class="px-2 ml-3 font-semibold rounded-none shadow"> Sign Out</button>

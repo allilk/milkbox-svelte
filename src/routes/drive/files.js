@@ -224,7 +224,7 @@ export default class getFiles {
     return cacheExists
   }
   async toggleGrid() {
-    document.getElementById('show-grid').setAttribute('class', 'hidden')
+    document.getElementById('show-grid').classList.add('hidden')
     let contentList = document.getElementsByClassName('not-selected')
 
     try {
@@ -233,10 +233,10 @@ export default class getFiles {
       }
     } catch {}
 
-    document.getElementById('show-list').setAttribute('class', '')
+    document.getElementById('show-list').classList.remove('hidden')
   }
   async toggleList() {
-    document.getElementById('show-list').setAttribute('class', 'hidden')
+    document.getElementById('show-list').classList.add('hidden')
     let contentList = document.getElementsByClassName('not-selected')
 
     try {
@@ -244,7 +244,7 @@ export default class getFiles {
         childObj.classList.replace('col-span-3', 'col-span-6')
       }
     } catch {}
-    document.getElementById('show-grid').setAttribute('class', '')
+    document.getElementById('show-grid').classList.remove('hidden')
   }
   async getFiles() {
     let fetchFiles = true
