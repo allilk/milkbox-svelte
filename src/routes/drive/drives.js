@@ -21,12 +21,9 @@ export default class getDrives {
           .delete()
       }
 
-      let cacheExists = false
       let ifCache = await db.drives.where('peopleid').equals(this.PEOPLE_ID).toArray()
 
-      if (ifCache.length > 0) {
-        cacheExists = true
-      }
+      let cacheExists = ifCache.length > 0 ? true : false;
       return cacheExists
     }
 
@@ -68,7 +65,7 @@ export default class getDrives {
     if (this.driveList.length < 1) {
       this.driveList = await db.drives.where('peopleid').equals(this.PEOPLE_ID).toArray()
     }
-    for (const driveObj of this.driveList) {
+    this.driveList.forEach(driveObj => {
       this.finalList = [
         ...this.finalList,
         {
@@ -78,7 +75,7 @@ export default class getDrives {
           // is_domain: driveObj.is_domain
         }
       ]
-    }
+    })
     // let oldContent = document.getElementById('content-list')
     // oldContent.innerHTML = ''
 

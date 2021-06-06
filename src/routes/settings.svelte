@@ -56,6 +56,7 @@
           <option value="darker-dark-theme">Darker Dark Theme</option>
           <option value="light-theme">Light Theme</option>
           <option value="silver-theme">Silver Theme</option>
+          <option value="new-dark">New Dark</option>
         </select>
       </form>
     </div>

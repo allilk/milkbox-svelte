@@ -8,39 +8,26 @@
 
   const showUnhidden = async () => {
     let itemList = document.getElementsByClassName('drive-obj')
-    if (!show_unhidden) {
-      for (const driveObj of itemList) {
-        if (driveObj.getAttribute('is_hidden') == 'false') {
-          driveObj.classList.remove('hidden')
-        }
+
+    Array.prototype.forEach.call(itemList, (driveObj) => {
+      if (driveObj.getAttribute('is_hidden') == 'false') {
+        show_unhidden ? driveObj.classList.add('hidden') : driveObj.classList.remove('hidden')
       }
-    } else {
-      for (const driveObj of itemList) {
-        if (driveObj.getAttribute('is_hidden') == 'false') {
-          driveObj.classList.add('hidden')
-        }
-      }
-    }
+    })
   }
   const showHidden = async () => {
     let itemList = document.getElementsByClassName('drive-obj')
-    if (!show_hidden) {
-      for (const driveObj of itemList) {
-        if (driveObj.getAttribute('is_hidden') == 'true') {
-          driveObj.classList.remove('hidden')
-        }
+
+    Array.prototype.forEach.call(itemList, (driveObj) => {
+      if (driveObj.getAttribute('is_hidden') == 'true') {
+        show_hidden ? driveObj.classList.add('hidden') : driveObj.classList.remove('hidden')
       }
-    } else {
-      for (const driveObj of itemList) {
-        if (driveObj.getAttribute('is_hidden') == 'true') {
-          driveObj.classList.add('hidden')
-        }
-      }
-    }
+    })
   }
   const goToFolder = async (folder) => {
     goto(`/drive/${folder}`)
   }
+
 </script>
 
 <div class="inline-flex -ml-2 flex-wrap ">
@@ -58,9 +45,9 @@
     <div />
   {:then promisee}
     {#each promisee as item}
-    <span class="contents cursor-pointer" on:click={goToFolder(item.id)}>
-      <Drive {...item} />
-    </span>
+      <span class="contents cursor-pointer" on:click={goToFolder(item.id)}>
+        <Drive {...item} />
+      </span>
     {/each}
     {#if promisee == 0}
       <div id="#loading" class="col-span-full">

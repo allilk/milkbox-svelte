@@ -37,6 +37,7 @@ export default class getFiles {
     const dirTitle = document.getElementById('dir-title')
     let folderName = 'my drive'
     let parentId = 'root'
+
     if (this.FOLDER_ID == 'shared-with-me') {
       folderName = 'Shared With Me'
     } else {
@@ -162,14 +163,9 @@ export default class getFiles {
     }
 
     for (const fileObj of masterList) {
-      let fileSize = 0
-
-      // Add to total directory size
-      if (parseInt(fileObj.size) > 0) {
-        totalSize += parseInt(fileObj.size)
-        fileSize = parseInt(fileObj.size)
-      }
-
+      let fileSize = parseInt(fileObj.size) || 0
+      totalSize += fileSize
+  
       this.finalList.push(fileObj)
       
       this.theList = [
@@ -193,12 +189,7 @@ export default class getFiles {
     this.itemList = document.getElementsByClassName('not-selected')
   }
   async checkForCache() {
-    let cacheId = this.FOLDER_ID
-
-    if (this.SHARED == 'true' || this.IS_SEARCH == 1) {
-      cacheId = 'root'
-    }
-
+    let cacheId = this.SHARED == 'true' || this.IS_SEARCH ? 'root' : this.FOLDER_ID;
     if (this.REFRESH) {
       await db.files
         .where({
@@ -287,6 +278,7 @@ export default class getFiles {
       }
 
       this.fileList = [].concat.apply([], this.fileList)
+      // this.IS_SEARCH = this.QUERY ? 1 : this.IS_SEARCH;
       if (this.QUERY) {
         this.IS_SEARCH = 1
       }

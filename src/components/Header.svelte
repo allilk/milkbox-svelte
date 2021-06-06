@@ -62,10 +62,10 @@
       /></a
     >
     <div class="contents {hideMe}">
-      <button id="signout_button" class="px-2 ml-3 font-semibold rounded-none shadow"> Sign Out</button>
+      <button id="signout_button" class="px-4 ml-3 font-semibold rounded-full shadow"> Sign Out</button>
     </div>
     <div class="contents {hideMe2}">
-      <button id="authorize_button" class="px-2 mx-3 font-semibold rounded-none shadow"> Sign In</button>
+      <button id="authorize_button" class="px-4 mx-3 font-semibold rounded-full shadow"> Sign In</button>
     </div>
   </div>
 </div>

@@ -54,31 +54,38 @@
     }
   }
   const handleKeydown = async (event) => {
-    keyCode = event.keyCode
-    if (keyCode == 83 || keyCode == 40) {
-      if (lineSelected < itemList.length - 1) {
-        if (typeof itemList[lineSelected] != undefined) {
-          itemList[lineSelected].classList.remove('selected')
+    switch (event.keyCode) {
+      case 83 || 40:
+        if (lineSelected < itemList.length - 1) {
+          if (typeof itemList[lineSelected] != undefined) {
+            itemList[lineSelected].classList.remove('selected')
+          }
+          lineSelected++
+          let objSelected = itemList[lineSelected]
+          objSelected.classList.add('selected')
+          let obj = document.getElementsByClassName('selected')[0]
+          obj.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          break
         }
-        lineSelected += 1
-        let objSelected = itemList[lineSelected]
-        objSelected.classList.add('selected')
-        let obj = document.getElementsByClassName('selected')[0]
-        obj.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    } else if (keyCode == 87 || keyCode == 38) {
-      if (lineSelected > 0) {
-        if (typeof itemList[lineSelected] != undefined) {
-          itemList[lineSelected].classList.remove('selected')
+      case 87 || 38:
+        if (lineSelected > 0) {
+          if (typeof itemList[lineSelected] != undefined) {
+            itemList[lineSelected].classList.remove('selected')
+          }
+          lineSelected--
+          let objSelected = itemList[lineSelected]
+          objSelected.classList.add('selected')
+          let obj = document.getElementsByClassName('selected')[0]
+          obj.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          // case 13:
         }
-        lineSelected -= 1
-        let objSelected = itemList[lineSelected]
-        objSelected.classList.add('selected')
-        let obj = document.getElementsByClassName('selected')[0]
-        obj.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    } else if (keyCode == 13) {
-      // try {
+      // if (keyCode == 83 || keyCode == 40) {
+
+      // } else if (keyCode == 87 || keyCode == 38) {
+
+      //   }
+      // } else if (keyCode == 13) {
+      //   // try {
       //   event.preventDefault()
       //   let selObj = document.getElementsByClassName('selected')[0]
       //   // let linkObj = selObj.getElementsByTagName('a')[0]
@@ -116,39 +123,42 @@
     newList.unshift(parentLink)
     promise = newList
   }
+
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
-<div class="sticky grid items-center grid-cols-6 text-sm">
-  <div id="sort-name" on:click={sortByName(sortedName)} class="col-span-5 py-3 font-bold animation-pulse">Name</div>
-  <div id="sort-size" on:click={sortBySize(sortedSize)} class="col-span-1 mr-8 font-bold text-right file-size">Size</div>
-</div>
-<div id="content-list" class="grid grid-cols-6 text-sm">
-  {#await promise}
-    <div />
-  {:then promisee}
-    {#each promisee as item}
-      {#if item.mimetype == 'folder'}
-        <span class="contents cursor-pointer" on:click={getTheFiles(false, item.id)}>
-          <Folder {displayFolderId} {...item} />
-        </span>
-      {:else}
-        <span class="contents">
-          <File {displayFileId} {displayLargerPreview} {...item} />
-        </span>
+<div class="body-content">
+  <div class="sticky grid items-center grid-cols-6 text-sm">
+    <div id="sort-name" on:click={sortByName(sortedName)} class="col-span-5 py-3 font-bold animation-pulse">Name</div>
+    <div id="sort-size" on:click={sortBySize(sortedSize)} class="col-span-1 mr-8 font-bold text-right file-size">Size</div>
+  </div>
+  <div id="content-list" class="grid grid-cols-6 text-sm ">
+    {#await promise}
+      <div />
+    {:then promisee}
+      {#each promisee as item}
+        {#if item.mimetype == 'folder'}
+          <span class="contents cursor-pointer" on:click={getTheFiles(false, item.id)}>
+            <Folder {displayFolderId} {...item} />
+          </span>
+        {:else}
+          <span class="contents">
+            <File {displayFileId} {displayLargerPreview} {...item} />
+          </span>
+        {/if}
+      {/each}
+      {#if promisee == 0}
+        <div id="#loading" class="col-span-full">
+          <center>
+            <div class="lds-ripple">
+              <div />
+              <div />
+            </div>
+          </center>
+        </div>
       {/if}
-    {/each}
-    {#if promisee == 0}
-      <div id="#loading" class="col-span-full">
-        <center>
-          <div class="lds-ripple">
-            <div />
-            <div />
-          </div>
-        </center>
-      </div>
-    {/if}
-  {:catch error}
-    <p>{error}</p>
-  {/await}
+    {:catch error}
+      <p>{error}</p>
+    {/await}
+  </div>
 </div>

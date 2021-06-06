@@ -22,15 +22,7 @@
 </script>
 
 <style>
-	nav {
-		margin-bottom: 3px;
-		font-weight: 300;
-		padding: 0 1em;
-	}
 
-	ul {
-		margin: 0;
-	}
 
 	/* clearfix */
 	ul::after {
@@ -65,7 +57,7 @@
 	}
 </style>
 
-<nav>
+<nav class="mx-2">
 	<ul class="px-4 py-3">
 		<li><a aria-current="{segment === undefined ? 'page' : undefined}" href=".">home</a></li>
 		<li><a aria-current="{segment === 'drive' ? 'page' : undefined}" href="drive/root">drive</a></li>

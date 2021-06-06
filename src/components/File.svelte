@@ -35,6 +35,7 @@
       emojiMime = '📃'
     }
     return emojiMime
+
   }
   const showThumbnail = (folder) => {
     try {
@@ -57,7 +58,7 @@
 
 <div style="display: none;">{webview}</div>
 
-<div {id} class="col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 px-4 {mimetype}">
+<div {id} class="col-span-6 shadow-sm not-selected grid grid-cols-6 py-3 my-1 px-4 {mimetype}">
   <div class="file-title w-full col-span-5 truncate inline">
     {#if thumbnail}
       <div id="img-{id}" class="hidden absolute">
