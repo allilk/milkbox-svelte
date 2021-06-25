@@ -16,15 +16,12 @@
   import fileOperations from './operations'
   import initClient from '../init_gapi'
   import { folderId, isAuthenticated } from '../stores'
-
+  import RenderHeader from '../../components/RenderHeader.svelte'
   import Render from '../../components/Render.svelte'
-
   export let PEOPLE_ID
-
   let client = new initClient()
   const createFiles = new getFiles()
   const Operate = new fileOperations()
-
   const addListeners = async () => {
     for (let i = 0; i < itemList.length; i++) {
       let listItem = itemList[i]
@@ -38,7 +35,6 @@
           let parentF = await Operate.returnParent(listItem.id)
           window.location.href = `drive/${parentF}`
         }
-
         let goToWebView = contextMenu.childNodes[2]
         goToWebView.onclick = async function () {
           window.open(listItem.getAttribute('webview'))
@@ -85,12 +81,9 @@
   }
   const goToFolder = async (folder) => {
     promise = []
-
     window.history.replaceState({}, '', '/drive/' + folder)
     folderId.set(folder)
-
     promise = await createFiles.init(false, PEOPLE_ID, folder)
-
     itemList = document.getElementsByClassName('not-selected')
   }
   const initiate = async () => {
@@ -109,7 +102,6 @@
       promise = []
       window.history.replaceState({}, '', '/drive/' + folder_id[0])
       folderId.set(folder_id[0])
-
       promise = await createFiles.init(false, PEOPLE_ID, folder_id[0])
       itemList = document.getElementsByClassName('not-selected')
     } else {
@@ -126,7 +118,7 @@
   <button id="download-file" class="py-2 px-6"> Download </button>
 </div>
 
-<div class="top-header rounded-b-3xl pb-4 mx-2 -mb-2">
+<div class="top-0 top-header pb-4 mb-2">
   <div class="py-12 mx-4 md:mx-6">
     <div class="-mb-4">
       <span id="index-header" class="text-xl font-bold md:text-2xl"><span>index of ./<span id="dir-title" />/ </span></span><span
@@ -209,7 +201,8 @@
     </div>
   </div>
 </div>
-<br>
+<br />
+<RenderHeader/>
 <div class="mx-3">
   {#await promise}
     awaiting..

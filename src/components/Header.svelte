@@ -1,5 +1,4 @@
 <script>
-  import { goto } from '@sapper/app'
   import { onMount } from 'svelte'
   import db from '../routes/drive/connection'
   import { isAuthenticated } from '../routes/stores'
