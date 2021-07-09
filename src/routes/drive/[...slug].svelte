@@ -4,13 +4,13 @@
     folder_id = slug
     return { folder_id }
   }
-
 </script>
 
 <script type="text/javascript">
   export let folder_id
   export let promise = []
   export let itemList = []
+  export let search_input
   import { onMount } from 'svelte'
   import getFiles from './files'
   import fileOperations from './operations'
@@ -18,17 +18,19 @@
   import { folderId, isAuthenticated } from '../stores'
   import RenderHeader from '../../components/RenderHeader.svelte'
   import Render from '../../components/Render.svelte'
+  import File from '../../components/File.svelte'
   export let PEOPLE_ID
   let client = new initClient()
+
   const createFiles = new getFiles()
   const Operate = new fileOperations()
   const addListeners = async () => {
     for (let i = 0; i < itemList.length; i++) {
       let listItem = itemList[i]
       listItem.addEventListener('contextmenu', function (ev) {
-        ev.preventDefault()
-        let fileId = listItem.getElementsByClassName('file-id')[0]
-        fileId = fileId.textContent.replace('(', '').replace(')', '')
+        // ev.preventDefault()
+        // let fileId = listItem.getElementsByClassName('file-id')[0]
+        // fileId = fileId.textContent.replace('(', '').replace(')', '')
         let contextMenu = document.getElementById('context-menu')
         let goToParent = contextMenu.childNodes[0]
         goToParent.onclick = async function () {
@@ -91,6 +93,42 @@
     PEOPLE_ID = people_id
     localStorage.setItem('PEOPLE_ID', PEOPLE_ID)
   }
+  const searchInDrive = async (query, driveId) => {
+    // let fetchFiles = true
+    // let nextPageToken
+    let resultList = []
+    promise = []
+
+    // while (fetchFiles) {
+      const resp = await gapi.client.drive.files.list({
+        q: `trashed=false and name contains '${query}'`,
+        driveId: driveId,
+        pageSize: 250,
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        corpora: 'drive',
+        orderBy: 'name_natural',
+        fields:
+          'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId, webViewLink, thumbnailLink, shortcutDetails)',
+        // pageToken: nextPageToken
+      })
+
+      resultList.push(resp.result.files)
+      // if (!resp.result.nextPageToken) {
+      //   fetchFiles = false
+      // } else {
+      //   nextPageToken = resp.result.nextPageToken
+      // }
+    // }
+    resultList = [].concat.apply([], resultList)
+    resultList.forEach(async (file) => {
+      let resp = await createFiles.cacheFile(file, true)
+      console.log(resp)
+      promise = [...promise, resp]
+    })
+
+
+  }
   if (typeof window !== 'undefined') {
     PEOPLE_ID = localStorage.getItem('PEOPLE_ID')
   }
@@ -108,7 +146,6 @@
       promise = []
     }
   })
-
 </script>
 
 <!-- Hidden context menu -->
@@ -168,6 +205,7 @@
       <div class="flex-auto pl-2">
         <div class="relative px-4 bg-white border rounded-full">
           <input
+            bind:value={search_input}
             on:keyup={searchGrid}
             type="search"
             name="search"
@@ -175,8 +213,8 @@
             placeholder="Search"
             class="inline-flex w-full  outline-none appearance-none focus:outline-none active:outline-none"
           />
-          <!-- <button
-            on:click={searchFiles}
+          <button
+            on:click={searchInDrive(search_input, folder_id[0])}
             type="submit"
             class="absolute inline-flex -ml-3 bg-transparent outline-none focus:outline-none active:outline-none hover:bg-transparent"
           >
@@ -191,7 +229,7 @@
             >
               <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-          </button> -->
+          </button>
         </div>
       </div>
       <div class="p-2 ml-1 gridlistview">
@@ -202,7 +240,7 @@
   </div>
 </div>
 <br />
-<RenderHeader/>
+
 <div class="mx-3">
   {#await promise}
     awaiting..

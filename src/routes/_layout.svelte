@@ -2,10 +2,10 @@
   import Footer from '../components/Footer.svelte'
   import Nav from '../components/Nav.svelte'
   import Header from '../components/Header.svelte'
-  // export let segment
+  export let segment
 </script>
 <Header />
-<!-- <Nav {segment} /> -->
+<Nav {segment} />
 
 
 <svelte:head>

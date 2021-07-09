@@ -25,7 +25,7 @@ export default class getFiles {
 
     await this.getFiles()
     // console.log(this.theList)
-    
+
     return this.theList
   }
 
@@ -134,7 +134,6 @@ export default class getFiles {
       indexHeader.innerText = 'Search Results'
     }
 
-
     // Display file count in header
     const fileCount = document.getElementById('file-count')
     // Set file count in header
@@ -165,9 +164,9 @@ export default class getFiles {
     for (const fileObj of masterList) {
       let fileSize = parseInt(fileObj.size) || 0
       totalSize += fileSize
-  
+
       this.finalList.push(fileObj)
-      
+
       this.theList = [
         ...this.theList,
         {
@@ -189,7 +188,7 @@ export default class getFiles {
     this.itemList = document.getElementsByClassName('not-selected')
   }
   async checkForCache() {
-    let cacheId = this.SHARED == 'true' || this.IS_SEARCH ? 'root' : this.FOLDER_ID;
+    let cacheId = this.SHARED == 'true' || this.IS_SEARCH ? 'root' : this.FOLDER_ID
     if (this.REFRESH) {
       await db.files
         .where({
@@ -265,11 +264,14 @@ export default class getFiles {
           supportsAllDrives: true,
           includeItemsFromAllDrives: true,
           corpora: 'allDrives',
-          fields: 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId, webViewLink, thumbnailLink)',
+          fields:
+            'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId, webViewLink, thumbnailLink, shortcutDetails)',
           pageToken: nextPageToken
         })
+        // console.log(resp.result.files)
+
         this.fileList.push(resp.result.files)
-        
+
         if (!resp.result.nextPageToken) {
           fetchFiles = false
         } else {
@@ -286,8 +288,11 @@ export default class getFiles {
         if ((this.FOLDER_ID != 'root' && this.FOLDER_ID != 'shared-with-me') || this.QUERY) {
           parentFolder = file.parents.toString()
         }
-
-        const splitmimeTypes = file.mimeType.split('.')
+        let splitmimeTypes = file.mimeType.split('.')
+        if (file.shortcutDetails) {
+          file.id = file.shortcutDetails.targetId
+          splitmimeTypes = file.shortcutDetails.targetMimeType.split('.')
+        }
         const shortenedMime = splitmimeTypes.length < 3 ? splitmimeTypes[0] : splitmimeTypes[2]
         await db.files.put({
           name: file.name,
@@ -308,4 +313,69 @@ export default class getFiles {
     await this.loadContent()
     return this.theList
   }
+  async cacheFile (file, ignore_cache=false) {
+    let parentFolder
+    if ((this.FOLDER_ID != 'root' && this.FOLDER_ID != 'shared-with-me') || this.QUERY) {
+      parentFolder = file.parents.toString()
+    }
+    let splitmimeTypes = file.mimeType.split('.')
+    if (file.shortcutDetails) {
+      file.id = file.shortcutDetails.targetId
+      splitmimeTypes = file.shortcutDetails.targetMimeType.split('.')
+      console.log(splitmimeTypes)
+      console.log(file.mimeType)
+    }
+    const shortenedMime = splitmimeTypes.length < 3 ? splitmimeTypes[0] : splitmimeTypes[2]
+    if (!ignore_cache) {
+      await db.files.put({
+        name: file.name,
+        id: file.id,
+        parents: parentFolder,
+        size: file.size,
+        mimeType: shortenedMime,
+        driveid: file.driveId,
+        peopleid: this.PEOPLE_ID,
+        issearch: this.IS_SEARCH,
+        shared: this.SHARED,
+        thumbnail: file.thumbnailLink || '',
+        webview: file.webViewLink,
+        words: getAllWords(file.name)
+      })
+    } else {
+      return {
+        name: file.name,
+        id: file.id,
+        size: formatBytes(file.size ? file.size : 0),
+        mimetype: shortenedMime,
+        thumbnail: file.thumbnailLink || '',
+        raw_size: file.size,
+        webview: file.webViewLink,
+      }
+    }
+  }
+  
 }
+const copyFile = async (from, to) => {
+  const resp = await gapi.client.drive.files.copy({
+    fields: '',
+    fileId: from,
+    supportsAllDrives: true,
+    body: {
+      parents: [to]
+    }
+  })
+  if (resp) return true
+}
+const copyFolder = async (from, to) => {}
+const moveFile = async (from, to) => {
+  const resp = await gapi.cleint.drive.files.move({
+    fields: '',
+    fileId: from,
+    supportsAllDrives: true,
+    body: {
+      parents: [to]
+    }
+  })
+  if (resp) return true
+}
+
