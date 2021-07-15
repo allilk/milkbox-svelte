@@ -132,12 +132,12 @@ export default class getFiles {
     // }
 
     // Display file count in header
-    const fileCount = document.getElementById('file-count')
-    // Set file count in header
-    fileCount.innerText = masterList.length
+    // const fileCount = document.getElementById('file-count')
+    // // Set file count in header
+    // fileCount.innerText = masterList.length
 
     // Declare cumulative size variable
-    let totalSize = 0
+    // let totalSize = 0
     // Create elements for each file
     // if (this.IS_SEARCH == 0) {
     const resp = await this.getParent()
@@ -149,8 +149,7 @@ export default class getFiles {
       {
         name: '..',
         id: resp,
-        raw_size: 0,
-        size: formatBytes(0),
+        size: 0,
         mimetype: 'folder',
         thumbnail: '',
         webview: '/'
@@ -160,7 +159,7 @@ export default class getFiles {
 
     for (const fileObj of masterList) {
       let fileSize = parseInt(fileObj.size) || 0
-      totalSize += fileSize
+      // totalSize += fileSize
 
       this.finalList.push(fileObj)
 
@@ -169,8 +168,7 @@ export default class getFiles {
         {
           name: fileObj.name,
           id: fileObj.id,
-          raw_size: fileSize,
-          size: formatBytes(fileSize),
+          size: fileSize,
           mimetype: fileObj.mimeType,
           thumbnail: fileObj.thumbnail,
           webview: fileObj.webview
@@ -179,15 +177,14 @@ export default class getFiles {
       // this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize, fileObj.webview)
     }
 
-    // Reflect directory size in header
-    const sizeTotal = document.getElementById('total-size')
-    sizeTotal.innerText = formatBytes(totalSize)
-    this.itemList = document.getElementsByClassName('not-selected')
+    // // Reflect directory size in header
+    // const sizeTotal = document.getElementById('total-size')
+    // sizeTotal.innerText = formatBytes(totalSize)
+    // this.itemList = document.getElementsByClassName('not-selected')
   }
   async checkForCache() {
     let cacheId = this.SHARED == 'true' ? 'root' : this.FOLDER_ID
     if (this.REFRESH) {
-      console.log('deleting..')
       await db.files
         .where({
           parents: cacheId,
@@ -207,9 +204,6 @@ export default class getFiles {
     if (ifCache.length > 0) {
       cacheExists = true
     }
-
-    console.log(ifCache)
-    console.log(cacheExists)
     return cacheExists
   }
   async toggleGrid() {
@@ -318,8 +312,6 @@ export default class getFiles {
     if (file.shortcutDetails) {
       file.id = file.shortcutDetails.targetId
       splitmimeTypes = file.shortcutDetails.targetMimeType.split('.')
-      console.log(splitmimeTypes)
-      console.log(file.mimeType)
     }
     const shortenedMime = splitmimeTypes.length < 3 ? splitmimeTypes[0] : splitmimeTypes[2]
     if (!ignore_cache) {
@@ -340,10 +332,9 @@ export default class getFiles {
       return {
         name: file.name,
         id: file.id,
-        size: formatBytes(file.size ? file.size : 0),
+        size: file.size ? file.size : 0,
         mimetype: shortenedMime,
         thumbnail: file.thumbnailLink || '',
-        raw_size: file.size,
         webview: file.webViewLink
       }
     }

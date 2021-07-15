@@ -7,14 +7,14 @@
   import natsort from '../scripts/natsort.min'
   import { goto } from '@sapper/app'
   import { folderId } from '../routes/stores'
+  import { directorySize, fileList, fileCount } from '../routes/stores'
 
-  // export let folder_id
   export let promise
   export let sortedName = 0
   export let sortedSize = 0
   export let itemList
 
-  let PEOPLE_ID, keyCode
+  let PEOPLE_ID
   let lineSelected = 0
 
   let displayFolderId = false
@@ -49,7 +49,7 @@
       lineSelected = 0
 
       promise = await createFiles.init(refresh, PEOPLE_ID, folder_id)
-
+      fileList.set(promise)
       itemList = document.getElementsByClassName('not-selected')
     }
   }
@@ -123,7 +123,6 @@
     newList.unshift(parentLink)
     promise = newList
   }
-
 </script>
 
 <svelte:window on:keydown={handleKeydown} />

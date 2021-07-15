@@ -8,22 +8,22 @@
 
 <script type="text/javascript">
   export let folder_id
-  export let promise = []
   export let itemList = []
   export let search_input
+  export let PEOPLE_ID
+
   import { onMount } from 'svelte'
   import getFiles from './files'
   import fileOperations from './operations'
   import initClient from '../init_gapi'
-  import { folderId, isAuthenticated } from '../stores'
-  import RenderHeader from '../../components/RenderHeader.svelte'
+  import { folderId, directorySize, fileCount, fileList, isAuthenticated } from '../stores'
   import Render from '../../components/Render.svelte'
-  import File from '../../components/File.svelte'
-  export let PEOPLE_ID
+  
+  let displaySize
   let client = new initClient()
-
   const createFiles = new getFiles()
   const Operate = new fileOperations()
+
   const addListeners = async () => {
     for (let i = 0; i < itemList.length; i++) {
       let listItem = itemList[i]
@@ -66,26 +66,18 @@
       })
     } catch {}
   }
-  // const searchFiles = async () => {
-  //   console.log('Running search')
-  //   setLoading()
-  //   let query = document.getElementById('search_input')
-  //   itemList = await createFiles.init(false, PEOPLE_ID, 'null', DISPLAY_FID, 1, 'false', query.value)
-  //   addListeners()
-  //   window.location.hash = '#search'
-  // }
   const refreshTheContent = async (folder) => {
     if (Array.isArray(folder)) {
       folder = folder[0]
     }
-    promise = []
-    promise = await createFiles.init(true, PEOPLE_ID, folder)
+    fileList.set([])
+    fileList.set(await createFiles.init(true, PEOPLE_ID, folder))
   }
   const goToFolder = async (folder) => {
-    promise = []
+    fileList.set([])
     window.history.replaceState({}, '', '/drive/' + folder)
     folderId.set(folder)
-    promise = await createFiles.init(false, PEOPLE_ID, folder)
+    fileList.set(await createFiles.init(false, PEOPLE_ID, folder))
     itemList = document.getElementsByClassName('not-selected')
   }
   const initiate = async () => {
@@ -93,40 +85,37 @@
     PEOPLE_ID = people_id
     localStorage.setItem('PEOPLE_ID', PEOPLE_ID)
   }
-  const searchInDrive = async (query, driveId) => {
+  const searchInDrive = async (query) => {
     // let fetchFiles = true
     // let nextPageToken
     let resultList = []
-    promise = []
+    fileList.set([])
+
 
     // while (fetchFiles) {
-      const resp = await gapi.client.drive.files.list({
-        q: `trashed=false and name contains '${query}'`,
-        pageSize: 250,
-        supportsAllDrives: true,
-        includeItemsFromAllDrives: true,
-        corpora: 'allDrives',
-        orderBy: 'name_natural',
-        fields:
-          'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId, webViewLink, thumbnailLink, shortcutDetails)',
-        // pageToken: nextPageToken
-      })
+    const resp = await gapi.client.drive.files.list({
+      q: `trashed=false and name contains '${query}'`,
+      pageSize: 250,
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+      corpora: 'allDrives',
+      orderBy: 'name_natural',
+      fields: 'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId, webViewLink, thumbnailLink, shortcutDetails)'
+      // pageToken: nextPageToken
+    })
 
-      resultList.push(resp.result.files)
-      // if (!resp.result.nextPageToken) {
-      //   fetchFiles = false
-      // } else {
-      //   nextPageToken = resp.result.nextPageToken
-      // }
+    resultList.push(resp.result.files)
+    // if (!resp.result.nextPageToken) {
+    //   fetchFiles = false
+    // } else {
+    //   nextPageToken = resp.result.nextPageToken
+    // }
     // }
     resultList = [].concat.apply([], resultList)
     resultList.forEach(async (file) => {
       let resp = await createFiles.cacheFile(file, true)
-      console.log(resp)
-      promise = [...promise, resp]
+      fileList.set([...$fileList, resp])
     })
-
-
   }
   if (typeof window !== 'undefined') {
     PEOPLE_ID = localStorage.getItem('PEOPLE_ID')
@@ -136,15 +125,38 @@
   })
   isAuthenticated.subscribe(async (value) => {
     if (value) {
-      promise = []
+      // promise = []
+      fileList.set([])
       window.history.replaceState({}, '', '/drive/' + folder_id[0])
       folderId.set(folder_id[0])
-      promise = await createFiles.init(false, PEOPLE_ID, folder_id[0])
+      fileList.set(await createFiles.init(false, PEOPLE_ID, folder_id[0]))
       itemList = document.getElementsByClassName('not-selected')
     } else {
-      promise = []
+      fileList.set([])
+
     }
   })
+fileList.subscribe(async (theList) => {
+  let total = 0
+  theList.forEach((x) => {
+    total += x.size
+  })
+  fileCount.set(theList == 0 ? 0 : theList.length - 1)
+  directorySize.set(total)
+})
+directorySize.subscribe(async (x) => {
+  const formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+  }
+  displaySize = formatBytes(x)
+})
 </script>
 
 <!-- Hidden context menu -->
@@ -163,10 +175,10 @@
     </div>
     <br />
     <hr />
-    <span class="text-sm font-bold"
-      >total files & folders: <span class="font-normal" id="file-count" /> total size (excl. folders):
-      <span class="font-normal" id="total-size" /></span
-    >
+    <span class="text-sm font-bold">
+      total files & folders: <span class="font-normal" id="file-count">{$fileCount}</span>
+      total size (excl. folders): <span class="font-normal" id="total-size">{displaySize}</span>
+    </span>
     <hr />
     <div class="mt-2">
       <span class="text-sm">quick links: </span>
@@ -241,7 +253,7 @@
 <br />
 
 <div class="mx-3">
-  {#await promise}
+  {#await $fileList}
     awaiting..
   {:then val}
     <Render {itemList} promise={val} />

@@ -4,12 +4,11 @@
   export let name
   export let size
   export let webview
-  export let raw_size
   export let thumbnail
 
   export let displayLargerPreview
   export let displayFileId
-  // &sz
+
   if (displayLargerPreview && thumbnail) {
     thumbnail = thumbnail.replace('=s220', '')
   }
@@ -54,6 +53,17 @@
       console.log(err)
     }
   }
+  const formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+  }
+  let readSize = formatBytes(size)
 </script>
 
 <div style="display: none;">{webview}</div>
@@ -77,5 +87,5 @@
       <span class="text-xs file-id overflow-x-hidden hover:text-black">({id})</span>
     {/if}
   </div>
-  <div class="col-span-1 file-size inline text-right" raw={raw_size}>{size}</div>
+  <div class="col-span-1 file-size inline text-right">{readSize}</div>
 </div>
