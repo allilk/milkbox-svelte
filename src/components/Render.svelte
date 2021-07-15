@@ -40,7 +40,7 @@
     // promise = await createFiles.init(false, PEOPLE_ID, folder_id)
   })
   const getTheFiles = async (refresh, folder_id) => {
-    if (folder_id == 'shared-drives') {
+    if (folder_id === 'shared-drives') {
       goto('/drive/shared-drives')
     } else {
       promise = []
