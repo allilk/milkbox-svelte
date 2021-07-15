@@ -102,11 +102,10 @@
     // while (fetchFiles) {
       const resp = await gapi.client.drive.files.list({
         q: `trashed=false and name contains '${query}'`,
-        driveId: driveId,
         pageSize: 250,
         supportsAllDrives: true,
         includeItemsFromAllDrives: true,
-        corpora: 'drive',
+        corpora: 'allDrives',
         orderBy: 'name_natural',
         fields:
           'nextPageToken, files(name, id, parents, size, mimeType, modifiedTime, driveId, webViewLink, thumbnailLink, shortcutDetails)',
