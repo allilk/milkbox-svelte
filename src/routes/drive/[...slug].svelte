@@ -18,7 +18,7 @@
   import initClient from '../init_gapi'
   import { folderId, directorySize, fileCount, fileList, isAuthenticated } from '../stores'
   import Render from '../../components/Render.svelte'
-  
+
   let displaySize
   let client = new initClient()
   const createFiles = new getFiles()
@@ -91,7 +91,6 @@
     let resultList = []
     fileList.set([])
 
-
     // while (fetchFiles) {
     const resp = await gapi.client.drive.files.list({
       q: `trashed=false and name contains '${query}'`,
@@ -133,30 +132,29 @@
       itemList = document.getElementsByClassName('not-selected')
     } else {
       fileList.set([])
-
     }
   })
-fileList.subscribe(async (theList) => {
-  let total = 0
-  theList.forEach((x) => {
-    total += x.size
+  fileList.subscribe(async (theList) => {
+    let total = 0
+    theList.forEach((x) => {
+      total += x.size
+    })
+    fileCount.set(theList == 0 ? 0 : theList.length - 1)
+    directorySize.set(total)
   })
-  fileCount.set(theList == 0 ? 0 : theList.length - 1)
-  directorySize.set(total)
-})
-directorySize.subscribe(async (x) => {
-  const formatBytes = (bytes, decimals = 2) => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const dm = decimals < 0 ? 0 : decimals
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  directorySize.subscribe(async (x) => {
+    const formatBytes = (bytes, decimals = 2) => {
+      if (bytes === 0) return '0 Bytes'
+      const k = 1024
+      const dm = decimals < 0 ? 0 : decimals
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
 
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
+      const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
-  }
-  displaySize = formatBytes(x)
-})
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+    }
+    displaySize = formatBytes(x)
+  })
 </script>
 
 <!-- Hidden context menu -->
@@ -228,22 +226,23 @@ directorySize.subscribe(async (x) => {
             on:click={searchInDrive(search_input, folder_id[0])}
             type="submit"
             class="absolute inline-flex -ml-3 bg-transparent outline-none focus:outline-none active:outline-none hover:bg-transparent"
-          >
-            <svg
-              fill="none"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-              class="w-6 h-6"
-            >
-              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
+          />
         </div>
       </div>
-      <div class="p-2 ml-1 gridlistview">
+      <div class="p-2 ml-1">
+        <svg
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          class="w-6 h-6"
+        >
+          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+      <div class="p-2 gridlistview">
         <img on:click={createFiles.toggleGrid} id="show-grid" class="svg-tag" src="svg/fi-rr-grid.svg" alt="grid" width="20" />
         <img on:click={createFiles.toggleList} id="show-list" class="svg-tag hidden" src="svg/fi-rr-list.svg" alt="list" width="20" />
       </div>

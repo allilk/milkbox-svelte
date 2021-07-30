@@ -80,70 +80,27 @@ export default class getFiles {
   async loadContent() {
     // Declare natsort sorter
     let sorter = natsort({ insensitive: true })
-
+    let fileList = []
     let masterList = []
-    // // // Remove whatever content that is there now.
-    // let oldContent = document.getElementById('content-list')
-    // oldContent.innerHTML = ''
-    if (this.FOLDER_ID != 'shared-with-me') {
-      // Get folders
-      let folderList = await db.files
-        .where({
-          parents: this.FOLDER_ID,
-          peopleid: this.PEOPLE_ID,
-          shared: this.SHARED
-        })
-        .and((item) => item.mimeType == 'folder')
-        .sortBy('name')
-      // Sort using natsort!
-      folderList.sort((a, b) => sorter(a.name, b.name))
-      masterList.push(folderList)
 
-      // Get files
-      let fileList = await db.files
-        .where({
-          parents: this.FOLDER_ID,
-          peopleid: this.PEOPLE_ID,
-          shared: this.SHARED
-        })
-        .and((item) => item.mimeType != 'folder')
-        .sortBy('name')
+    masterList = await db.files
+      .where({
+        parents: this.SHARED == 'true' ? 'root' : this.FOLDER_ID,
+        peopleid: this.PEOPLE_ID,
+        shared: this.SHARED
+      })
+      .and((item) => {
+        if (item.mimeType == 'folder') {
+          return item
+        } else fileList.push(item)
+      })
+      .sortBy('name', (arr) => arr.sort((a, b) => sorter(a.name, b.name)))
+    fileList.sort((a, b) => sorter(a.name, b.name))
+    masterList = masterList.concat(fileList)
 
-      // Sort using natsort!
-      fileList.sort((a, b) => sorter(a.name, b.name))
-
-      masterList.push(fileList)
-      // Flatten array
-      masterList = [].concat.apply([], masterList)
-    } else if (this.FOLDER_ID == 'shared-with-me') {
-      masterList = await db.files
-        .where({
-          parents: 'root',
-          peopleid: this.PEOPLE_ID,
-          shared: this.SHARED
-        })
-        .toArray()
-    }
-    // else {
-    //   // masterList = await db.files.where('words').startsWithIgnoreCase(this.QUERY).distinct().toArray()
-    //   masterList = this.fileList
-    //   let indexHeader = document.getElementById('dir-title')
-    //   indexHeader.innerText = 'Search Results'
-    // }
-
-    // Display file count in header
-    // const fileCount = document.getElementById('file-count')
-    // // Set file count in header
-    // fileCount.innerText = masterList.length
-
-    // Declare cumulative size variable
-    // let totalSize = 0
-    // Create elements for each file
-    // if (this.IS_SEARCH == 0) {
     const resp = await this.getParent()
 
     this.folderParent = resp
-    // await this.createContent('..', resp, 'folder', 0, '/')
     this.theList = [
       ...this.theList,
       {
@@ -155,7 +112,7 @@ export default class getFiles {
         webview: '/'
       }
     ]
-    // }
+
 
     for (const fileObj of masterList) {
       let fileSize = parseInt(fileObj.size) || 0
@@ -290,7 +247,7 @@ export default class getFiles {
           id: file.id,
           parents: parentFolder,
           size: file.size,
-          mimeType: shortenedMime,
+          mimeType: shortenedMime == 'folder' ? 'folder' : shortenedMime,
           driveid: file.driveId,
           peopleid: this.PEOPLE_ID,
           shared: this.SHARED,
@@ -320,7 +277,7 @@ export default class getFiles {
         id: file.id,
         parents: parentFolder,
         size: file.size,
-        mimeType: shortenedMime,
+        mimeType: shortenedMime == 'folder' ? 'folder' : shortenedMime,
         driveid: file.driveId,
         peopleid: this.PEOPLE_ID,
         shared: this.SHARED,
@@ -333,7 +290,7 @@ export default class getFiles {
         name: file.name,
         id: file.id,
         size: file.size ? file.size : 0,
-        mimetype: shortenedMime,
+        mimetype: shortenedMime == 'folder' ? 'folder' : shortenedMime,
         thumbnail: file.thumbnailLink || '',
         webview: file.webViewLink
       }
