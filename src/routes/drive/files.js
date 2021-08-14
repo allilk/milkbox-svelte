@@ -80,87 +80,43 @@ export default class getFiles {
   async loadContent() {
     // Declare natsort sorter
     let sorter = natsort({ insensitive: true })
-
+    let fileList = []
     let masterList = []
-    // // // Remove whatever content that is there now.
-    // let oldContent = document.getElementById('content-list')
-    // oldContent.innerHTML = ''
-    if (this.FOLDER_ID != 'shared-with-me') {
-      // Get folders
-      let folderList = await db.files
-        .where({
-          parents: this.FOLDER_ID,
-          peopleid: this.PEOPLE_ID,
-          shared: this.SHARED
-        })
-        .and((item) => item.mimeType == 'folder')
-        .sortBy('name')
-      // Sort using natsort!
-      folderList.sort((a, b) => sorter(a.name, b.name))
-      masterList.push(folderList)
 
-      // Get files
-      let fileList = await db.files
-        .where({
-          parents: this.FOLDER_ID,
-          peopleid: this.PEOPLE_ID,
-          shared: this.SHARED
-        })
-        .and((item) => item.mimeType != 'folder')
-        .sortBy('name')
+    masterList = await db.files
+      .where({
+        parents: this.SHARED == 'true' ? 'root' : this.FOLDER_ID,
+        peopleid: this.PEOPLE_ID,
+        shared: this.SHARED
+      })
+      .and((item) => {
+        if (item.mimeType == 'folder') {
+          return item
+        } else fileList.push(item)
+      })
+      .sortBy('name', (arr) => arr.sort((a, b) => sorter(a.name, b.name)))
+    fileList.sort((a, b) => sorter(a.name, b.name))
+    masterList = masterList.concat(fileList)
 
-      // Sort using natsort!
-      fileList.sort((a, b) => sorter(a.name, b.name))
-
-      masterList.push(fileList)
-      // Flatten array
-      masterList = [].concat.apply([], masterList)
-    } else if (this.FOLDER_ID == 'shared-with-me') {
-      masterList = await db.files
-        .where({
-          parents: 'root',
-          peopleid: this.PEOPLE_ID,
-          shared: this.SHARED
-        })
-        .toArray()
-    }
-    // else {
-    //   // masterList = await db.files.where('words').startsWithIgnoreCase(this.QUERY).distinct().toArray()
-    //   masterList = this.fileList
-    //   let indexHeader = document.getElementById('dir-title')
-    //   indexHeader.innerText = 'Search Results'
-    // }
-
-    // Display file count in header
-    const fileCount = document.getElementById('file-count')
-    // Set file count in header
-    fileCount.innerText = masterList.length
-
-    // Declare cumulative size variable
-    let totalSize = 0
-    // Create elements for each file
-    // if (this.IS_SEARCH == 0) {
     const resp = await this.getParent()
 
     this.folderParent = resp
-    // await this.createContent('..', resp, 'folder', 0, '/')
     this.theList = [
       ...this.theList,
       {
         name: '..',
         id: resp,
-        raw_size: 0,
-        size: formatBytes(0),
+        size: 0,
         mimetype: 'folder',
         thumbnail: '',
         webview: '/'
       }
     ]
-    // }
+
 
     for (const fileObj of masterList) {
       let fileSize = parseInt(fileObj.size) || 0
-      totalSize += fileSize
+      // totalSize += fileSize
 
       this.finalList.push(fileObj)
 
@@ -169,8 +125,7 @@ export default class getFiles {
         {
           name: fileObj.name,
           id: fileObj.id,
-          raw_size: fileSize,
-          size: formatBytes(fileSize),
+          size: fileSize,
           mimetype: fileObj.mimeType,
           thumbnail: fileObj.thumbnail,
           webview: fileObj.webview
@@ -179,15 +134,14 @@ export default class getFiles {
       // this.createContent(fileObj.name, fileObj.id, fileObj.mimeType, fileSize, fileObj.webview)
     }
 
-    // Reflect directory size in header
-    const sizeTotal = document.getElementById('total-size')
-    sizeTotal.innerText = formatBytes(totalSize)
-    this.itemList = document.getElementsByClassName('not-selected')
+    // // Reflect directory size in header
+    // const sizeTotal = document.getElementById('total-size')
+    // sizeTotal.innerText = formatBytes(totalSize)
+    // this.itemList = document.getElementsByClassName('not-selected')
   }
   async checkForCache() {
     let cacheId = this.SHARED == 'true' ? 'root' : this.FOLDER_ID
     if (this.REFRESH) {
-      console.log('deleting..')
       await db.files
         .where({
           parents: cacheId,
@@ -207,9 +161,6 @@ export default class getFiles {
     if (ifCache.length > 0) {
       cacheExists = true
     }
-
-    console.log(ifCache)
-    console.log(cacheExists)
     return cacheExists
   }
   async toggleGrid() {
@@ -296,7 +247,7 @@ export default class getFiles {
           id: file.id,
           parents: parentFolder,
           size: file.size,
-          mimeType: shortenedMime,
+          mimeType: shortenedMime == 'folder' ? 'folder' : shortenedMime,
           driveid: file.driveId,
           peopleid: this.PEOPLE_ID,
           shared: this.SHARED,
@@ -318,8 +269,6 @@ export default class getFiles {
     if (file.shortcutDetails) {
       file.id = file.shortcutDetails.targetId
       splitmimeTypes = file.shortcutDetails.targetMimeType.split('.')
-      console.log(splitmimeTypes)
-      console.log(file.mimeType)
     }
     const shortenedMime = splitmimeTypes.length < 3 ? splitmimeTypes[0] : splitmimeTypes[2]
     if (!ignore_cache) {
@@ -328,7 +277,7 @@ export default class getFiles {
         id: file.id,
         parents: parentFolder,
         size: file.size,
-        mimeType: shortenedMime,
+        mimeType: shortenedMime == 'folder' ? 'folder' : shortenedMime,
         driveid: file.driveId,
         peopleid: this.PEOPLE_ID,
         shared: this.SHARED,
@@ -340,10 +289,9 @@ export default class getFiles {
       return {
         name: file.name,
         id: file.id,
-        size: formatBytes(file.size ? file.size : 0),
-        mimetype: shortenedMime,
+        size: file.size ? file.size : 0,
+        mimetype: shortenedMime == 'folder' ? 'folder' : shortenedMime,
         thumbnail: file.thumbnailLink || '',
-        raw_size: file.size,
         webview: file.webViewLink
       }
     }
