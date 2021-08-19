@@ -229,22 +229,26 @@
           />
         </div>
       </div>
-      <div class="p-2 ml-1">
-        <svg
-          fill="none"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          class="w-6 h-6"
-        >
-          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-      </div>
-      <div class="p-2 gridlistview">
-        <img on:click={createFiles.toggleGrid} id="show-grid" class="svg-tag" src="svg/fi-rr-grid.svg" alt="grid" width="20" />
-        <img on:click={createFiles.toggleList} id="show-list" class="svg-tag hidden" src="svg/fi-rr-list.svg" alt="list" width="20" />
+      <div class="p-2 ml-1 flex space-x-4">
+        <div class="flex-1">
+          <svg
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            class="w-6 h-6"
+            
+          >
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <div class="gridlistview flex-1">
+          <img on:click={createFiles.toggleGrid} id="show-grid" class="svg-tag" src="svg/fi-rr-grid.svg" alt="grid" width="23" />
+
+          <img on:click={createFiles.toggleList} id="show-list" class="svg-tag hidden" src="svg/fi-rr-list.svg" alt="list" width="23" />
+        </div>
       </div>
     </div>
   </div>
