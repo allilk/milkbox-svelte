@@ -7,7 +7,6 @@
 	import { getFiles, getParent } from '../functions/files';
 	import File from './File.svelte';
 	import Folder from './Folder.svelte';
-	import Header from './Header.svelte';
 
 	export let parentId;
 
@@ -38,23 +37,25 @@
 	{/if}
 
 	{#each $fileList as item}
-		{#if item.mimeType == 'application/vnd.google-apps.folder' || item.mimeType == 'application/vnd.google-apps.shortcut'}
-			<div class="contents" on:click={goto('/drive/' + item.id)}>
-				<Folder>
+		<div class="contents list-item">
+			{#if item.mimeType == 'application/vnd.google-apps.folder' || item.mimeType == 'application/vnd.google-apps.shortcut'}
+				<div class="contents" on:click={goto('/drive/' + item.id)}>
+					<Folder>
+						<span slot="name">
+							{item.name}
+						</span>
+					</Folder>
+				</div>
+			{:else}
+				<File>
 					<span slot="name">
 						{item.name}
 					</span>
-				</Folder>
-			</div>
-		{:else}
-			<File>
-				<span slot="name">
-					{item.name}
-				</span>
-				<span slot="size">
-					{item.size}
-				</span>
-			</File>
-		{/if}
+					<span slot="size">
+						{item.size}
+					</span>
+				</File>
+			{/if}
+		</div>
 	{/each}
 </div>

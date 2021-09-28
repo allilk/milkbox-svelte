@@ -1,21 +1,37 @@
 .list {
 	display: inline-grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
+	margin-left: 1rem;
+	margin-right: 1rem;
+	width: 90%;
 }
 .file-name {
 	grid-column: span 3 / span 3;
 	text-align: left;
 	overflow-x: hidden;
+	white-space: nowrap;
+	margin-right: 0.5rem;
+	padding: 0.25rem 0 0.25rem 0;
 }
 .file-size {
 	grid-column: span 1 / span 1;
+	text-align: right;
+	padding: 0.25rem 0 0.25rem 0;
 }
 .contents {
 	display: contents;
 }
+.list-item {
+	transition-duration: 75ms;
+}
+.list-item:hover {
+	font-size: 18px;
+}
 @media (min-width: 768px) {
 	.list {
 		grid-template-columns: repeat(7, minmax(0, 1fr));
+		margin-left: 2rem;
+		margin-right: 2rem;
 	}
 	.file-name {
 		grid-column: span 6 / span 6;

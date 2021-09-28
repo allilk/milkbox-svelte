@@ -11,6 +11,9 @@
 </div>
 
 <style>
+	.folder {
+		color: aquamarine;
+	}
 	.folder:hover {
 		cursor: pointer;
 	}

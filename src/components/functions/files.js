@@ -1,5 +1,4 @@
 const getFiles = async (identifier) => {
-	console.log('i');
 	let nextPageToken;
 	let fileList = [];
 	let fetchedAll = true;
@@ -38,7 +37,7 @@ const getParent = async (identifier) => {
 	const driveId = resp.result.driveId;
 	if (driveId && identifier < 30) {
 		parentId = 'shared-drives';
-	} else if (driveId || identifier > 30) {
+	} else {
 		if (resp.result.parents === undefined) {
 			parentId = 'shared-with-me';
 		} else {

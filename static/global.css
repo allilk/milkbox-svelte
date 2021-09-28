@@ -1,0 +1,21 @@
+body {
+	font-family: 'Open Sans', sans-serif;
+	background-color: grey;
+	margin-left: 1rem;
+	margin-right: 1rem;
+}
+button {
+	padding: 8px 30px 8px 30px;
+	border-radius: 0.375rem;
+	transition-duration: 75ms;
+	border-color: transparent;
+}
+button:hover {
+	background-color: silver;
+}
+@media (min-width: 768px) {
+	body {
+		margin-left: 2rem;
+		margin-right: 2rem;
+	}
+}

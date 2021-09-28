@@ -14,10 +14,8 @@
 	<div>
 		({$folderId})
 		<h1>Files:</h1>
-		<center>
-			{#if $folderId}
-				<Browser />
-			{/if}
-		</center>
+		{#if $folderId}
+			<Browser />
+		{/if}
 	</div>
 </div>
