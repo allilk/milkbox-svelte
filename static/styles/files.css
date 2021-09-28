@@ -1,0 +1,23 @@
+.list {
+	display: inline-grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.file-name {
+	grid-column: span 3 / span 3;
+	text-align: left;
+	overflow-x: hidden;
+}
+.file-size {
+	grid-column: span 1 / span 1;
+}
+.contents {
+	display: contents;
+}
+@media (min-width: 768px) {
+	.list {
+		grid-template-columns: repeat(7, minmax(0, 1fr));
+	}
+	.file-name {
+		grid-column: span 6 / span 6;
+	}
+}
