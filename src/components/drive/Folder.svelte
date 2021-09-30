@@ -9,12 +9,3 @@
 	</div>
 	<div class="file-size">-</div>
 </div>
-
-<style>
-	.folder {
-		color: aquamarine;
-	}
-	.folder:hover {
-		cursor: pointer;
-	}
-</style>

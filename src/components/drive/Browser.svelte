@@ -3,20 +3,37 @@
 	import { page } from '$app/stores';
 	import { afterUpdate } from 'svelte';
 
-	import { fileList, folderId } from '../../stores';
+	import { folderId, currentFolder } from '../../stores';
 	import { getFiles, getParent } from '../functions/files';
+
 	import File from './File.svelte';
 	import Folder from './Folder.svelte';
 
-	export let parentId;
-
+	const resetStore = () => {
+		currentFolder.set({
+			folderName: '',
+			directorySize: 0,
+			fileCount: 0,
+			fileList: [],
+			parentId: ''
+		});
+	};
 	const getNext = async (identifier) => {
-		fileList.set([]);
-
-		parentId = await getParent(identifier);
-		const res = await getFiles(identifier);
-		fileList.set(res);
-
+		resetStore();
+		const files = await getFiles(identifier);
+		const parent = await getParent(identifier);
+		let directorySize = 0;
+		files.forEach((file) => {
+			directorySize += parseInt(file.size) || 0;
+		});
+		currentFolder.set({
+			folderName: parent.name,
+			directorySize: directorySize,
+			fileCount: files.length,
+			fileList: files,
+			parentId: parent.id
+		});
+		console.log($currentFolder);
 		window.history.replaceState({}, '', '/drive/' + identifier);
 	};
 
@@ -26,17 +43,17 @@
 </script>
 
 <div class="list">
-	{#if $fileList.length == 0}
+	{#if $currentFolder.fileCount == 0}
 		Loading...
 	{:else}
-		<div class="contents" on:click={goto('/drive/' + parentId)}>
+		<div class="contents" on:click={goto('/drive/' + $currentFolder.parentId)}>
 			<Folder>
 				<span slot="name"> .. </span>
 			</Folder>
 		</div>
 	{/if}
 
-	{#each $fileList as item}
+	{#each $currentFolder.fileList as item}
 		<div class="contents list-item">
 			{#if item.mimeType == 'application/vnd.google-apps.folder' || item.mimeType == 'application/vnd.google-apps.shortcut'}
 				<div class="contents" on:click={goto('/drive/' + item.id)}>

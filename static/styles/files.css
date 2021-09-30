@@ -1,12 +1,12 @@
 .list {
 	display: inline-grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-template-columns: repeat(6, minmax(0, 1fr));
 	margin-left: 1rem;
 	margin-right: 1rem;
 	width: 90%;
 }
 .file-name {
-	grid-column: span 3 / span 3;
+	grid-column: span 5 / span 5;
 	text-align: left;
 	overflow-x: hidden;
 	white-space: nowrap;
@@ -15,25 +15,37 @@
 }
 .file-size {
 	grid-column: span 1 / span 1;
-	text-align: right;
-	padding: 0.25rem 0 0.25rem 0;
+	padding: 0.25rem 0 0.25rem 1rem;
+	white-space: nowrap;
+	text-align: justify;
 }
 .contents {
 	display: contents;
 }
-.list-item {
+/* .list-item {
 	transition-duration: 75ms;
 }
 .list-item:hover {
 	font-size: 18px;
+} */
+.folder {
+	color: #94d2bd;
 }
+.folder:hover {
+	cursor: pointer;
+}
+.list div {
+	padding-bottom: 0.5rem;
+	padding-top: 0.5rem;
+}
+
 @media (min-width: 768px) {
 	.list {
-		grid-template-columns: repeat(7, minmax(0, 1fr));
-		margin-left: 2rem;
-		margin-right: 2rem;
+		grid-template-columns: repeat(9, minmax(0, 1fr));
+		margin-left: 1.5rem;
+		margin-right: 1.5rem;
 	}
 	.file-name {
-		grid-column: span 6 / span 6;
+		grid-column: span 8 / span 8;
 	}
 }

@@ -1,21 +1,40 @@
+:root {
+	--color-1: #22223b;
+	--color-2: #4a4e69;
+	--color-3: #9a8c98;
+	--color-4: #c9ada7;
+	--color-5: #f2e9e4;
+}
+
 body {
 	font-family: 'Open Sans', sans-serif;
-	background-color: grey;
+	background-color: var(--color-1);
 	margin-left: 1rem;
 	margin-right: 1rem;
+	color: var(--color-3);
 }
 button {
+	background-color: var(--color-3);
 	padding: 8px 30px 8px 30px;
 	border-radius: 0.375rem;
 	transition-duration: 75ms;
 	border-color: transparent;
+	border: 2px solid var(--color-1);
 }
 button:hover {
-	background-color: silver;
+	background-color: var(--color-4);
+	color: var(--color-5);
+}
+#authButton:hover {
+	cursor: pointer;
+}
+.header {
+	color: var(--color-5);
+	background-color: var(--color-3);
 }
 @media (min-width: 768px) {
 	body {
-		margin-left: 2rem;
-		margin-right: 2rem;
+		margin-left: 1.5rem;
+		margin-right: 1.5rem;
 	}
 }

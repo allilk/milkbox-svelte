@@ -1,4 +1,11 @@
 <script>
+	import { formatBytes } from '../functions/other';
+
+	export let size;
+	export let formattedSize;
+
+	// Format size from bytes to human readable
+	$: formattedSize = size ? formatBytes(size) : '0 B';
 </script>
 
 <div class="file contents">
@@ -7,9 +14,10 @@
 			<span class="missing"> null </span>
 		</slot>
 	</div>
+	<span contenteditable="true" bind:textContent={size} hidden>
+		<slot name="size" />
+	</span>
 	<div class="file-size">
-		<slot name="size">
-			<span class="missing"> - </span>
-		</slot>
+		{formattedSize}
 	</div>
 </div>

@@ -1,5 +1,5 @@
 <script>
-	import { folderId } from '../../stores';
+	import { currentFolder, folderId } from '../../stores';
 
 	import Header from '../../components/drive/Header.svelte';
 	import Message from '../../components/Message.svelte';
@@ -12,8 +12,6 @@
 <Message />
 <div>
 	<div>
-		({$folderId})
-		<h1>Files:</h1>
 		{#if $folderId}
 			<Browser />
 		{/if}

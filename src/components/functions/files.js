@@ -44,7 +44,10 @@ const getParent = async (identifier) => {
 			parentId = resp.result.parents[0];
 		}
 	}
-	return parentId;
+	return {
+		name: resp.result.name,
+		id: parentId
+	};
 };
 
 export { getFiles, getParent };
