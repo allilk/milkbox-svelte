@@ -58,6 +58,7 @@
 			</Folder>
 		</div>
 	{/if}
+
 	<!-- Display each file, in a list, with slots -->
 	{#each $currentFolder.fileList as item}
 		<div class="contents list-item">
