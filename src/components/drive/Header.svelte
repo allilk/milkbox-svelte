@@ -1,50 +1,54 @@
 <script>
-	import { onMount, onDestroy } from 'svelte';
-	import { getStores } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	import { isAuthenticated, message, folderId, currentFolder } from '../../stores';
 	import { NOT_LOGGED_IN } from '../../errors.json';
-
 	import { formatBytes } from '../functions/other';
-
+	// the client
 	import initClient from '../functions/authenticate';
-
 	const client = new initClient();
+	// the current page
+	import { getStores } from '$app/stores';
 	const { page } = getStores();
-	let unsubscribe;
+
 	onMount(() => {
+		// initiate the client and load gapi
 		client.initiate();
 	});
 	isAuthenticated.subscribe((x) => {
 		if (!x) {
+			// set message when not logged in
 			message.set(NOT_LOGGED_IN);
 		} else {
+			// clear not logged in message
 			message.set('');
-			unsubscribe = page.subscribe((pg) => {
+			// set folderId when the page changes
+			page.subscribe((pg) => {
 				folderId.set(pg.params.id);
-				// currentFolder.set({ ...$currentFolder, folderId: pg.params.id });
 			});
 		}
 	});
-	onDestroy(() => unsubscribe);
 </script>
 
 <div class="header">
-	{#if $folderId}
+	<!-- Display index, directory size, and file count when there is a folder id and logged in -->
+	{#if $folderId && $isAuthenticated}
 		<div class="index">
 			Index of /{$currentFolder.folderName}/ <span class="folder_id">({$folderId})</span>
 		</div>
+		<!-- Display directory size -->
+		<button class="directory_size">
+			{formatBytes($currentFolder.directorySize)}
+		</button>
+		<!-- Display file count -->
+		<button class="file_count">
+			files: {$currentFolder.fileCount}
+		</button>
 	{/if}
-	<br />
-	<button class="directory_size">
-		{formatBytes($currentFolder.directorySize)}
-	</button>
-	<button class="file_count">
-		files: {$currentFolder.fileCount}
-	</button>
+	<!-- Display login button -->
 	<div class="login_button">
 		<button id="authButton">
-			{$isAuthenticated ? 'Logout' : 'Sign in'}
+			{$isAuthenticated ? 'Logout' : 'Login'}
 		</button>
 	</div>
 </div>

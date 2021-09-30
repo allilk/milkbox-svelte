@@ -1,8 +1,7 @@
 <script>
 	import { formatBytes } from '../functions/other';
 
-	export let size;
-	export let formattedSize;
+	export let size, formattedSize;
 
 	// Format size from bytes to human readable
 	$: formattedSize = size ? formatBytes(size) : '0 B';

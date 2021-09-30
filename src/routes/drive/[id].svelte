@@ -1,5 +1,5 @@
 <script>
-	import { currentFolder, folderId } from '../../stores';
+	import { folderId } from '../../stores';
 
 	import Header from '../../components/drive/Header.svelte';
 	import Message from '../../components/Message.svelte';
@@ -12,6 +12,7 @@
 <Message />
 <div>
 	<div>
+		<!-- If no folder id, dont try to render the browser -->
 		{#if $folderId}
 			<Browser />
 		{/if}

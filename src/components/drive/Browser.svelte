@@ -10,6 +10,7 @@
 	import Folder from './Folder.svelte';
 
 	const resetStore = () => {
+		// Set currentFolder to empty
 		currentFolder.set({
 			folderName: '',
 			directorySize: 0,
@@ -19,13 +20,17 @@
 		});
 	};
 	const getNext = async (identifier) => {
+		// Reset store to empty, to display loading icon
 		resetStore();
+		// Get new data
 		const files = await getFiles(identifier);
 		const parent = await getParent(identifier);
+		// Calculate directory size
 		let directorySize = 0;
 		files.forEach((file) => {
 			directorySize += parseInt(file.size) || 0;
 		});
+		// Set new data to the store
 		currentFolder.set({
 			folderName: parent.name,
 			directorySize: directorySize,
@@ -33,16 +38,17 @@
 			fileList: files,
 			parentId: parent.id
 		});
-		console.log($currentFolder);
+		// Add page to history, for back button support
 		window.history.replaceState({}, '', '/drive/' + identifier);
 	};
-
+	// Grab new files when store is updated
 	$: getNext($folderId);
-
+	// Set folderId when state is updated
 	afterUpdate(() => folderId.update(() => $page.params.id));
 </script>
 
 <div class="list">
+	<!-- While no files, show loading icon, then show the return link -->
 	{#if $currentFolder.fileCount == 0}
 		Loading...
 	{:else}
@@ -52,9 +58,10 @@
 			</Folder>
 		</div>
 	{/if}
-
+	<!-- Display each file, in a list, with slots -->
 	{#each $currentFolder.fileList as item}
 		<div class="contents list-item">
+			<!-- If file is a folder, render as a different object to signify this. -->
 			{#if item.mimeType == 'application/vnd.google-apps.folder' || item.mimeType == 'application/vnd.google-apps.shortcut'}
 				<div class="contents" on:click={goto('/drive/' + item.id)}>
 					<Folder>
