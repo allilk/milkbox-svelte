@@ -5,5 +5,9 @@ Includes caching to browser, for fast load times.
 
 Everything is stored client side via dexiejs and requires no database server.
 
+Check out the rewrite branch!
+- The rewrite branch will be the final product once done.
+- It's also meant to be the cleanest and well optimized version.
+
 Current live demo:
 https://milk.ovh
