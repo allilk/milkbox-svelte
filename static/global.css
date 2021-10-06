@@ -33,6 +33,10 @@ button:hover {
 	color: var(--color-5);
 	background-color: var(--color-3);
 }
+.link {
+	font-weight: 700;
+	cursor: pointer;
+}
 @media (min-width: 768px) {
 	body {
 		margin-left: 1.5rem;

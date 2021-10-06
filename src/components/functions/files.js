@@ -26,7 +26,6 @@ const getFiles = async (identifier) => {
 		});
 		// Concat to the master list
 		fileList = fileList.concat(resp.result.files);
-		console.log(fileList);
 		// If there is a nextPageToken, we need to pass it in to our API call to get the next batch of results.
 		if (resp.result.nextPageToken) {
 			nextPageToken = resp.result.nextPageToken;
@@ -35,6 +34,11 @@ const getFiles = async (identifier) => {
 			fetchedAll = false;
 		}
 	}
+	// Add key for later
+	fileList = fileList.map((x, i) => ({
+		...x,
+		key: i
+	}));
 	// return the list of files we fetched
 	return fileList;
 };

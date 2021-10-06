@@ -5,6 +5,7 @@
 
 	import { folderId, currentFolder } from '../../stores';
 	import { getFiles, getParent } from '../functions/files';
+	import { handleKeydown } from '../functions/keynav';
 
 	import File from './File.svelte';
 	import Folder from './Folder.svelte';
@@ -47,12 +48,18 @@
 	afterUpdate(() => folderId.update(() => $page.params.id));
 </script>
 
+<svelte:window on:keydown={handleKeydown} />
+
 <div class="list">
+	<div class="list-item contents">
+		<div class="file-name">Name</div>
+		<div class="file-size">Size</div>
+	</div>
 	<!-- While no files, show loading icon, then show the return link -->
 	{#if $currentFolder.fileCount == 0}
 		Loading...
 	{:else}
-		<div class="contents" on:click={goto('/drive/' + $currentFolder.parentId)}>
+		<div key="-1" class="contents" on:click={goto('/drive/' + $currentFolder.parentId)}>
 			<Folder>
 				<span slot="name"> .. </span>
 			</Folder>
@@ -60,8 +67,9 @@
 	{/if}
 
 	<!-- Display each file, in a list, with slots -->
+
 	{#each $currentFolder.fileList as item}
-		<div class="contents list-item">
+		<div key={item.key} class="contents list-item">
 			<!-- If file is a folder, render as a different object to signify this. -->
 			{#if item.mimeType == 'application/vnd.google-apps.folder' || item.mimeType == 'application/vnd.google-apps.shortcut'}
 				<div class="contents" on:click={goto('/drive/' + item.id)}>

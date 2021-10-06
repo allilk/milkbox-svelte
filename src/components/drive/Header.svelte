@@ -9,6 +9,7 @@
 	const client = new initClient();
 	// the current page
 	import { getStores } from '$app/stores';
+	import { goto } from '$app/navigation';
 	const { page } = getStores();
 
 	onMount(() => {
@@ -30,9 +31,30 @@
 	});
 </script>
 
-<div class="header">
-	<!-- Display index, directory size, and file count when there is a folder id and logged in -->
-	{#if $folderId && $isAuthenticated}
+<div class="top-header">
+	<button
+		id="homeIcon"
+		on:click={() => {
+			goto('/');
+		}}>H</button
+	>
+	<!-- Display login button -->
+
+	<div class="login_button">
+		<button id="authButton">
+			{$isAuthenticated ? 'Logout' : 'Login'}
+		</button>
+	</div>
+	<button
+		id="settingIcon"
+		on:click={() => {
+			goto('/settings');
+		}}>S</button
+	>
+</div>
+<!-- Display index, directory size, and file count when there is a folder id and logged in -->
+{#if $folderId && $isAuthenticated}
+	<div class="header">
 		<div class="index">
 			Index of /{$currentFolder.folderName}/ <span class="folder_id">( {$folderId} )</span>
 		</div>
@@ -44,28 +66,44 @@
 		<button class="file_count">
 			files: {$currentFolder.fileCount}
 		</button>
-	{/if}
-	<!-- Display login button -->
-	<div class="login_button">
-		<button id="authButton">
-			{$isAuthenticated ? 'Logout' : 'Login'}
-		</button>
 	</div>
-</div>
+{:else}
+	<h2>
+		{#if $page.path == '/privacy-policy'}
+			Privacy Policy
+		{:else if $page.path == '/terms-of-service'}
+			Terms Of Service
+		{:else if $page.path == '/settings'}
+			Settings
+		{:else}
+			Home
+		{/if}
+	</h2>
+	<hr />
+{/if}
 
 <style>
+	.top-header,
 	.header {
 		width: 100%;
+		border-radius: 0.25rem;
+	}
+	.top-header {
+		margin-top: 1rem;
+		padding-bottom: 10px;
+	}
+	.top-header button {
+		padding: 10px 16px 10px 16px;
+	}
+	.header {
+		overflow-x: hidden;
 		padding-top: 20px;
 		padding-bottom: 20px;
-		border-radius: 0.25rem;
-		margin-top: 1rem;
 		margin-bottom: 1rem;
-		overflow-x: hidden;
 	}
-	.login_button {
+	.login_button,
+	#settingIcon {
 		float: right;
-		margin-right: 1rem;
 	}
 
 	.directory_size {
@@ -85,7 +123,6 @@
 		width: 100%;
 		font-size: 1.5rem;
 	}
-	.login_button,
 	.index,
 	.file_count,
 	.directory_size {
@@ -107,9 +144,7 @@
 			padding-bottom: 0;
 			width: auto;
 		}
-		.login_button {
-			margin-right: 2rem;
-		}
+
 		.directory_size {
 			float: none;
 			margin-left: 2rem;

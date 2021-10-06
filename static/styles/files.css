@@ -22,12 +22,6 @@
 .contents {
 	display: contents;
 }
-/* .list-item {
-	transition-duration: 75ms;
-}
-.list-item:hover {
-	font-size: 18px;
-} */
 .folder {
 	color: #94d2bd;
 }
@@ -38,7 +32,10 @@
 	padding-bottom: 0.5rem;
 	padding-top: 0.5rem;
 }
-
+.list div:hover,
+.selected {
+	background-color: var(--color-2);
+}
 @media (min-width: 768px) {
 	.list {
 		grid-template-columns: repeat(9, minmax(0, 1fr));
