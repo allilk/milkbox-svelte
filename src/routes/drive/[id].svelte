@@ -2,6 +2,8 @@
 	import { folderId } from '../../stores';
 
 	import Header from '../../components/drive/Header.svelte';
+	import Footer from '../../components/drive/Footer.svelte';
+
 	import Message from '../../components/Message.svelte';
 	import Browser from '../../components/drive/Browser.svelte';
 </script>
@@ -18,3 +20,4 @@
 		{/if}
 	</div>
 </div>
+<Footer />

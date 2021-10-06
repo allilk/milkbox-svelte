@@ -28,6 +28,7 @@ button:hover {
 #authButton:hover {
 	cursor: pointer;
 }
+
 .header {
 	color: var(--color-5);
 	background-color: var(--color-3);

@@ -34,7 +34,7 @@
 	<!-- Display index, directory size, and file count when there is a folder id and logged in -->
 	{#if $folderId && $isAuthenticated}
 		<div class="index">
-			Index of /{$currentFolder.folderName}/ <span class="folder_id">({$folderId})</span>
+			Index of /{$currentFolder.folderName}/ <span class="folder_id">( {$folderId} )</span>
 		</div>
 		<!-- Display directory size -->
 		<button class="directory_size">
@@ -61,6 +61,7 @@
 		border-radius: 0.25rem;
 		margin-top: 1rem;
 		margin-bottom: 1rem;
+		overflow-x: hidden;
 	}
 	.login_button {
 		float: right;
@@ -80,9 +81,9 @@
 		margin-left: 1rem;
 		margin-right: 1rem;
 		margin-bottom: 1rem;
-		font-size: 1.5rem;
 		padding-bottom: 10px;
 		width: 100%;
+		font-size: 1.5rem;
 	}
 	.login_button,
 	.index,
@@ -92,8 +93,10 @@
 	}
 	.folder_id {
 		font-size: 1rem;
+		color: var(--color-1);
 	}
 	.folder_id::before {
+		content: '\A';
 		white-space: pre;
 	}
 	@media (min-width: 768px) {
@@ -114,8 +117,8 @@
 		.file_count {
 			float: none;
 		}
-		.folder_id::before {
-			white-space: normal;
-		}
+		/* .folder_id::before {
+			content: 
+		} */
 	}
 </style>
