@@ -11,3 +11,6 @@ Check out the rewrite branch!
 
 Current live demo:
 https://milk.ovh
+
+Rewrite live demo (has bugs):
+https://rewrite.milk.ovh
