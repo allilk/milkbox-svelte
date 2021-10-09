@@ -1,4 +1,4 @@
-import { CLIENT_ID, API_KEY, DISCOVERY_DOCS, SCOPES, isAuthenticated } from '../../stores';
+import { DISCOVERY_DOCS, SCOPES, isAuthenticated } from '../../stores';
 
 class initClient {
 	async initiate() {
@@ -36,8 +36,8 @@ class initClient {
 		// Initiate our oauth client
 		await gapi.client.init({
 			cookiepolicy: 'single_host_origin',
-			apiKey: API_KEY,
-			clientId: CLIENT_ID,
+			apiKey: import.meta.env.VITE_API_KEY,
+			clientId: import.meta.env.VITE_CLIENT_ID,
 			discoveryDocs: DISCOVERY_DOCS,
 			scope: SCOPES
 		});

@@ -4,6 +4,9 @@
 	--color-3: #9a8c98;
 	--color-4: #c9ada7;
 	--color-5: #f2e9e4;
+	--header: 24px;
+	--primary: 18px;
+	--secondary: 16px;
 }
 
 body {

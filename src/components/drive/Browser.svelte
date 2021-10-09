@@ -51,7 +51,7 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <div class="list">
-	<div class="list-item contents">
+	<div class="headers">
 		<div class="file-name">Name</div>
 		<div class="file-size">Size</div>
 	</div>
@@ -59,7 +59,7 @@
 	{#if $currentFolder.fileCount == 0}
 		Loading...
 	{:else}
-		<div key="-1" class="contents" on:click={goto('/drive/' + $currentFolder.parentId)}>
+		<div key="-1" class="" on:click={goto('/drive/' + $currentFolder.parentId)}>
 			<Folder>
 				<span slot="name"> .. </span>
 			</Folder>
@@ -69,10 +69,10 @@
 	<!-- Display each file, in a list, with slots -->
 
 	{#each $currentFolder.fileList as item}
-		<div key={item.key} class="contents list-item">
+		<div key={item.key} class="">
 			<!-- If file is a folder, render as a different object to signify this. -->
 			{#if item.mimeType == 'application/vnd.google-apps.folder' || item.mimeType == 'application/vnd.google-apps.shortcut'}
-				<div class="contents" on:click={goto('/drive/' + item.id)}>
+				<div class="" on:click={goto('/drive/' + item.id)}>
 					<Folder>
 						<span slot="name">
 							{item.name}

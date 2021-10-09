@@ -7,7 +7,7 @@
 	$: formattedSize = size ? formatBytes(size) : '0 B';
 </script>
 
-<div class="file contents">
+<div class="file">
 	<div class="file-name">
 		<slot name="name">
 			<span class="missing"> null </span>

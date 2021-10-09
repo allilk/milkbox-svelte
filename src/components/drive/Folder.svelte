@@ -1,7 +1,7 @@
 <script>
 </script>
 
-<div class="folder contents">
+<div class="folder">
 	<div class="file-name">
 		<slot name="name">
 			<span class="missing"> null </span>

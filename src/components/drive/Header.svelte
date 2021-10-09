@@ -38,8 +38,15 @@
 			goto('/');
 		}}>H</button
 	>
-	<!-- Display login button -->
+	<button
+		id="driveButton"
+		on:click={() => {
+			goto('/drive/root');
+		}}>Drives</button
+	>
+	<div class="title">milkbox</div>
 
+	<!-- Display login button -->
 	<div class="login_button">
 		<button id="authButton">
 			{$isAuthenticated ? 'Logout' : 'Login'}
@@ -96,6 +103,8 @@
 		padding: 10px 16px 10px 16px;
 	}
 	.header {
+		font-size: var(--header);
+
 		overflow-x: hidden;
 		padding-top: 20px;
 		padding-bottom: 20px;
@@ -105,15 +114,22 @@
 	#settingIcon {
 		float: right;
 	}
-
+	#homeIcon {
+		float: left;
+	}
+	.title,
+	.login_button,
+	#settingIcon,
+	#homeIcon,
+	#driveButton,
+	.file_count,
+	.directory_size {
+		display: inline-block;
+	}
 	.directory_size {
 		float: left;
 		margin-left: 1rem;
 		margin-right: 5px;
-		font-size: 0.8rem;
-	}
-	.file_count {
-		float: left;
 	}
 	.index {
 		margin-left: 1rem;
@@ -121,16 +137,11 @@
 		margin-bottom: 1rem;
 		padding-bottom: 10px;
 		width: 100%;
-		font-size: 1.5rem;
 	}
-	.index,
-	.file_count,
-	.directory_size {
-		display: inline-block;
-	}
+
 	.folder_id {
-		font-size: 1rem;
 		color: var(--color-1);
+		font-size: var(--secondary);
 	}
 	.folder_id::before {
 		content: '\A';
@@ -146,14 +157,7 @@
 		}
 
 		.directory_size {
-			float: none;
 			margin-left: 2rem;
 		}
-		.file_count {
-			float: none;
-		}
-		/* .folder_id::before {
-			content: 
-		} */
 	}
 </style>

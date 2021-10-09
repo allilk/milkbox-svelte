@@ -1,9 +1,18 @@
 .list {
-	display: inline-grid;
-	grid-template-columns: repeat(6, minmax(0, 1fr));
 	margin-left: 1rem;
 	margin-right: 1rem;
-	width: 90%;
+	width: 95%;
+	font-size: var(--secondary);
+}
+
+.file,
+.folder,
+.headers {
+	display: inline-grid;
+	grid-template-columns: repeat(6, minmax(0, 1fr));
+	width: 100%;
+	padding-bottom: 0.5rem;
+	padding-top: 0.5rem;
 }
 .file-name {
 	grid-column: span 5 / span 5;
@@ -11,13 +20,11 @@
 	overflow-x: hidden;
 	white-space: nowrap;
 	margin-right: 0.5rem;
-	padding: 0.25rem 0 0.25rem 0;
 }
 .file-size {
 	grid-column: span 1 / span 1;
-	padding: 0.25rem 0 0.25rem 1rem;
 	white-space: nowrap;
-	text-align: justify;
+	text-align: right;
 }
 .contents {
 	display: contents;
@@ -28,17 +35,19 @@
 .folder:hover {
 	cursor: pointer;
 }
-.list div {
-	padding-bottom: 0.5rem;
-	padding-top: 0.5rem;
-}
-.list div:hover,
+.file:hover,
+.folder:hover,
 .selected {
 	background-color: var(--color-2);
 }
+
 @media (min-width: 768px) {
-	.list {
+	.file,
+	.folder,
+	.headers {
 		grid-template-columns: repeat(9, minmax(0, 1fr));
+	}
+	.list {
 		margin-left: 1.5rem;
 		margin-right: 1.5rem;
 	}

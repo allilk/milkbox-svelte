@@ -42,6 +42,7 @@
 
 <style>
 	.footer {
+		font-size: var(--primary);
 		width: 100%;
 		padding-top: 20px;
 		padding-bottom: 20px;
@@ -59,10 +60,7 @@
 		line-height: 1.5rem;
 		text-align: center;
 	}
-	.link {
-		font-weight: 700;
-		cursor: pointer;
-	}
+
 	@media (min-width: 768px) {
 		.footer-text {
 			margin-left: 2rem;
