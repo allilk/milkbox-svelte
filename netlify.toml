@@ -2,3 +2,6 @@
   command = "npm run build"
   publish = "build"
   environment = { NODE_VERSION = "16.6.1" }
+
+[functions]
+  node_bundler = "esbuild"
