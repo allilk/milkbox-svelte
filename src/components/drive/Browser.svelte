@@ -13,6 +13,7 @@
 	const resetStore = () => {
 		// Set currentFolder to empty
 		currentFolder.set({
+			loaded: false,
 			folderName: '',
 			directorySize: 0,
 			fileCount: 0,
@@ -33,6 +34,7 @@
 		});
 		// Set new data to the store
 		currentFolder.set({
+			loaded: true,
 			folderName: parent.name,
 			directorySize: directorySize,
 			fileCount: files.length,
@@ -56,7 +58,7 @@
 		<div class="file-size">Size</div>
 	</div>
 	<!-- While no files, show loading icon, then show the return link -->
-	{#if $currentFolder.fileCount == 0}
+	{#if !$currentFolder.loaded}
 		Loading...
 	{:else}
 		<div key="-1" class="" on:click={goto('/drive/' + $currentFolder.parentId)}>

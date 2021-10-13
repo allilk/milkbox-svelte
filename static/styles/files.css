@@ -32,7 +32,8 @@
 .folder {
 	color: #94d2bd;
 }
-.folder:hover {
+.folder:hover,
+.drive:hover {
 	cursor: pointer;
 }
 .file:hover,

@@ -55,12 +55,15 @@ const getParent = async (identifier) => {
 		fields: 'name, id, parents, driveId, shared, sharedWithMeTime'
 	});
 	const file = resp.result;
+	// Declare the file name
+	let folderName = file.name;
 	// Declare the driveId
 	const driveId = file.driveId;
 
-	// If driveId exists and identifier is less than 30, this is a shared drive.
-	if (driveId && identifier < 30) {
-		// Shared Drive
+	// If driveId equals identifier, this is a shared drive.
+	if (driveId == identifier) {
+		const sharedDrive = await gapi.client.drive.drives.get({ driveId });
+		folderName = sharedDrive.result.name;
 		parentId = 'shared-drives';
 	} else if (file.shared && file.sharedWithMeTime) {
 		// Shared With Me
@@ -70,7 +73,7 @@ const getParent = async (identifier) => {
 		parentId = file.parents[0];
 	}
 	return {
-		name: resp.result.name,
+		name: folderName,
 		id: parentId
 	};
 };

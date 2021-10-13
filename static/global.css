@@ -28,10 +28,10 @@ button:hover {
 	background-color: var(--color-4);
 	color: var(--color-5);
 }
-#authButton:hover {
+button:hover,
+.title:hover {
 	cursor: pointer;
 }
-
 .header {
 	color: var(--color-5);
 	background-color: var(--color-3);

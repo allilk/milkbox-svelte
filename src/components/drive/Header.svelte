@@ -1,9 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
 
-	import { isAuthenticated, message, folderId, currentFolder } from '../../stores';
+	import { isAuthenticated, message, folderId, currentFolder, currentDrives } from '../../stores';
 	import { NOT_LOGGED_IN } from '../../errors.json';
-	import { formatBytes } from '../functions/other';
+	import { formatBytes, clearCurrent } from '../functions/other';
 	// the client
 	import initClient from '../functions/authenticate';
 	const client = new initClient();
@@ -20,12 +20,17 @@
 		if (!x) {
 			// set message when not logged in
 			message.set(NOT_LOGGED_IN);
+			clearCurrent();
 		} else {
 			// clear not logged in message
 			message.set('');
 			// set folderId when the page changes
 			page.subscribe((pg) => {
-				folderId.set(pg.params.id);
+				if ($page.path == '/drive/shared-drives') {
+					currentDrives.set({ ...$currentDrives, load: true });
+				} else {
+					folderId.set(pg.params.id);
+				}
 			});
 		}
 	});
@@ -35,16 +40,23 @@
 	<button
 		id="homeIcon"
 		on:click={() => {
-			goto('/');
-		}}>H</button
+			goto('/drive/root');
+		}}>My Drive</button
 	>
 	<button
 		id="driveButton"
 		on:click={() => {
-			goto('/drive/root');
-		}}>Drives</button
+			goto('/drive/shared-drives');
+		}}>Shared Drives</button
 	>
-	<div class="title">milkbox</div>
+	<div
+		class="title"
+		on:click={() => {
+			goto('/');
+		}}
+	>
+		<b>milkbox</b>
+	</div>
 
 	<!-- Display login button -->
 	<div class="login_button">
@@ -82,6 +94,8 @@
 			Terms Of Service
 		{:else if $page.path == '/settings'}
 			Settings
+		{:else if $page.path == '/drive/shared-drives'}
+			Shared Drives
 		{:else}
 			Home
 		{/if}
@@ -125,6 +139,10 @@
 	.file_count,
 	.directory_size {
 		display: inline-block;
+	}
+	.file_count,
+	.directory_size {
+		cursor: default;
 	}
 	.directory_size {
 		float: left;
