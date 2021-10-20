@@ -246,7 +246,6 @@
         </div>
         <div class="gridlistview flex-1">
           <img on:click={createFiles.toggleGrid} id="show-grid" class="svg-tag" src="svg/fi-rr-grid.svg" alt="grid" width="23" />
-
           <img on:click={createFiles.toggleList} id="show-list" class="svg-tag hidden" src="svg/fi-rr-list.svg" alt="list" width="23" />
         </div>
       </div>
