@@ -3,6 +3,7 @@
   import db from '../routes/drive/connection'
   import { isAuthenticated } from '../routes/stores'
   import initClient from '../routes/init_gapi'
+  import { goto } from '@sapper/app'
 
   let selectedTheme = 'dark-theme'
 
@@ -42,8 +43,20 @@
 <svelte:head>
   <link id="current-theme" rel="stylesheet" href="{selectedTheme}.css" />
 </svelte:head>
+<center>
+  <div class=" w-full ">
+    <button
+      on:click={() => {
+        goto('http://rewrite.milk.ovh')
+      }}
+      class="px-8 py-4  w-full text-black text-lg bg-red-300 hover:bg-red-700 ..."
+    >
+      Check Out The Rewrite!
+    </button>
+  </div>
+</center>
 <div class="flex items-center">
-  <div class="absolute right-0 top-0 pt-4 pr-4 inline-flex space-x-4">
+  <div class="absolute right-0 mt-20 pr-4 inline-flex space-x-4">
     {#if PEOPLE_ID}
       <img
         src={PROFILE_PIC}
@@ -53,12 +66,7 @@
       />
     {/if}
     <a href="/settings" rel="prefetch">
-      <img
-        id="settings"
-        class="svg-tag h-8 w-8 hover:scale-110 transform transition mx-3"
-        src="svg/settings.svg"
-        alt="settings"
-      /></a
+      <img id="settings" class="svg-tag h-8 w-8 hover:scale-110 transform transition mx-3" src="svg/settings.svg" alt="settings" /></a
     >
     <div class="contents {hideMe}">
       <button id="signout_button" class="px-4 ml-3 font-semibold rounded-full shadow"> Sign Out</button>
