@@ -37,39 +37,16 @@
 </script>
 
 <div class="top-header">
-	<button
-		id="homeIcon"
-		on:click={() => {
-			goto('/drive/root');
-		}}>My Drive</button
-	>
-	<button
-		id="driveButton"
-		on:click={() => {
-			goto('/drive/shared-drives');
-		}}>Shared Drives</button
-	>
-	<div
-		class="title"
-		on:click={() => {
-			goto('/');
-		}}
-	>
-		<b>milkbox</b>
-	</div>
+	<a id="homeButton" href="/">Home</a>
 
+	<a id="myDriveButton" href="/drive/root">My Drive </a>
+
+	<a id="driveButton" href="/drive/shared-drives">Shared Drives</a>
 	<!-- Display login button -->
-	<div class="login_button">
-		<button id="authButton">
-			{$isAuthenticated ? 'Logout' : 'Login'}
-		</button>
-	</div>
-	<button
-		id="settingIcon"
-		on:click={() => {
-			goto('/settings');
-		}}>S</button
-	>
+	<a id="authButton">
+		{$isAuthenticated ? 'Logout' : 'Login'}
+	</a>
+	<a id="settingIcon" href="/settings">Settings</a>
 </div>
 <!-- Display index, directory size, and file count when there is a folder id and logged in -->
 {#if $folderId && $isAuthenticated}
@@ -97,13 +74,21 @@
 		{:else if $page.path == '/drive/shared-drives'}
 			Shared Drives
 		{:else}
-			Home
+			milkbox
 		{/if}
 	</h2>
 	<hr />
 {/if}
 
 <style>
+	a {
+		text-decoration: none;
+		color: var(--color-5);
+		padding: 0.5rem;
+	}
+	#homeButton {
+		padding-left: 0;
+	}
 	.top-header,
 	.header {
 		width: 100%;
@@ -113,9 +98,9 @@
 		margin-top: 1rem;
 		padding-bottom: 10px;
 	}
-	.top-header button {
+	/* .top-header button {
 		padding: 10px 16px 10px 16px;
-	}
+	} */
 	.header {
 		font-size: var(--header);
 
@@ -124,18 +109,15 @@
 		padding-bottom: 20px;
 		margin-bottom: 1rem;
 	}
-	.login_button,
+	/* #authButton,
 	#settingIcon {
 		float: right;
+	} */
+	#authButton {
+		cursor: pointer;
 	}
-	#homeIcon {
-		float: left;
-	}
-	.title,
-	.login_button,
+	#authButton,
 	#settingIcon,
-	#homeIcon,
-	#driveButton,
 	.file_count,
 	.directory_size {
 		display: inline-block;
@@ -148,6 +130,9 @@
 		float: left;
 		margin-left: 1rem;
 		margin-right: 5px;
+	}
+	.file_count {
+		float: left;
 	}
 	.index {
 		margin-left: 1rem;
@@ -166,6 +151,9 @@
 		white-space: pre;
 	}
 	@media (min-width: 768px) {
+		a {
+			padding: 1.5rem;
+		}
 		.index {
 			margin-left: 2rem;
 			margin-right: 2rem;
