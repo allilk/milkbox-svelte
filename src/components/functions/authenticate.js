@@ -11,6 +11,7 @@ class initClient {
 		// Add to document body
 		document.body.appendChild(gapiScript);
 	}
+
 	async load() {
 		// Get our authentication button (Login/Logout)
 		const authButton = document.getElementById('authButton');
@@ -25,6 +26,7 @@ class initClient {
 				}
 			})();
 		};
+
 		const updateSigninStatus = async (isSignedIn) => {
 			// Update the sign in status store
 			if (isSignedIn) {
@@ -33,6 +35,7 @@ class initClient {
 				isAuthenticated.set(false);
 			}
 		};
+
 		// Initiate our oauth client
 		await gapi.client.init({
 			cookiepolicy: 'single_host_origin',

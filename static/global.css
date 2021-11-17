@@ -40,6 +40,12 @@ button:hover,
 	font-weight: 700;
 	cursor: pointer;
 }
+.list {
+	margin-left: 1rem;
+	margin-right: 1rem;
+	width: 95%;
+	font-size: var(--secondary);
+}
 @media (min-width: 768px) {
 	body {
 		margin-left: 1.5rem;

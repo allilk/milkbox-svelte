@@ -42,6 +42,7 @@ const getFiles = async (identifier) => {
 	// return the list of files we fetched
 	return fileList;
 };
+
 const getParent = async (identifier) => {
 	// Declare fallback parent
 	let parentId = 'root';

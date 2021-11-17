@@ -67,24 +67,27 @@
 	<h2>
 		{#if $page.path == '/privacy-policy'}
 			Privacy Policy
+			<hr />
 		{:else if $page.path == '/terms-of-service'}
 			Terms Of Service
+			<hr />
 		{:else if $page.path == '/settings'}
-			Settings
+			<!-- Settings -->
 		{:else if $page.path == '/drive/shared-drives'}
 			Shared Drives
+			<hr />
 		{:else}
 			milkbox
+			<hr />
 		{/if}
 	</h2>
-	<hr />
 {/if}
 
 <style>
 	a {
 		text-decoration: none;
 		color: var(--color-5);
-		padding: 0.5rem;
+		padding: 0.3rem;
 	}
 	#homeButton {
 		padding-left: 0;

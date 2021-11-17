@@ -21,6 +21,7 @@
 			parentId: ''
 		});
 	};
+
 	const getNext = async (identifier) => {
 		// Reset store to empty, to display loading icon
 		resetStore();
