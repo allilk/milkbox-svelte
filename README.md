@@ -1,6 +1,17 @@
 # milkbox-svelte
 A alternative Web UI for Google Drive, built with Svelte!
 
+### Checkout the remaster! [milkbox-remastered](https://github.com/allilk/milkbox-remastered)
+
+
+
+
+
+
+
+
+
+
 Includes caching to browser, for fast load times. 
 
 Everything is stored client side via dexiejs and requires no database server.
